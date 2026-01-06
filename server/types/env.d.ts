@@ -1,5 +1,7 @@
 /// <reference types="@cloudflare/workers-types" />
 
+import type { Session, User } from 'better-auth';
+
 declare module 'h3' {
   interface H3EventContext {
     cloudflare: {
@@ -9,6 +11,10 @@ declare module 'h3' {
       context: ExecutionContext;
       request: Request;
     };
+    auth: {
+      session: Session;
+      user: User;
+    } | null;
   }
 }
 
