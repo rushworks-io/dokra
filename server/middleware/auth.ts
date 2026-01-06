@@ -1,4 +1,4 @@
-import { createAuth } from '../utils/auth';
+import {createAuth} from '../utils/auth';
 
 /**
  * Server middleware to attach auth session to event context.
@@ -22,15 +22,18 @@ export default defineEventHandler(async (event) => {
     return;
   }
 
-  const { cloudflare } = event.context;
+  // Skip if Cloudflare bindings are not available (e.g., local dev without wrangler)
+  const cloudflare = event.context.cloudflare;
+  if (!cloudflare?.env?.DB) {
+    return;
+  }
+
   const baseURL = getRequestURL(event).origin;
 
   const auth = createAuth(cloudflare.env.DB, baseURL);
-  const session = await auth.api.getSession({
-    headers: getHeaders(event),
-  });
-
   // Attach session to event context for use in API routes
-  event.context.auth = session;
+  event.context.auth = await auth.api.getSession({
+    headers: new Headers(getHeaders(event) as Record<string, string>),
+  });
 });
 
