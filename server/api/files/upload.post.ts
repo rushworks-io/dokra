@@ -24,7 +24,7 @@ import { files } from '../../db/schema';
  */
 export default defineEventHandler(async (event) => {
   // Require authentication
-  const { user } = requireAuth(event);
+  const session = requireAuth(event);
 
   try {
     // Parse multipart form data
@@ -87,7 +87,7 @@ export default defineEventHandler(async (event) => {
       mimeType,
       fileSize,
       organizationId,
-      uploadedBy: user.id,
+      uploadedBy: session.user.id,
       documentId,
     });
 
@@ -106,7 +106,7 @@ export default defineEventHandler(async (event) => {
       fileSize,
       r2Key,
       r2Bucket: 'dokra-files',
-      uploadedBy: user.id,
+      uploadedBy: session.user.id,
       uploadedAt: now,
       status: 'active',
       createdAt: now,

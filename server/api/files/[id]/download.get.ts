@@ -73,7 +73,7 @@ export default defineEventHandler(async (event) => {
 
     // Set response headers for file download
     setHeader(event, 'Content-Type', downloadResult.contentType);
-    setHeader(event, 'Content-Length', downloadResult.contentLength.toString());
+    setHeader(event, 'Content-Length', downloadResult.contentLength);
     setHeader(event, 'ETag', downloadResult.etag);
     setHeader(
       event,
