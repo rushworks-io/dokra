@@ -10,7 +10,9 @@
     {
       "binding": "DB",
       "database_name": "dokra-db",
-      "database_id": "YOUR_DATABASE_ID_HERE"
+      "database_id": "8da5548e-9f06-4d96-b665-65001f5f6982",
+      "preview_database_id": "42def388-0a33-4098-8cbb-404f3ecc895e",
+      "migrations_dir": "server/db/migrations"
     }
   ]
 }
