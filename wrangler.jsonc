@@ -1,0 +1,17 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "dokra",
+  "compatibility_date": "2026-01-06",
+  "main": ".output/server/index.mjs",
+  "assets": {
+    "directory": ".output/public"
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "dokra-db",
+      "database_id": "YOUR_DATABASE_ID_HERE"
+    }
+  ]
+}
+

@@ -7,7 +7,11 @@
     "dev": "nuxt dev",
     "generate": "nuxt generate",
     "preview": "nuxt preview",
-    "postinstall": "nuxt prepare"
+    "postinstall": "nuxt prepare",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "wrangler d1 migrations apply dokra-db --local",
+    "db:migrate:prod": "wrangler d1 migrations apply dokra-db --remote",
+    "db:studio": "drizzle-kit studio"
   },
   "dependencies": {
     "@nuxt/fonts": "0.12.1",
@@ -18,12 +22,16 @@
     "@nuxt/test-utils": "3.21.0",
     "@tailwindcss/vite": "^4.1.18",
     "@unhead/vue": "^2.1.1",
+    "drizzle-orm": "^0.45.1",
     "nuxt": "^4.2.2",
     "tailwindcss": "^4.1.18",
     "vue": "^3.5.26",
     "vue-router": "^4.6.4"
   },
   "devDependencies": {
-    "daisyui": "^5.5.14"
+    "@cloudflare/workers-types": "^4.20260103.0",
+    "daisyui": "^5.5.14",
+    "drizzle-kit": "^0.31.8",
+    "wrangler": "^4.54.0"
   }
 }
