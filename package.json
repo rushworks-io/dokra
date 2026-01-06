@@ -8,6 +8,11 @@
     "generate": "nuxt generate",
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare",
+    "test": "vitest",
+    "test:run": "vitest run",
+    "test:unit": "vitest --project unit",
+    "test:e2e": "vitest --project e2e",
+    "test:nuxt": "vitest --project nuxt",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "wrangler d1 migrations apply dokra-db --local",
     "db:migrate:prod": "wrangler d1 migrations apply dokra-db --remote",
@@ -19,7 +24,6 @@
     "@nuxt/icon": "2.1.1",
     "@nuxt/image": "2.0.0",
     "@nuxt/scripts": "0.13.2",
-    "@nuxt/test-utils": "3.21.0",
     "@tailwindcss/vite": "^4.1.18",
     "@unhead/vue": "^2.1.1",
     "better-auth": "^1.4.10",
@@ -31,8 +35,13 @@
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20260103.0",
+    "@nuxt/test-utils": "3.21.0",
+    "@vue/test-utils": "^2.4.6",
     "daisyui": "^5.5.14",
     "drizzle-kit": "^0.31.8",
+    "happy-dom": "^20.0.11",
+    "playwright-core": "^1.57.0",
+    "vitest": "^4.0.16",
     "wrangler": "^4.54.0"
   }
 }

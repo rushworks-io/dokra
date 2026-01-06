@@ -1,0 +1,12 @@
+{
+  "extends": "../tsconfig.json",
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "lib": ["ES2020"],
+    "moduleResolution": "Bundler",
+    "types": ["vitest/globals", "@cloudflare/workers-types", "h3"]
+  },
+  "include": ["**/*.test.ts", "**/*.spec.ts"],
+  "exclude": ["node_modules"]
+}
