@@ -16,6 +16,7 @@ declare module 'h3' {
     cloudflare: {
       env: {
         DB: D1Database;
+        R2: R2Bucket;
       };
       context: ExecutionContext;
       request: Request;

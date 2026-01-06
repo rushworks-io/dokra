@@ -14,6 +14,13 @@
       "preview_database_id": "42def388-0a33-4098-8cbb-404f3ecc895e",
       "migrations_dir": "server/db/migrations"
     }
+  ],
+  "r2_buckets": [
+    {
+      "binding": "R2",
+      "bucket_name": "dokra-files",
+      "preview_bucket_name": "dokra-files-preview"
+    }
   ]
 }
 
