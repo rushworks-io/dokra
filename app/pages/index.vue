@@ -1,11 +1,15 @@
 <script setup lang="ts">
-const { user, isAuthenticated, isLoading, signOut } = useAuth();
-const router = useRouter();
+definePageMeta({
+  middleware: 'guest',
+});
 
-async function handleSignOut() {
-  await signOut();
-  await router.push('/login');
-}
+const { isAuthenticated, isLoading } = useAuth();
+
+onMounted(() => {
+  if (isAuthenticated.value) {
+    navigateTo('/dashboard', { replace: true });
+  }
+});
 </script>
 
 <template>
@@ -15,32 +19,15 @@ async function handleSignOut() {
         <NuxtLink to="/" class="btn btn-ghost text-xl">Dokra</NuxtLink>
       </div>
       <div class="flex-none">
-        <div v-if="isLoading" class="loading loading-spinner loading-sm" />
-        <template v-else-if="isAuthenticated">
-          <div class="dropdown dropdown-end">
-            <div tabindex="0" role="button" class="btn btn-ghost btn-circle avatar placeholder">
-              <div class="bg-neutral text-neutral-content w-10 rounded-full">
-                <span>{{ user?.name?.[0]?.toUpperCase() || 'U' }}</span>
-              </div>
-            </div>
-            <ul tabindex="0" class="menu menu-sm dropdown-content mt-3 z-1 p-2 shadow bg-base-100 rounded-box w-52">
-              <li class="menu-title">
-                <span>{{ user?.name }}</span>
-                <span class="text-xs font-normal opacity-60">{{ user?.email }}</span>
-              </li>
-              <li><NuxtLink to="/dashboard">Dashboard</NuxtLink></li>
-              <li><button @click="handleSignOut">Sign Out</button></li>
-            </ul>
-          </div>
-        </template>
-        <template v-else>
+        <template v-if="!isLoading">
           <NuxtLink to="/login" class="btn btn-ghost">Sign In</NuxtLink>
           <NuxtLink to="/register" class="btn btn-primary">Get Started</NuxtLink>
         </template>
+        <span v-else class="loading loading-spinner loading-sm" />
       </div>
     </div>
 
-    <div class="hero min-h-[calc(100vh-4rem)]">
+    <div v-if="!isLoading && !isAuthenticated" class="hero min-h-[calc(100vh-4rem)]">
       <div class="hero-content text-center">
         <div class="max-w-2xl">
           <h1 class="text-5xl font-bold">Welcome to Dokra</h1>
@@ -49,25 +36,19 @@ async function handleSignOut() {
             Organize, search, and manage your documents with ease.
           </p>
           <div class="flex gap-4 justify-center">
-            <NuxtLink
-              v-if="isAuthenticated"
-              to="/dashboard"
-              class="btn btn-primary btn-lg"
-            >
-              Go to Dashboard
+            <NuxtLink to="/register" class="btn btn-primary btn-lg">
+              Get Started
             </NuxtLink>
-            <template v-else>
-              <NuxtLink to="/register" class="btn btn-primary btn-lg">
-                Get Started
-              </NuxtLink>
-              <NuxtLink to="/login" class="btn btn-outline btn-lg">
-                Sign In
-              </NuxtLink>
-            </template>
+            <NuxtLink to="/login" class="btn btn-outline btn-lg">
+              Sign In
+            </NuxtLink>
           </div>
         </div>
       </div>
     </div>
+
+    <div v-else-if="isLoading" class="flex items-center justify-center min-h-[calc(100vh-4rem)]">
+      <span class="loading loading-spinner loading-lg" />
+    </div>
   </div>
 </template>
-
