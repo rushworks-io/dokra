@@ -3,7 +3,9 @@ const route = useRoute();
 const isCollapsed = ref(false);
 const hoveredItem = ref<string | null>(null);
 const expandedCategory = ref<string | null>(null);
-const isHoveringToggle = ref(false);
+const sidebarRef = ref<HTMLElement | null>(null);
+const toggleY = ref<string>('50%');
+const isSidebarHovered = ref(false);
 
 const navigation = [
   {name: 'Home', href: '/dashboard', icon: 'heroicons:home'},
@@ -55,37 +57,66 @@ function toggleCategory(category: string) {
   }
 }
 
+function handleMouseMove(e: MouseEvent) {
+  if (!sidebarRef.value) return;
+  const rect = sidebarRef.value.getBoundingClientRect();
+  const relativeY = e.clientY - rect.top;
+
+  // Clamp values to keep button inside sidebar vertically
+  const maxY = rect.height - 24; // minimal padding
+  const minY = 24;
+  const clampedY = Math.max(minY, Math.min(maxY, relativeY));
+
+  toggleY.value = `${clampedY}px`;
+  isSidebarHovered.value = true;
+}
+
+function handleMouseLeaveSidebar() {
+  toggleY.value = '50%';
+  isSidebarHovered.value = false;
+}
+
+const toggleStyle = computed(() => ({
+  top: toggleY.value,
+  transition: isSidebarHovered.value
+      ? 'top 0.05s linear, opacity 0.2s ease, transform 0.1s ease'
+      : 'top 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.2s ease, transform 0.2s ease',
+  transform: 'translateY(-50%)' // Ensure vertical centering
+}));
+
 const sidebarWidth = computed(() => isCollapsed.value ? 'w-16' : 'w-48');
 const sidebarContentWidth = computed(() => isCollapsed.value ? 'w-16' : 'w-48');
 </script>
 
 <template>
-  <div class="flex h-screen overflow-hidden">
+  <div class="flex h-full z-20">
     <aside
-        class="relative bg-base-100 border-r border-base-300 flex flex-col transition-all duration-300 ease-in-out shrink-0"
+        class="group relative bg-base-100 border-r border-base-300 flex flex-col transition-all duration-300 ease-in-out shrink-0"
         :class="sidebarWidth"
         :aria-expanded="!isCollapsed"
+        ref="sidebarRef"
+        @mousemove="handleMouseMove"
+        @mouseleave="handleMouseLeaveSidebar"
     >
-      <div
-          class="absolute inset-y-0 right-0 w-8 cursor-pointer transition-all duration-200 z-10 flex items-center justify-center translate-x-4"
-          @mouseenter="isHoveringToggle = true"
-          @mouseleave="isHoveringToggle = false"
+      <button
+          class="absolute left-full ml-3 z-50 flex h-10 w-10 items-center justify-center rounded-xl border border-base-300 bg-base-100 text-base-content/70 shadow-md transition-all duration-200 hover:bg-base-200 hover:text-primary focus:outline-none active:scale-95 opacity-0 group-hover:opacity-100 before:absolute before:right-full before:top-0 before:h-full before:w-4 before:content-['']"
+          :class="{ 'opacity-100': isCollapsed }"
           @click="toggleSidebar"
+          aria-label="Toggle Sidebar"
+          :style="toggleStyle"
       >
-        <div
-            class="bg-base-200 border-2 border-base-300 rounded-full p-2 shadow-md hover:shadow-lg hover:bg-base-300 hover:border-primary/50 transition-all duration-200 flex items-center justify-center"
-            :class="{
-            '-translate-x-1': isCollapsed,
-            'translate-x-1': !isCollapsed
-          }"
-        >
-          <Icon
-              :name="isCollapsed ? 'heroicons:chevron-right' : 'heroicons:chevron-left'"
-              class="w-5 h-5 text-base-content/70"
-              :class="{ 'rotate-180': isCollapsed }"
-          />
-        </div>
-      </div>
+        <Icon
+            :name="isCollapsed ? 'heroicons:chevron-right' : 'heroicons:chevron-left'"
+            class="h-6 w-6"
+        />
+      </button>
+
+      <!-- Hover hint -->
+      <div
+          class="absolute -right-1 h-10 w-1 rounded-full bg-primary/50 transition-opacity duration-200 group-hover:opacity-0"
+          :class="{ 'opacity-0': isCollapsed }"
+          :style="toggleStyle"
+      />
 
       <div
           class="flex flex-col h-full transition-all duration-300 ease-in-out"
@@ -131,7 +162,7 @@ const sidebarContentWidth = computed(() => isCollapsed.value ? 'w-16' : 'w-48');
                     leave-to-class="opacity-0 -translate-x-2"
                 >
                   <div
-                      v-if="isCollapsed && hoveredItem === item"
+                      v-if="isCollapsed && hoveredItem === item.name"
                       class="fixed left-16 z-50 bg-base-200 px-3 py-2 rounded-lg shadow-lg whitespace-nowrap text-sm font-medium"
                   >
                     {{ item.name }}
