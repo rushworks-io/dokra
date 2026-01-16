@@ -3,6 +3,8 @@ import { drizzleAdapter } from 'better-auth/adapters/drizzle';
 import { admin } from 'better-auth/plugins';
 import { drizzle } from 'drizzle-orm/d1';
 import * as authSchema from '../db/schema/auth';
+import { organizations, organizationUsers } from '../db/schema';
+import { generateId, getCurrentTimestamp } from './db';
 
 /**
  * Create a BetterAuth instance configured for Cloudflare D1.
@@ -39,6 +41,37 @@ export function createAuth(d1: D1Database, baseURL: string) {
     trustedOrigins: [
       'http://localhost:3000',
     ],
+    databaseHooks: {
+      user: {
+        create: {
+          after: async (user) => {
+            // Create a personal organization for the new user
+            const orgDb = drizzle(d1, { schema: { organizations, organizationUsers } });
+            const now = getCurrentTimestamp();
+            const orgId = generateId();
+
+            // Create the organization
+            await orgDb.insert(organizations).values({
+              id: orgId,
+              name: `${user.name}'s Organization`,
+              ownerId: user.id,
+              createdAt: now,
+              updatedAt: now,
+            });
+
+            // Add user as owner of the organization
+            await orgDb.insert(organizationUsers).values({
+              id: generateId(),
+              organizationId: orgId,
+              userId: user.id,
+              role: 'owner',
+              createdAt: now,
+              updatedAt: now,
+            });
+          },
+        },
+      },
+    },
   });
 }
 

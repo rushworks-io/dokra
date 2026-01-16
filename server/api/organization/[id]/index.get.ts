@@ -44,7 +44,6 @@ export default defineEventHandler(async (event) => {
         organization: {
             id: org.id,
             name: org.name,
-            slug: org.slug,
             ownerId: org.ownerId,
             createdAt: org.createdAt,
             updatedAt: org.updatedAt,

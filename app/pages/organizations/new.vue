@@ -87,26 +87,6 @@ async function createOrganization() {
               />
             </div>
 
-            <div>
-              <label class="label">
-                <span class="label-text">Slug</span>
-                <span class="label-text-alt text-base-content/50">URL identifier</span>
-              </label>
-              <input
-                  v-model="slug"
-                  type="text"
-                  placeholder="my-organization"
-                  class="input input-bordered w-full font-mono text-sm"
-                  :disabled="isSubmitting"
-                  @input="onSlugInput"
-              />
-              <label class="label">
-                <span class="label-text-alt text-base-content/50">
-                  Only lowercase letters, numbers, and hyphens
-                </span>
-              </label>
-            </div>
-
             <div v-if="error" class="alert alert-error">
               <Icon name="heroicons:exclamation-circle" class="w-5 h-5"/>
               <span>{{ error }}</span>

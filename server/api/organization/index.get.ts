@@ -43,7 +43,6 @@ export default defineEventHandler(async (event) => {
         .select({
             id: organizations.id,
             name: organizations.name,
-            slug: organizations.slug,
             createdAt: organizations.createdAt,
         })
         .from(organizations)

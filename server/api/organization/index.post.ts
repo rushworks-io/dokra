@@ -1,7 +1,5 @@
-import {eq} from 'drizzle-orm';
 import {useDatabase, generateId, getCurrentTimestamp} from '../../utils/db';
 import {requireAuth} from '../../utils/require-auth';
-import {generateSlug} from '../../utils/require-org-access';
 import {organizations, organizationUsers} from '../../db/schema';
 
 /**
@@ -10,7 +8,6 @@ import {organizations, organizationUsers} from '../../db/schema';
  *
  * Request body:
  * - name: string (required) - Organization name
- * - slug?: string (optional) - URL-friendly slug, auto-generated from name if not provided
  *
  * Returns: Created organization details
  */
@@ -20,7 +17,7 @@ export default defineEventHandler(async (event) => {
 
     // Parse request body
     const body = await readBody(event);
-    const {name, slug} = body;
+    const {name} = body;
 
     // Validate name
     if (!name || typeof name !== 'string' || name.trim().length === 0) {
@@ -31,35 +28,7 @@ export default defineEventHandler(async (event) => {
         });
     }
 
-    // Generate or validate slug
-    const orgSlug = slug && typeof slug === 'string' && slug.trim().length > 0
-        ? slug.trim().toLowerCase()
-        : generateSlug(name);
-
-    if (orgSlug.length === 0) {
-        throw createError({
-            statusCode: 400,
-            statusMessage: 'Bad Request',
-            message: 'Invalid slug',
-        });
-    }
-
     const db = useDatabase(event.context.cloudflare.env.DB);
-
-    // Check if slug is already taken
-    const existingOrg = await db
-        .select()
-        .from(organizations)
-        .where(eq(organizations.slug, orgSlug))
-        .get();
-
-    if (existingOrg) {
-        throw createError({
-            statusCode: 400,
-            statusMessage: 'Bad Request',
-            message: 'An organization with this slug already exists',
-        });
-    }
 
     const now = getCurrentTimestamp();
     const orgId = generateId();
@@ -68,7 +37,6 @@ export default defineEventHandler(async (event) => {
     await db.insert(organizations).values({
         id: orgId,
         name: name.trim(),
-        slug: orgSlug,
         ownerId: session.user.id,
         createdAt: now,
         updatedAt: now,
@@ -92,7 +60,6 @@ export default defineEventHandler(async (event) => {
         organization: {
             id: orgId,
             name: name.trim(),
-            slug: orgSlug,
             ownerId: session.user.id,
             createdAt: now,
             updatedAt: now,

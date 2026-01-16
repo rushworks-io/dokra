@@ -147,7 +147,6 @@ Build a **privacy-first, self-hosted document archiving platform** that is:
 export const organizations = sqliteTable('organizations', {
   id: text('id').primaryKey(),
   name: text('name').notNull(),
-  slug: text('slug').unique().notNull(),
   ownerId: text('owner_id').notNull(),
   createdAt: text('created_at').default(sql`CURRENT_TIMESTAMP`),
   updatedAt: text('updated_at').default(sql`CURRENT_TIMESTAMP`),

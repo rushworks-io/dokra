@@ -4,7 +4,6 @@ import type {H3Event} from 'h3';
 
 // Import modules for testing
 import {
-    generateSlug,
     getOrgMembership,
     requireOrgMembership,
     requireOrgOwner,
@@ -42,70 +41,6 @@ const createMockEvent = (auth?: MockAuthSession | null, orgId?: string): H3Event
     } as unknown as H3Event;
 };
 
-// ============================================
-// Slug Generation Tests
-// ============================================
-describe('generateSlug', () => {
-    it('should convert spaces to hyphens', () => {
-        expect(generateSlug('My Organization')).toBe('my-organization');
-    });
-
-    it('should remove special characters', () => {
-        expect(generateSlug('My@Organization#Test')).toBe('myorganizationtest');
-    });
-
-    it('should handle multiple spaces', () => {
-        expect(generateSlug('My   Organization')).toBe('my-organization');
-    });
-
-    it('should handle multiple hyphens', () => {
-        expect(generateSlug('My--Organization')).toBe('my-organization');
-    });
-
-    it('should handle mixed spaces and hyphens', () => {
-        expect(generateSlug('My - Organization')).toBe('my-organization');
-    });
-
-    it('should handle empty string', () => {
-        expect(generateSlug('')).toBe('');
-    });
-
-    it('should handle whitespace only', () => {
-        expect(generateSlug('   ')).toBe('');
-    });
-
-    it('should handle leading/trailing spaces', () => {
-        expect(generateSlug('  My Organization  ')).toBe('my-organization');
-    });
-
-    it('should handle leading/trailing hyphens', () => {
-        expect(generateSlug('-My-Organization-')).toBe('my-organization');
-    });
-
-    it('should handle leading/trailing special characters', () => {
-        expect(generateSlug('@My Organization#')).toBe('my-organization');
-    });
-
-    it('should convert to lowercase', () => {
-        expect(generateSlug('MY ORGANIZATION')).toBe('my-organization');
-    });
-
-    it('should preserve numbers', () => {
-        expect(generateSlug('Organization 123')).toBe('organization-123');
-    });
-
-    it('should handle underscores', () => {
-        expect(generateSlug('My_Organization')).toBe('my_organization');
-    });
-
-    it('should handle complex names', () => {
-        expect(generateSlug('Acme Corp. Inc.')).toBe('acme-corp-inc');
-    });
-
-    it('should handle single word', () => {
-        expect(generateSlug('Organization')).toBe('organization');
-    });
-});
 
 // ============================================
 // Organization Membership Tests
@@ -240,12 +175,6 @@ describe('Data Isolation', () => {
 // ============================================
 describe('Organization API Endpoints (Mocked)', () => {
     describe('POST /api/organizations', () => {
-        it('should auto-generate slug from name', () => {
-            const name = 'My Test Organization';
-            const slug = generateSlug(name);
-
-            expect(slug).toBe('my-test-organization');
-        });
 
         it('should return 400 for missing name', async () => {
             const body = {name: ''};
@@ -271,77 +200,3 @@ describe('Organization API Endpoints (Mocked)', () => {
     });
 });
 
-// ============================================
-// Edge Cases and Error Handling
-// ============================================
-describe('Edge Cases and Error Handling', () => {
-    it('should handle organization with special characters in name', () => {
-        const name = 'Acme Corp. (Inc.) @2024';
-        const slug = generateSlug(name);
-
-        expect(slug).toBe('acme-corp-inc-2024');
-    });
-
-    it('should handle organization name with numbers', () => {
-        const name = 'Organization 123';
-        const slug = generateSlug(name);
-
-        expect(slug).toBe('organization-123');
-    });
-
-    it('should handle organization name with mixed case', () => {
-        const name = 'MyOrGaNiZaTiOn';
-        const slug = generateSlug(name);
-
-        expect(slug).toBe('myorganization');
-    });
-
-    it('should handle very long organization names', () => {
-        const name = 'A'.repeat(100);
-        const slug = generateSlug(name);
-
-        expect(slug).toBe('a'.repeat(100));
-    });
-
-    it('should handle organization name with only special characters', () => {
-        const name = '@#$%^&*()';
-        const slug = generateSlug(name);
-
-        expect(slug).toBe('');
-    });
-
-    it('should handle organization name with leading/trailing spaces', () => {
-        const name = '  My Organization  ';
-        const slug = generateSlug(name);
-
-        expect(slug).toBe('my-organization');
-    });
-
-    it('should handle organization name with multiple consecutive special characters', () => {
-        const name = 'My@@@Organization';
-        const slug = generateSlug(name);
-
-        expect(slug).toBe('myorganization');
-    });
-
-    it('should handle organization name with underscores', () => {
-        const name = 'My_Organization_Name';
-        const slug = generateSlug(name);
-
-        expect(slug).toBe('my_organization_name');
-    });
-
-    it('should handle organization name with dots', () => {
-        const name = 'My.Organization.Name';
-        const slug = generateSlug(name);
-
-        expect(slug).toBe('myorganizationname');
-    });
-
-    it('should handle organization name with mixed separators', () => {
-        const name = 'My - Organization_Name';
-        const slug = generateSlug(name);
-
-        expect(slug).toBe('my-organization_name');
-    });
-});

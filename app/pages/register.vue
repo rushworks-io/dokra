@@ -39,6 +39,19 @@ async function handleSubmit() {
       return;
     }
 
+    // Fetch user's organizations and auto-select the first one (created on signup)
+    try {
+      const orgsResponse = await $fetch('/api/organization');
+      if (orgsResponse.organizations && orgsResponse.organizations.length > 0) {
+        // Set the first organization as current via cookie
+        const orgId = orgsResponse.organizations[0].id;
+        document.cookie = `currentOrgId=${orgId}; path=/; max-age=${60 * 60 * 24 * 365}`; // 1 year
+      }
+    } catch (orgError) {
+      // TODO: Log but don't fail - user can select organization later
+      console.error('Failed to auto-select organization:', orgError);
+    }
+
     // Redirect to the original destination or home
     const redirect = route.query.redirect as string;
     await router.push(redirect || '/');

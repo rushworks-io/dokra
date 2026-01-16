@@ -1,7 +1,6 @@
-import {eq, and, ne} from 'drizzle-orm';
+import {eq} from 'drizzle-orm';
 import {useDatabase, getCurrentTimestamp} from '../../../utils/db';
 import {requireOrgOwner} from '../../../utils/require-org-access';
-import {generateSlug} from '../../../utils/require-org-access';
 import {organizations} from '../../../db/schema';
 
 /**
@@ -10,7 +9,6 @@ import {organizations} from '../../../db/schema';
  *
  * Request body:
  * - name?: string - New organization name
- * - slug?: string - New URL-friendly slug
  *
  * Only the organization owner can update
  *
@@ -32,14 +30,14 @@ export default defineEventHandler(async (event) => {
 
     // Parse request body
     const body = await readBody(event);
-    const {name, slug} = body;
+    const {name} = body;
 
     // Validate at least one field is provided
-    if (!name && !slug) {
+    if (!name) {
         throw createError({
             statusCode: 400,
             statusMessage: 'Bad Request',
-            message: 'At least one field (name or slug) must be provided',
+            message: 'Name field must be provided',
         });
     }
 
@@ -77,64 +75,6 @@ export default defineEventHandler(async (event) => {
         updateValues.name = name.trim();
     }
 
-    // Handle slug update
-    if (slug) {
-        if (typeof slug !== 'string' || slug.trim().length === 0) {
-            throw createError({
-                statusCode: 400,
-                statusMessage: 'Bad Request',
-                message: 'Invalid slug',
-            });
-        }
-        const newSlug = slug.trim().toLowerCase();
-
-        // Check if slug is already taken by another organization
-        const existingOrg = await db
-            .select()
-            .from(organizations)
-            .where(
-                and(
-                    eq(organizations.slug, newSlug),
-                    ne(organizations.id, organizationId)
-                )
-            )
-            .get();
-
-        if (existingOrg) {
-            throw createError({
-                statusCode: 400,
-                statusMessage: 'Bad Request',
-                message: 'An organization with this slug already exists',
-            });
-        }
-
-        updateValues.slug = newSlug;
-    } else if (name) {
-        // Auto-generate slug from name if only name is provided
-        const newSlug = generateSlug(name);
-
-        // Check if slug is already taken by another organization
-        const existingOrg = await db
-            .select()
-            .from(organizations)
-            .where(
-                and(
-                    eq(organizations.slug, newSlug),
-                    ne(organizations.id, organizationId)
-                )
-            )
-            .get();
-
-        if (existingOrg) {
-            throw createError({
-                statusCode: 400,
-                statusMessage: 'Bad Request',
-                message: 'Cannot auto-generate slug: an organization with this slug already exists',
-            });
-        }
-
-        updateValues.slug = newSlug;
-    }
 
     // Update organization
     await db
@@ -153,7 +93,6 @@ export default defineEventHandler(async (event) => {
         organization: {
             id: updatedOrg!.id,
             name: updatedOrg!.name,
-            slug: updatedOrg!.slug,
             ownerId: updatedOrg!.ownerId,
             createdAt: updatedOrg!.createdAt,
             updatedAt: updatedOrg!.updatedAt,

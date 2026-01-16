@@ -19,7 +19,6 @@ interface Member {
 interface Organization {
   id: string;
   name: string;
-  slug: string;
   role: string;
 }
 
@@ -198,11 +197,11 @@ onMounted(() => {
             </div>
             <div>
               <label class="label">
-                <span class="label-text text-base-content/60">Slug</span>
+                <span class="label-text text-base-content/60">ID</span>
               </label>
               <input
                 type="text"
-                :value="organization.slug"
+                :value="organization.id"
                 class="input input-bordered w-full font-mono text-sm"
                 disabled
               />
