@@ -147,7 +147,7 @@ onMounted(() => {
               <span>{{ saveError }}</span>
             </div>
 
-            <div class="form-control">
+            <div class="form-control flex flex-col">
               <label class="label">
                 <span class="label-text">Full Name</span>
               </label>
@@ -159,7 +159,7 @@ onMounted(() => {
               />
             </div>
 
-            <div class="form-control">
+            <div class="form-control flex flex-col">
               <label class="label">
                 <span class="label-text">Email Address</span>
               </label>
@@ -170,7 +170,7 @@ onMounted(() => {
                 disabled
               />
               <label class="label">
-                <span class="label-text-alt text-base-content/50">
+                <span class="label-text-alt text-xs text-base-content/50">
                   Email cannot be changed
                 </span>
               </label>
@@ -190,12 +190,12 @@ onMounted(() => {
         </div>
       </div>
 
-      <div class="card bg-base-100 border border-base-300">
+      <!--<div class="card bg-base-100 border border-base-300">
         <div class="card-body">
           <h2 class="card-title">Change Password</h2>
 
           <form @submit.prevent="updatePassword" class="space-y-4 mt-4">
-            <div class="form-control">
+            <div class="form-control flex flex-col">
               <label class="label">
                 <span class="label-text">Current Password</span>
               </label>
@@ -207,7 +207,7 @@ onMounted(() => {
               />
             </div>
 
-            <div class="form-control">
+            <div class="form-control flex flex-col">
               <label class="label">
                 <span class="label-text">New Password</span>
               </label>
@@ -219,7 +219,7 @@ onMounted(() => {
               />
             </div>
 
-            <div class="form-control">
+            <div class="form-control flex flex-col">
               <label class="label">
                 <span class="label-text">Confirm New Password</span>
               </label>
@@ -243,7 +243,7 @@ onMounted(() => {
             </div>
           </form>
         </div>
-      </div>
+      </div> -->
 
       <div class="card bg-base-100 border border-base-300 border-error/30">
         <div class="card-body">
