@@ -4,7 +4,7 @@ import {requireAuth} from '../../utils/require-auth';
 import {organizations, organizationUsers} from '../../db/schema';
 
 /**
- * GET /api/orgs
+ * GET /api/organizations
  * List all organizations the authenticated user belongs to
  *
  * Returns: List of organizations with user's role in each

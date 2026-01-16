@@ -39,7 +39,7 @@ async function createOrganization() {
   error.value = '';
 
   try {
-    const response = await $fetch<{ organization: { id: string } }>('/api/orgs', {
+    const response = await $fetch<{ organization: { id: string } }>('/api/organization', {
       method: 'POST',
       body: {
         name: name.value.trim(),

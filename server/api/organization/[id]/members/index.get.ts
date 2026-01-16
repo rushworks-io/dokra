@@ -4,7 +4,7 @@ import {requireOrgMembership} from '~~/server/utils/require-org-access';
 import {organizationUsers, users} from '~~/server/db/schema';
 
 /**
- * GET /api/orgs/:id/members
+ * GET /api/organizations/:id/members
  * List all members of an organization
  *
  * Returns: List of organization members with their roles

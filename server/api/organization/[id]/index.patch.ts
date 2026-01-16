@@ -5,7 +5,7 @@ import {generateSlug} from '../../../utils/require-org-access';
 import {organizations} from '../../../db/schema';
 
 /**
- * PATCH /api/orgs/:id
+ * PATCH /api/organizations/:id
  * Update organization details
  *
  * Request body:

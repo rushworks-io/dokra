@@ -42,8 +42,8 @@ async function fetchOrganizationData() {
     }
 
     const [orgResponse, membersResponse] = await Promise.all([
-      $fetch<{ organization: Organization }>(`/api/orgs/${orgId}`),
-      $fetch<{ members: Member[] }>(`/api/orgs/${orgId}/members`),
+      $fetch<{ organization: Organization }>(`/api/organization/${orgId}`),
+      $fetch<{ members: Member[] }>(`/api/organization/${orgId}/members`),
     ]);
 
     organization.value = orgResponse.organization;
@@ -67,7 +67,7 @@ async function inviteMember() {
 
   try {
     const orgId = useCookie('currentOrgId')?.value;
-    await $fetch(`/api/orgs/${orgId}/invite`, {
+    await $fetch(`/api/organization/${orgId}/invite`, {
       method: 'POST',
       body: { email: inviteEmail.value },
     });
@@ -87,7 +87,7 @@ async function removeMember(memberId: string) {
 
   try {
     const orgId = useCookie('currentOrgId')?.value;
-    await $fetch(`/api/orgs/${orgId}/members/${memberId}`, {
+    await $fetch(`/api/organization/${orgId}/members/${memberId}`, {
       method: 'DELETE',
     });
     await fetchOrganizationData();
@@ -99,7 +99,7 @@ async function removeMember(memberId: string) {
 async function updateMemberRole(memberId: string, newRole: string) {
   try {
     const orgId = useCookie('currentOrgId')?.value;
-    await $fetch(`/api/orgs/${orgId}/members/${memberId}`, {
+    await $fetch(`/api/organization/${orgId}/members/${memberId}`, {
       method: 'PATCH' as any,
       body: { role: newRole },
     });

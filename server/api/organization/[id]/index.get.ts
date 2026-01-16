@@ -4,7 +4,7 @@ import {requireOrgMembership} from '../../../utils/require-org-access';
 import {organizations} from '../../../db/schema';
 
 /**
- * GET /api/orgs/:id
+ * GET /api/organizations/:id
  * Get organization details by ID
  *
  * Returns: Organization details if user is a member

@@ -239,7 +239,7 @@ describe('Data Isolation', () => {
 // API Endpoint Mock Tests
 // ============================================
 describe('Organization API Endpoints (Mocked)', () => {
-    describe('POST /api/orgs', () => {
+    describe('POST /api/organizations', () => {
         it('should auto-generate slug from name', () => {
             const name = 'My Test Organization';
             const slug = generateSlug(name);
@@ -258,7 +258,7 @@ describe('Organization API Endpoints (Mocked)', () => {
         });
     });
 
-    describe('POST /api/orgs/:id/members', () => {
+    describe('POST /api/organizations/:id/members', () => {
         it('should return 400 for invalid email', () => {
             const email: string = '';
 

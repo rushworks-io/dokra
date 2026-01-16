@@ -4,7 +4,7 @@ import {requireOrgOwner} from '~~/server/utils/require-org-access';
 import {organizationUsers} from '~~/server/db/schema';
 
 /**
- * DELETE /api/orgs/:id/members/:userId
+ * DELETE /api/organizations/:id/members/:userId
  * Remove a member from an organization
  *
  * Only the organization owner can remove members

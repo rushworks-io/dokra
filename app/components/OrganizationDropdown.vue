@@ -28,7 +28,7 @@ async function fetchOrganizations() {
   if (import.meta.server) return;
 
   try {
-    const response = await $fetch<{ organizations: Organization[] }>('/api/orgs');
+    const response = await $fetch<{ organizations: Organization[] }>('/api/organization');
     organizations.value = response.organizations;
 
     if (organizations.value.length > 0 && !currentOrgId.value) {
@@ -52,7 +52,7 @@ async function switchOrganization(orgId: string) {
 
   isSwitching.value = true;
   try {
-    await $fetch(`/api/orgs/${orgId}/switch`, { method: 'POST' });
+    await $fetch(`/api/organization/${orgId}/switch`, { method: 'POST' });
     currentOrgId.value = orgId;
     isOpen.value = false;
     navigateTo('/dashboard');

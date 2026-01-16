@@ -11,8 +11,8 @@ import * as schema from '../db/schema/index';
  * ```ts
  * export default defineEventHandler(async (event) => {
  *   const db = useDatabase(event.context.cloudflare.env.DB);
- *   const orgs = await db.select().from(schema.organizations);
- *   return orgs;
+ *   const organizations = await db.select().from(schema.organizations);
+ *   return organizations;
  * });
  * ```
  */

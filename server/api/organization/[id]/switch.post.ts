@@ -4,7 +4,7 @@ import { requireOrgMembership } from '../../../utils/require-org-access';
 import { organizations } from '../../../db/schema';
 
 /**
- * POST /api/orgs/:id/switch
+ * POST /api/organizations/:id/switch
  * Switch the user's current organization
  *
  * User must be a member of the organization

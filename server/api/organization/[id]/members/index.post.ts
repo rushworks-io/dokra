@@ -4,7 +4,7 @@ import {requireOrgOwner} from '~~/server/utils/require-org-access';
 import {organizationUsers, users} from '~~/server/db/schema';
 
 /**
- * POST /api/orgs/:id/members
+ * POST /api/organizations/:id/members
  * Add a member to an organization
  *
  * Request body:

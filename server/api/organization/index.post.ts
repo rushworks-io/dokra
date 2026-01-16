@@ -5,7 +5,7 @@ import {generateSlug} from '../../utils/require-org-access';
 import {organizations, organizationUsers} from '../../db/schema';
 
 /**
- * POST /api/orgs
+ * POST /api/organizations
  * Create a new organization
  *
  * Request body:
