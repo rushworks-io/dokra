@@ -14,7 +14,7 @@ interface Document {
   createdAt: string;
 }
 
-const { user } = useAuth();
+const {user} = useAuth();
 const documents = ref<Document[]>([]);
 const isLoading = ref(true);
 const totalCount = ref(0);
@@ -24,7 +24,7 @@ async function fetchDashboardData() {
   try {
     const [docsResponse, statsResponse] = await Promise.all([
       $fetch<{ files: Document[] }>('/api/files', {
-        query: { limit: 10 },
+        query: {limit: 10},
       }),
       $fetch<{ totalSize: number; count: number }>('/api/files/stats').catch(() => ({
         totalSize: 0,
@@ -65,26 +65,21 @@ onMounted(() => {
         </p>
       </div>
       <button class="btn btn-primary gap-2">
-        <Icon name="heroicons:plus" class="w-5 h-5" />
+        <Icon name="heroicons:plus" class="w-5 h-5"/>
         Upload Documents
       </button>
     </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
       <StatsCard
-        label="Total Documents"
-        :value="totalCount.toString()"
-        icon="heroicons:document-duplicate"
+          label="Total Documents"
+          :value="totalCount.toString()"
+          icon="heroicons:document-duplicate"
       />
       <StatsCard
-        label="Total Size"
-        :value="formatFileSize(totalSize)"
-        icon="heroicons:server-stack"
-      />
-      <StatsCard
-        label="Organization"
-        value="Active"
-        icon="heroicons:building-office-2"
+          label="Total Size"
+          :value="formatFileSize(totalSize)"
+          icon="heroicons:server-stack"
       />
     </div>
 
@@ -93,16 +88,16 @@ onMounted(() => {
         <h2 class="text-lg font-semibold">Latest imported documents</h2>
         <NuxtLink to="/documents" class="btn btn-ghost btn-sm gap-1">
           View All
-          <Icon name="heroicons:arrow-right" class="w-4 h-4" />
+          <Icon name="heroicons:arrow-right" class="w-4 h-4"/>
         </NuxtLink>
       </div>
 
       <DocumentTable
-        :documents="documents"
-        :loading="isLoading"
-        @view="(id) => console.log('View', id)"
-        @download="(id) => console.log('Download', id)"
-        @delete="(id) => console.log('Delete', id)"
+          :documents="documents"
+          :loading="isLoading"
+          @view="(id) => console.log('View', id)"
+          @download="(id) => console.log('Download', id)"
+          @delete="(id) => console.log('Delete', id)"
       />
     </div>
   </div>
