@@ -20,31 +20,50 @@ export function useAuth() {
   const error = computed(() => session.value?.error ?? null);
 
   /**
+   * Refresh the session state.
+   */
+  async function refreshSession() {
+    authClient.$store.notify('$sessionSignal');
+    // Wait a tick for the session to update
+    await new Promise(resolve => setTimeout(resolve, 50));
+  }
+
+  /**
    * Sign in with email and password.
    */
   async function signInWithEmail(email: string, password: string) {
-    return authClient.signIn.email({
+    const result = await authClient.signIn.email({
       email,
       password,
     });
+    if (!result.error) {
+      await refreshSession();
+    }
+    return result;
   }
 
   /**
    * Sign up with email and password.
    */
   async function signUpWithEmail(email: string, password: string, name: string) {
-    return authClient.signUp.email({
+    const result = await authClient.signUp.email({
       email,
       password,
       name,
     });
+    if (!result.error) {
+      await refreshSession();
+    }
+    return result;
   }
 
   /**
    * Sign out the current user.
    */
   async function signOut() {
-    return authClient.signOut();
+    const result = await authClient.signOut();
+    await refreshSession();
+    return result;
   }
 
   return {
@@ -59,6 +78,7 @@ export function useAuth() {
     signInWithEmail,
     signUpWithEmail,
     signOut,
+    refreshSession,
   };
 }
 
