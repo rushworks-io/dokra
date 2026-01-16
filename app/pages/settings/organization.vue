@@ -85,12 +85,12 @@ async function inviteMember() {
   }
 }
 
-async function removeMember(memberId: string) {
+async function removeMember(userId: string) {
   if (!confirm('Are you sure you want to remove this member?')) return;
 
   try {
     const orgId = useCookie('currentOrgId')?.value;
-    await $fetch(`/api/organization/${orgId}/members/${memberId}`, {
+    await $fetch(`/api/organization/${orgId}/members/${userId}`, {
       method: 'DELETE',
     });
     await fetchOrganizationData();
@@ -291,7 +291,7 @@ onMounted(() => {
                       v-if="canManageMembers() && !isOwner(member)"
                       class="btn btn-ghost btn-xs btn-square text-error/70 hover:text-error"
                       title="Remove member"
-                      @click="removeMember(member.id)"
+                      @click="removeMember(member.user.id)"
                     >
                       <Icon name="heroicons:trash" class="w-4 h-4" />
                     </button>
