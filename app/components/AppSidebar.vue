@@ -15,10 +15,6 @@ const navigation = [
   {name: 'Settings', href: '/settings/organization', icon: 'heroicons:cog-6-tooth'},
 ];
 
-const settings = [
-  {name: 'Settings', href: '/settings/organization', icon: 'heroicons:cog-6-tooth'},
-];
-
 function toggleSidebar() {
   isCollapsed.value = !isCollapsed.value;
   localStorage.setItem('sidebarCollapsed', String(isCollapsed.value));
@@ -113,7 +109,7 @@ const sidebarContentWidth = computed(() => isCollapsed.value ? 'w-16' : 'w-48');
 
       <!-- Hover hint -->
       <div
-          class="absolute -right-1 h-10 w-1 rounded-full bg-primary/50 transition-opacity duration-200 group-hover:opacity-0"
+          class="absolute -right-0.5 h-10 w-1 rounded-full bg-primary/50 transition-opacity duration-200 group-hover:opacity-0"
           :class="{ 'opacity-0': isCollapsed }"
           :style="toggleStyle"
       />
@@ -178,7 +174,7 @@ const sidebarContentWidth = computed(() => isCollapsed.value ? 'w-16' : 'w-48');
               class="text-xs text-base-content/50 px-2 py-1 whitespace-nowrap overflow-hidden transition-all duration-300"
               :class="isCollapsed ? 'w-0 opacity-0' : 'w-auto opacity-100'"
           >
-            Dokra v1.0
+            Dokra v0.0
           </div>
         </div>
       </div>
