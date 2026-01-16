@@ -162,7 +162,7 @@ export const users = sqliteTable('users', {
   createdAt: text('created_at').default(sql`CURRENT_TIMESTAMP`),
 });
 
-// organizations_users.ts (join table for multi-user orgs)
+// organizations_users.ts (join table for multi-user organizations)
 export const organizationUsers = sqliteTable('organization_users', {
   id: text('id').primaryKey(),
   organizationId: text('organization_id').notNull(),
