@@ -31,6 +31,9 @@ const inviteEmail = ref('');
 const isInviting = ref(false);
 const inviteError = ref('');
 const currentUserId = ref<string | null>(null);
+const isDeleteModalOpen = ref(false);
+const isDeleting = ref(false);
+const deleteConfirmation = ref('');
 
 const { user } = useAuth();
 
@@ -119,6 +122,34 @@ function isCurrentUser(member: Member): boolean {
 
 function canManageMembers(): boolean {
   return organization.value?.role === 'owner';
+}
+
+async function deleteOrganization() {
+  if (deleteConfirmation.value !== organization.value?.name) {
+    return;
+  }
+
+  isDeleting.value = true;
+
+  try {
+    const orgId = useCookie('currentOrgId');
+    await $fetch(`/api/organization/${orgId.value}`, {
+      method: 'DELETE',
+    });
+
+    // Clear the current organization cookie
+    orgId.value = null;
+
+    // Navigate to dashboard, which will redirect to create org or switch org
+    await navigateTo('/dashboard');
+  } catch (error: any) {
+    console.error('Failed to delete organization:', error);
+    alert(error.data?.message || 'Failed to delete organization');
+  } finally {
+    isDeleting.value = false;
+    isDeleteModalOpen.value = false;
+    deleteConfirmation.value = '';
+  }
 }
 
 onMounted(() => {
@@ -271,7 +302,77 @@ onMounted(() => {
           </div>
         </div>
       </div>
+
+      <!-- Danger Zone -->
+      <div v-if="canManageMembers()" class="card bg-base-100 border border-error/50">
+        <div class="card-body">
+          <h2 class="card-title text-error">Danger Zone</h2>
+          <p class="text-base-content/60 text-sm mt-2">
+            Once you delete an organization, there is no going back. Please be certain.
+          </p>
+          <div class="mt-4">
+            <button
+              class="btn btn-error btn-outline"
+              @click="isDeleteModalOpen = true"
+            >
+              <Icon name="heroicons:trash" class="w-5 h-5" />
+              Delete Organization
+            </button>
+          </div>
+        </div>
+      </div>
     </template>
+
+    <!-- Delete Organization Modal -->
+    <dialog :class="{ 'modal-open': isDeleteModalOpen }" class="modal">
+      <div class="modal-box">
+        <h3 class="font-bold text-lg text-error mb-4">Delete Organization</h3>
+        <div class="space-y-4">
+          <p class="text-base-content/80">
+            This action <strong>cannot be undone</strong>. This will permanently delete the
+            <strong>{{ organization?.name }}</strong> organization, including:
+          </p>
+          <ul class="list-disc list-inside text-base-content/60 text-sm space-y-1">
+            <li>All organization members ({{ members.length }} members)</li>
+            <li>All documents and files</li>
+            <li>All tags</li>
+          </ul>
+          <div class="form-control">
+            <label class="label">
+              <span class="label-text">
+                Please type <strong class="font-mono">{{ organization?.name }}</strong> to confirm
+              </span>
+            </label>
+            <input
+              v-model="deleteConfirmation"
+              type="text"
+              :placeholder="organization?.name"
+              class="input input-bordered w-full"
+              @keydown.enter="deleteOrganization"
+            />
+          </div>
+        </div>
+        <div class="modal-action">
+          <button
+            class="btn btn-ghost"
+            @click="isDeleteModalOpen = false; deleteConfirmation = ''"
+          >
+            Cancel
+          </button>
+          <button
+            class="btn btn-error"
+            :disabled="isDeleting || deleteConfirmation !== organization?.name"
+            @click="deleteOrganization"
+          >
+            <span v-if="isDeleting" class="loading loading-spinner loading-sm" />
+            Delete Organization
+          </button>
+        </div>
+      </div>
+      <form method="dialog" class="modal-backdrop">
+        <button @click="isDeleteModalOpen = false; deleteConfirmation = ''">close</button>
+      </form>
+    </dialog>
 
     <dialog :class="{ 'modal-open': isInviteModalOpen }" class="modal">
       <div class="modal-box">
