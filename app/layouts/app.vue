@@ -1,7 +1,4 @@
 <script setup lang="ts">
-definePageMeta({
-  middleware: 'auth',
-});
 
 const emit = defineEmits<{
   search: [query: string];
