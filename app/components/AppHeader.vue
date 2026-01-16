@@ -20,7 +20,7 @@ function handleSearch(query: string) {
     </div>
 
     <div class="flex items-center gap-2">
-      <OrgDropdown />
+      <OrganizationDropdown />
       <UserMenu />
     </div>
   </header>

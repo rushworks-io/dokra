@@ -8,13 +8,25 @@ interface Organization {
 
 const isOpen = ref(false);
 const organizations = ref<Organization[]>([]);
-const currentOrgId = ref<string | null>(null);
+const currentOrgId = useCookie<string | null>('currentOrgId', { default: () => null });
 const isLoading = ref(true);
 const isSwitching = ref(false);
 
 const { user } = useAuth();
+const route = useRoute();
+
+// Re-fetch organizations when route changes (e.g., after creating a new org)
+// Only watch on client to avoid SSR issues
+if (import.meta.client) {
+  watch(() => route.fullPath, () => {
+    fetchOrganizations();
+  });
+}
 
 async function fetchOrganizations() {
+  // Only fetch on client side
+  if (import.meta.server) return;
+
   try {
     const response = await $fetch<{ organizations: Organization[] }>('/api/orgs');
     organizations.value = response.organizations;
@@ -78,7 +90,7 @@ const currentOrg = computed(() => {
       :class="{ 'bg-base-200': isOpen }"
       @click="toggleDropdown"
     >
-      <span class="text-sm font-medium truncate max-w-32">
+      <span class="text-sm font-medium truncate max-w-48">
         {{ currentOrg?.name || 'Select Org' }}
       </span>
       <Icon
@@ -129,6 +141,16 @@ const currentOrg = computed(() => {
         </template>
 
         <div class="border-t border-base-300 mt-1 pt-1">
+          <button
+            class="w-full px-3 py-2 text-left text-sm hover:bg-base-200 text-base-content/70 transition-colors flex items-center gap-2"
+            @click="
+              isOpen = false;
+              navigateTo('/organizations/new');
+            "
+          >
+            <Icon name="heroicons:plus" class="w-4 h-4" />
+            Create Organization
+          </button>
           <button
             class="w-full px-3 py-2 text-left text-sm hover:bg-base-200 text-base-content/70 transition-colors flex items-center gap-2"
             @click="
