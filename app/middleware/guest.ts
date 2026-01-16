@@ -21,7 +21,7 @@ export default defineNuxtRouteMiddleware(async (to) => {
 
   if (isAuthenticated.value) {
     const redirect = to.query.redirect as string;
-    return navigateTo(redirect || '/');
+    return navigateTo(redirect || '/dashboard');
   }
 });
 
