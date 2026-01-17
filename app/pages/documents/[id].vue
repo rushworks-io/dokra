@@ -173,7 +173,7 @@ async function saveChanges() {
     }
 
     const data = await response.json();
-    document.value = {...document.value, ...data.document};
+    document.value = document.value ? {...document.value, ...data.document} : data.document;
     isEditing.value = false;
   } catch (err) {
     console.error('Failed to save document:', err);

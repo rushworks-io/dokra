@@ -18,6 +18,7 @@ import { tags } from '../../../db/schema';
 export default defineEventHandler(async (event) => {
   requireAuth(event);
 
+  const colorPattern = /^#[0-9A-Fa-f]{6}$/;
   const tagId = getRouterParam(event, 'id');
   const query = getQuery(event);
   const organizationId = query.organizationId as string;
@@ -92,7 +93,15 @@ export default defineEventHandler(async (event) => {
   }
 
   if (body.color !== undefined) {
-    updates.color = String(body.color || '').trim() || '#3b82f6';
+    const trimmedColor = String(body.color || '').trim() || '#3b82f6';
+    if (!colorPattern.test(trimmedColor)) {
+      throw createError({
+        statusCode: 400,
+        statusMessage: 'Bad Request',
+        message: 'Color must be a valid hex value',
+      });
+    }
+    updates.color = trimmedColor;
   }
 
   if (body.category !== undefined) {

@@ -31,7 +31,8 @@ export default defineEventHandler(async (event) => {
 
   if (search) {
     const escapedSearch = search.replace(/[%_]/g, '\\$&');
-    conditions.push(sql`${tags.name} LIKE ${`%${escapedSearch}%`} ESCAPE '\\'`);
+    const searchTerm = `%${escapedSearch}%`;
+    conditions.push(sql`${tags.name} LIKE ${searchTerm} ESCAPE '\\'`);
   }
 
   const results = await db

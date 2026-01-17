@@ -16,6 +16,7 @@ import { tags } from '../../db/schema';
 export default defineEventHandler(async (event) => {
   requireAuth(event);
 
+  const colorPattern = /^#[0-9A-Fa-f]{6}$/;
   const body = await readBody(event);
   const organizationId = body.organizationId as string;
   const name = body.name as string;
@@ -42,6 +43,14 @@ export default defineEventHandler(async (event) => {
   const trimmedName = name.trim();
   const trimmedCategory = category?.trim() || 'general';
   const trimmedColor = color?.trim() || '#3b82f6';
+
+  if (!colorPattern.test(trimmedColor)) {
+    throw createError({
+      statusCode: 400,
+      statusMessage: 'Bad Request',
+      message: 'Color must be a valid hex value',
+    });
+  }
 
   const existing = await db
     .select()

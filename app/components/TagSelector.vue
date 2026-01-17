@@ -22,6 +22,7 @@ const emit = defineEmits<{
   'update:modelValue': [value: Tag[]];
 }>();
 
+const DROPDOWN_CLOSE_DELAY = 150;
 const search = ref('');
 const suggestions = ref<Tag[]>([]);
 const isLoading = ref(false);
@@ -104,7 +105,7 @@ function handleFocus() {
 function handleBlur() {
   setTimeout(() => {
     isOpen.value = false;
-  }, 150);
+  }, DROPDOWN_CLOSE_DELAY);
 }
 
 function tagStyle(tag: Tag) {
