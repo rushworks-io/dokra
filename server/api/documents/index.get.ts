@@ -136,10 +136,12 @@ export default defineEventHandler(async (event) => {
 
   const tagsByDocument = new Map<string, Array<(typeof tagRows)[number]>>();
   tagRows.forEach((row) => {
-    if (!tagsByDocument.has(row.documentId)) {
-      tagsByDocument.set(row.documentId, []);
+    const entries = tagsByDocument.get(row.documentId);
+    if (entries) {
+      entries.push(row);
+      return;
     }
-    tagsByDocument.get(row.documentId)!.push(row);
+    tagsByDocument.set(row.documentId, [row]);
   });
 
   return {

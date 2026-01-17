@@ -1,4 +1,4 @@
-import { and, asc, eq, like } from 'drizzle-orm';
+import { and, asc, eq, sql } from 'drizzle-orm';
 import { useDatabase } from '../../utils/db';
 import { requireAuth } from '../../utils/require-auth';
 import { tags } from '../../db/schema';
@@ -30,7 +30,8 @@ export default defineEventHandler(async (event) => {
   const conditions = [eq(tags.organizationId, organizationId)];
 
   if (search) {
-    conditions.push(like(tags.name, `%${search}%`));
+    const escapedSearch = search.replace(/[%_]/g, '\\$&');
+    conditions.push(sql`${tags.name} LIKE ${`%${escapedSearch}%`} ESCAPE '\\'`);
   }
 
   const results = await db
