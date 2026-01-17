@@ -30,8 +30,7 @@ export default defineEventHandler(async (event) => {
   const conditions = [eq(tags.organizationId, organizationId)];
 
   if (search) {
-    const escapedSearch = search.replace(/[%_]/g, '\\$&');
-    conditions.push(like(tags.name, `%${escapedSearch}%`));
+    conditions.push(like(tags.name, `%${search}%`));
   }
 
   const results = await db
