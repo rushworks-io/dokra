@@ -13,4 +13,5 @@ export const tags = sqliteTable('tags', {
   index('tags_org_idx').on(table.organizationId),
   index('tags_name_idx').on(table.name),
   index('tags_category_idx').on(table.category),
+  index('tags_org_name_idx').on(table.organizationId, table.name),
 ]);
