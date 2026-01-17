@@ -110,15 +110,23 @@ export default defineEventHandler(async (event) => {
     .where(and(eq(tags.id, tagId), eq(tags.organizationId, organizationId)))
     .get();
 
+  if (!updated) {
+    throw createError({
+      statusCode: 404,
+      statusMessage: 'Not Found',
+      message: 'Tag not found',
+    });
+  }
+
   return {
     tag: {
-      id: updated!.id,
-      organizationId: updated!.organizationId,
-      name: updated!.name,
-      color: updated!.color,
-      category: updated!.category,
-      createdAt: updated!.createdAt,
-      updatedAt: updated!.updatedAt,
+      id: updated.id,
+      organizationId: updated.organizationId,
+      name: updated.name,
+      color: updated.color,
+      category: updated.category,
+      createdAt: updated.createdAt,
+      updatedAt: updated.updatedAt,
     },
   };
 });

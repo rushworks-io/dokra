@@ -1,6 +1,10 @@
 ALTER TABLE tags
     ADD COLUMN category TEXT NOT NULL DEFAULT 'general';
 
+UPDATE tags
+SET color = '#3b82f6'
+WHERE color IS NULL OR color = 'blue';
+
 CREATE TABLE IF NOT EXISTS document_tags (
     id TEXT PRIMARY KEY,
     organization_id TEXT NOT NULL,

@@ -196,19 +196,12 @@ async function saveTags() {
   isTagSaving.value = true;
   tagError.value = null;
   try {
-    const response = await fetch(`/api/documents/${document.value.id}`, {
+    const data = await $fetch<{ document: DocumentDetail }>(`/api/documents/${document.value.id}`, {
       method: 'PATCH',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({
+      body: {
         tagIds: selectedTags.value.map((tag) => tag.id),
-      }),
+      },
     });
-
-    if (!response.ok) {
-      throw new Error('Failed to update tags');
-    }
-
-    const data = await response.json();
     document.value = {...document.value, ...data.document};
     selectedTags.value = data.document.tags;
   } catch (err: any) {
