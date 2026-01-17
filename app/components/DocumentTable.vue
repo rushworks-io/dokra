@@ -5,8 +5,15 @@ interface Document {
   fileName: string;
   mimeType?: string;
   fileSize?: number;
-  tags?: string[];
+  tags?: Tag[];
   createdAt: string;
+}
+
+interface Tag {
+  id: string;
+  name: string;
+  color: string;
+  category: string;
 }
 
 defineProps<{
@@ -44,6 +51,13 @@ function formatTimeAgo(dateStr: string): string {
   if (hours > 0) return `${hours}h ago`;
   if (minutes > 0) return `${minutes}m ago`;
   return 'Just now';
+}
+
+function tagStyle(tag: Tag) {
+  return {
+    borderColor: tag.color,
+    color: tag.color,
+  };
 }
 </script>
 
@@ -119,10 +133,11 @@ function formatTimeAgo(dateStr: string): string {
                 <div class="flex flex-wrap gap-1">
                   <span
                     v-for="tag in (doc.tags || []).slice(0, 2)"
-                    :key="tag"
-                    class="badge badge-sm badge-ghost"
+                    :key="tag.id"
+                    class="badge badge-sm badge-outline"
+                    :style="tagStyle(tag)"
                   >
-                    {{ tag }}
+                    {{ tag.name }}
                   </span>
                   <span
                     v-if="(doc.tags?.length || 0) > 2"

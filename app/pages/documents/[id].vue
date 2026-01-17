@@ -13,13 +13,20 @@ interface DocumentDetail {
   fileSize?: number;
   documentType?: string;
   status?: string;
-  tags: string[];
+  tags: Tag[];
   metadata: Record<string, any>;
   dueDate?: string;
   extractedText?: string;
   processedAt?: string;
   createdAt: string;
   updatedAt: string;
+}
+
+interface Tag {
+  id: string;
+  name: string;
+  color: string;
+  category: string;
 }
 
 interface FileInfo {
@@ -39,12 +46,15 @@ const document = ref<DocumentDetail | null>(null);
 const files = ref<FileInfo[]>([]);
 const isLoading = ref(true);
 const isSaving = ref(false);
+const isTagSaving = ref(false);
 const error = ref<string | null>(null);
+const tagError = ref<string | null>(null);
 
 // Edit form state
 const isEditing = ref(false);
 const editTitle = ref('');
 const editDocumentType = ref('');
+const selectedTags = ref<Tag[]>([]);
 
 const documentTypes = [
   {value: '', label: 'Select type...'},
@@ -69,6 +79,7 @@ async function fetchDocument() {
 
     document.value = response.document;
     files.value = response.files;
+    selectedTags.value = response.document.tags;
   } catch (err: any) {
     error.value = err.message || 'Failed to load document';
   } finally {
@@ -176,6 +187,35 @@ async function saveChanges() {
     alert('Failed to save changes. Please try again.');
   } finally {
     isSaving.value = false;
+  }
+}
+
+async function saveTags() {
+  if (!document.value) return;
+
+  isTagSaving.value = true;
+  tagError.value = null;
+  try {
+    const response = await fetch(`/api/documents/${document.value.id}`, {
+      method: 'PATCH',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({
+        tagIds: selectedTags.value.map((tag) => tag.id),
+      }),
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to update tags');
+    }
+
+    const data = await response.json();
+    document.value = {...document.value, ...data.document};
+    selectedTags.value = data.document.tags;
+  } catch (err: any) {
+    console.error('Failed to update tags:', err);
+    tagError.value = err.message || 'Failed to update tags';
+  } finally {
+    isTagSaving.value = false;
   }
 }
 
@@ -407,18 +447,29 @@ onMounted(() => {
           </div>
 
           <!-- Tags -->
-          <div v-if="document.tags.length > 0" class="card bg-base-100 border border-base-300">
-            <div class="card-body">
-              <h2 class="card-title text-base">Tags</h2>
-              <div class="flex flex-wrap gap-2 mt-2">
-                <span
-                    v-for="tag in document.tags"
-                    :key="tag"
-                    class="badge badge-outline"
+          <div class="card bg-base-100 border border-base-300">
+            <div class="card-body space-y-4">
+              <div class="flex items-center justify-between">
+                <h2 class="card-title text-base">Tags</h2>
+                <button
+                  class="btn btn-primary btn-sm"
+                  :disabled="isTagSaving"
+                  @click="saveTags"
                 >
-                  {{ tag }}
-                </span>
+                  <span v-if="isTagSaving" class="loading loading-spinner loading-sm" />
+                  <span v-else>Save Tags</span>
+                </button>
               </div>
+              <label class="label pb-1">
+                <span class="label-text text-base-content/60">Assign tags</span>
+              </label>
+              <TagSelector
+                v-model="selectedTags"
+                :organization-id="document.organizationId"
+                placeholder="Search tags..."
+                :allow-create="true"
+              />
+              <p v-if="tagError" class="text-sm text-error">{{ tagError }}</p>
             </div>
           </div>
 

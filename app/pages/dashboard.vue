@@ -10,8 +10,15 @@ interface Document {
   fileName: string;
   mimeType?: string;
   fileSize?: number;
-  tags?: string[];
+  tags?: Tag[];
   createdAt: string;
+}
+
+interface Tag {
+  id: string;
+  name: string;
+  color: string;
+  category: string;
 }
 
 const {user} = useAuth();

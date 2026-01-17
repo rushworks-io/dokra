@@ -1,7 +1,7 @@
-import {eq} from 'drizzle-orm';
-import {useDatabase, getCurrentTimestamp} from '../../../utils/db';
+import {and, eq, inArray} from 'drizzle-orm';
+import {generateId, getCurrentTimestamp, useDatabase} from '../../../utils/db';
 import {requireAuth} from '../../../utils/require-auth';
-import {documents} from '../../../db/schema';
+import {documents, documentTags, tags} from '../../../db/schema';
 
 /**
  * PATCH /api/documents/[id]
@@ -15,7 +15,7 @@ import {documents} from '../../../db/schema';
  * - documentType: Optional. New document type
  * - status: Optional. New status (inbox, verified, archived)
  * - dueDate: Optional. Due date for the document
- * - tags: Optional. Array of tags
+ * - tagIds: Optional. Array of tag IDs
  *
  * Returns: Updated document
  */
@@ -82,8 +82,12 @@ export default defineEventHandler(async (event) => {
         updates.dueDate = body.dueDate || null;
     }
 
-    if (body.tags !== undefined) {
-        updates.tags = Array.isArray(body.tags) ? JSON.stringify(body.tags) : null;
+    if (body.tagIds !== undefined && !Array.isArray(body.tagIds)) {
+        throw createError({
+            statusCode: 400,
+            statusMessage: 'Bad Request',
+            message: 'Tag IDs must be an array',
+        });
     }
 
     // Update the document
@@ -92,12 +96,68 @@ export default defineEventHandler(async (event) => {
         .set(updates)
         .where(eq(documents.id, documentId));
 
+    if (body.tagIds !== undefined) {
+        const uniqueTagIds = Array.from(
+            new Set(
+                body.tagIds
+                    .map((tagId: string) => String(tagId).trim())
+                    .filter(Boolean)
+            )
+        );
+
+        await db.delete(documentTags).where(eq(documentTags.documentId, documentId));
+
+        if (uniqueTagIds.length > 0) {
+            const validTags = await db
+                .select({id: tags.id})
+                .from(tags)
+                .where(
+                    and(
+                        eq(tags.organizationId, doc.organizationId),
+                        inArray(tags.id, uniqueTagIds)
+                    )
+                )
+                .all();
+
+            const now = getCurrentTimestamp();
+            const insertRows = validTags.map((tag) => ({
+                id: generateId(),
+                organizationId: doc.organizationId,
+                documentId,
+                tagId: tag.id,
+                createdAt: now,
+                updatedAt: now,
+            }));
+
+            if (insertRows.length > 0) {
+                await db.insert(documentTags).values(insertRows);
+            }
+        }
+    }
+
     // Fetch updated document
     const updatedDoc = await db
         .select()
         .from(documents)
         .where(eq(documents.id, documentId))
         .get();
+
+    const tagRows = await db
+        .select({
+            id: tags.id,
+            name: tags.name,
+            color: tags.color,
+            category: tags.category,
+        })
+        .from(documentTags)
+        .innerJoin(tags, eq(documentTags.tagId, tags.id))
+        .where(
+            and(
+                eq(documentTags.documentId, documentId),
+                eq(documentTags.organizationId, doc.organizationId)
+            )
+        )
+        .all();
 
     return {
         success: true,
@@ -109,7 +169,7 @@ export default defineEventHandler(async (event) => {
             fileSize: updatedDoc!.fileSize,
             documentType: updatedDoc!.documentType,
             status: updatedDoc!.status,
-            tags: updatedDoc!.tags ? JSON.parse(updatedDoc!.tags) : [],
+            tags: tagRows,
             dueDate: updatedDoc!.dueDate,
             createdAt: updatedDoc!.createdAt,
             updatedAt: updatedDoc!.updatedAt,

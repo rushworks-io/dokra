@@ -1,7 +1,7 @@
 import {eq} from 'drizzle-orm';
 import {useDatabase} from '../../../utils/db';
 import {requireOrgOwner} from '../../../utils/require-org-access';
-import {organizations, organizationUsers, documents, files, tags} from '../../../db/schema';
+import {organizations, organizationUsers, documents, documentTags, files, tags} from '../../../db/schema';
 
 /**
  * DELETE /api/organizations/:id
@@ -48,27 +48,32 @@ export default defineEventHandler(async (event) => {
     }
 
     // Delete in order to respect foreign key constraints
-    // 1. Delete tags
+    // 1. Delete tag assignments
+    await db
+        .delete(documentTags)
+        .where(eq(documentTags.organizationId, organizationId));
+
+    // 2. Delete tags
     await db
         .delete(tags)
         .where(eq(tags.organizationId, organizationId));
 
-    // 2. Delete files
+    // 3. Delete files
     await db
         .delete(files)
         .where(eq(files.organizationId, organizationId));
 
-    // 3. Delete documents
+    // 4. Delete documents
     await db
         .delete(documents)
         .where(eq(documents.organizationId, organizationId));
 
-    // 4. Delete organization memberships
+    // 5. Delete organization memberships
     await db
         .delete(organizationUsers)
         .where(eq(organizationUsers.organizationId, organizationId));
 
-    // 5. Delete organization
+    // 6. Delete organization
     await db
         .delete(organizations)
         .where(eq(organizations.id, organizationId));
