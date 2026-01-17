@@ -1,7 +1,7 @@
-import { eq, and, desc, like, sql } from 'drizzle-orm';
+import { eq, and, desc, like, sql, inArray } from 'drizzle-orm';
 import { useDatabase } from '../../utils/db';
 import { requireAuth } from '../../utils/require-auth';
-import { documents } from '../../db/schema';
+import { documents, documentTags, tags } from '../../db/schema';
 
 /**
  * GET /api/documents
@@ -12,6 +12,7 @@ import { documents } from '../../db/schema';
  * - search: Optional. Search by title
  * - documentType: Optional. Filter by document type
  * - status: Optional. Filter by status (inbox, verified, archived)
+ * - tagIds: Optional. Comma-separated list of tag IDs to filter by
  * - limit: Optional. Number of documents to return (default: 50, max: 100)
  * - offset: Optional. Offset for pagination (default: 0)
  *
@@ -26,6 +27,7 @@ export default defineEventHandler(async (event) => {
   const search = query.search as string | undefined;
   const documentType = query.documentType as string | undefined;
   const status = query.status as string | undefined;
+  const tagIdsParam = query.tagIds as string | string[] | undefined;
   const limit = Math.min(parseInt(query.limit as string) || 50, 100);
   const offset = parseInt(query.offset as string) || 0;
 
@@ -40,6 +42,12 @@ export default defineEventHandler(async (event) => {
   // TODO: Verify user has access to this organization
 
   const db = useDatabase(event.context.cloudflare.env.DB);
+  const tagFilters = Array.isArray(tagIdsParam)
+    ? tagIdsParam
+    : tagIdsParam
+      ? tagIdsParam.split(',')
+      : [];
+  const normalizedTagFilters = tagFilters.map((tag) => tag.trim()).filter(Boolean);
 
   // Build conditions
   const conditions = [eq(documents.organizationId, organizationId)];
@@ -54,6 +62,37 @@ export default defineEventHandler(async (event) => {
 
   if (search) {
     conditions.push(like(documents.title, `%${search}%`));
+  }
+
+  if (normalizedTagFilters.length > 0) {
+    const tagMatches = await db
+      .select({ documentId: documentTags.documentId })
+      .from(documentTags)
+      .where(
+        and(
+          eq(documentTags.organizationId, organizationId),
+          inArray(documentTags.tagId, normalizedTagFilters)
+        )
+      )
+      .all();
+
+    const documentIds = Array.from(
+      new Set(tagMatches.map((row) => row.documentId))
+    );
+
+    if (documentIds.length === 0) {
+      return {
+        documents: [],
+        pagination: {
+          total: 0,
+          limit,
+          offset,
+          hasMore: false,
+        },
+      };
+    }
+
+    conditions.push(inArray(documents.id, documentIds));
   }
 
   // Get documents with pagination
@@ -74,6 +113,34 @@ export default defineEventHandler(async (event) => {
     .get();
 
   const total = countResult?.count || 0;
+  const documentIds = docs.map((doc) => doc.id);
+  const tagRows = documentIds.length
+    ? await db
+        .select({
+          documentId: documentTags.documentId,
+          id: tags.id,
+          name: tags.name,
+          color: tags.color,
+          category: tags.category,
+        })
+        .from(documentTags)
+        .innerJoin(tags, eq(documentTags.tagId, tags.id))
+        .where(
+          and(
+            eq(documentTags.organizationId, organizationId),
+            inArray(documentTags.documentId, documentIds)
+          )
+        )
+        .all()
+    : [];
+
+  const tagsByDocument = new Map<string, Array<(typeof tagRows)[number]>>();
+  tagRows.forEach((row) => {
+    if (!tagsByDocument.has(row.documentId)) {
+      tagsByDocument.set(row.documentId, []);
+    }
+    tagsByDocument.get(row.documentId)!.push(row);
+  });
 
   return {
     documents: docs.map((doc) => ({
@@ -84,7 +151,12 @@ export default defineEventHandler(async (event) => {
       fileSize: doc.fileSize,
       documentType: doc.documentType,
       status: doc.status,
-      tags: doc.tags ? JSON.parse(doc.tags) : [],
+      tags: (tagsByDocument.get(doc.id) || []).map((tag) => ({
+        id: tag.id,
+        name: tag.name,
+        color: tag.color,
+        category: tag.category,
+      })),
       dueDate: doc.dueDate,
       createdAt: doc.createdAt,
       updatedAt: doc.updatedAt,

@@ -12,8 +12,15 @@ interface Document {
   fileSize?: number;
   documentType?: string;
   status?: string;
-  tags?: string[];
+  tags?: Tag[];
   createdAt: string;
+}
+
+interface Tag {
+  id: string;
+  name: string;
+  color: string;
+  category: string;
 }
 
 const currentOrgId = useCookie<string | null>('currentOrgId');
@@ -23,6 +30,7 @@ const search = ref('');
 const documentTypeFilter = ref('');
 const statusFilter = ref('inbox'); // Default to inbox view
 const showUploadModal = ref(false);
+const tagFilters = ref<Tag[]>([]);
 
 // Pagination
 const currentPage = ref(1);
@@ -57,6 +65,9 @@ async function fetchDocuments() {
         search: search.value || undefined,
         documentType: documentTypeFilter.value || undefined,
         status: statusFilter.value || undefined,
+        tagIds: tagFilters.value.length > 0
+          ? tagFilters.value.map((tag) => tag.id).join(',')
+          : undefined,
         limit: pageSize.value,
         offset,
       },
@@ -142,8 +153,13 @@ function handleView(id: string) {
 // Watch for org changes
 watch(currentOrgId, () => {
   currentPage.value = 1;
+  tagFilters.value = [];
   fetchDocuments();
 });
+
+watch(tagFilters, () => {
+  handleFilterChange();
+}, {deep: true});
 
 onMounted(() => {
   fetchDocuments();
@@ -198,33 +214,44 @@ onMounted(() => {
     </div>
 
     <!-- Filters -->
-    <div class="flex flex-col sm:flex-row gap-4">
-      <div class="flex-1">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+      <div class="lg:col-span-2">
         <div class="join w-full">
           <input
-              v-model="search"
-              type="text"
-              placeholder="Search documents..."
-              class="input input-bordered join-item flex-1"
-              @keyup.enter="handleSearch"
+            v-model="search"
+            type="text"
+            placeholder="Search documents..."
+            class="input input-bordered join-item flex-1"
+            @keyup.enter="handleSearch"
           />
           <button
-              class="btn btn-primary join-item"
-              @click="handleSearch"
+            class="btn btn-primary join-item"
+            @click="handleSearch"
           >
             <Icon name="heroicons:magnifying-glass" class="w-5 h-5"/>
           </button>
         </div>
       </div>
       <select
-          v-model="documentTypeFilter"
-          class="select select-bordered w-full sm:w-48"
-          @change="handleFilterChange"
+        v-model="documentTypeFilter"
+        class="select select-bordered w-full"
+        @change="handleFilterChange"
       >
         <option v-for="type in documentTypes" :key="type.value" :value="type.value">
           {{ type.label }}
         </option>
       </select>
+      <div class="lg:col-span-3">
+        <label class="label pb-1">
+          <span class="label-text text-base-content/60">Filter by tags</span>
+        </label>
+        <TagSelector
+          v-if="currentOrgId"
+          v-model="tagFilters"
+          :organization-id="currentOrgId"
+          placeholder="Search tags..."
+        />
+      </div>
     </div>
 
     <!-- Results count -->

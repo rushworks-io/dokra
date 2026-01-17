@@ -1,7 +1,7 @@
-import {eq} from 'drizzle-orm';
+import {and, eq} from 'drizzle-orm';
 import {useDatabase} from '../../../utils/db';
 import {requireAuth} from '../../../utils/require-auth';
-import {documents} from '../../../db/schema';
+import {documents, documentTags, tags} from '../../../db/schema';
 
 /**
  * GET /api/documents/[id]
@@ -44,6 +44,23 @@ export default defineEventHandler(async (event) => {
 
     // TODO: Verify user has access to this document's organization
 
+    const tagRows = await db
+        .select({
+            id: tags.id,
+            name: tags.name,
+            color: tags.color,
+            category: tags.category,
+        })
+        .from(documentTags)
+        .innerJoin(tags, eq(documentTags.tagId, tags.id))
+        .where(
+            and(
+                eq(documentTags.documentId, documentId),
+                eq(documentTags.organizationId, doc.organizationId)
+            )
+        )
+        .all();
+
     return {
         document: {
             id: doc.id,
@@ -54,8 +71,8 @@ export default defineEventHandler(async (event) => {
             fileSize: doc.fileSize,
             documentType: doc.documentType,
             status: doc.status,
+            tags: tagRows,
             r2Key: doc.r2Key,
-            tags: doc.tags ? JSON.parse(doc.tags) : [],
             metadata: doc.metadata ? JSON.parse(doc.metadata) : {},
             dueDate: doc.dueDate,
             extractedText: doc.extractedText,

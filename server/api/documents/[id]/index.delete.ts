@@ -2,7 +2,7 @@ import {eq} from 'drizzle-orm';
 import {useDatabase} from '../../../utils/db';
 import {requireAuth} from '../../../utils/require-auth';
 import {getR2Bucket, StorageError} from '../../../utils/storage';
-import {documents} from '../../../db/schema';
+import {documents, documentTags} from '../../../db/schema';
 
 /**
  * DELETE /api/documents/[id]
@@ -55,6 +55,9 @@ export default defineEventHandler(async (event) => {
                 console.error(`Failed to delete R2 object ${doc.r2Key}:`, error);
             }
         }
+
+        // Delete file records from database
+        await db.delete(documentTags).where(eq(documentTags.documentId, documentId));
 
         // Delete document record from database
         await db.delete(documents).where(eq(documents.id, documentId));
