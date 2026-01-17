@@ -6,6 +6,7 @@ SET color = '#3b82f6'
 WHERE color IS NULL OR color = 'blue';
 
 CREATE INDEX IF NOT EXISTS tags_org_name_idx ON tags(organization_id, name);
+CREATE INDEX IF NOT EXISTS tags_category_idx ON tags(category);
 
 CREATE TABLE IF NOT EXISTS document_tags (
     id TEXT PRIMARY KEY,
