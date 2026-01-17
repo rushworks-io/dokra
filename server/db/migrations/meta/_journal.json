@@ -29,6 +29,13 @@
       "when": 1768583185393,
       "tag": "0003_remove-slug",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "6",
+      "when": 1768683600000,
+      "tag": "0004_add-document-status",
+      "breakpoints": true
     }
   ]
 }

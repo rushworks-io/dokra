@@ -81,4 +81,6 @@ generous white space, and a calm, utilitarian feel.
 - Overall atmosphere should feel **trustworthy** and utility-first: clean lines, low visual noise, no gradients or loud
   colors, with every component focused on readability and quick scanning of documents and metadata.
 
-[1](https://demo.papra.app/organizations/org_60got46c1kLuv8Sye0fZauLu)
+## Forms and inputs
+
+- Never put a input field on the same line as a label,
