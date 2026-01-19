@@ -56,6 +56,7 @@ export default defineEventHandler(async (event) => {
             }
         }
 
+        // Delete document record from database
         // Delete file records from database
         await db.delete(documentTags).where(eq(documentTags.documentId, documentId));
 

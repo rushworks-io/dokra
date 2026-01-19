@@ -40,8 +40,15 @@
     {
       "idx": 5,
       "version": "6",
+      "when": 1768770000000,
+      "tag": "0005_add-uploaded-by-to-documents",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "6",
       "when": 1768687200000,
-      "tag": "0005_add-tags-junction",
+      "tag": "0006_add-tags-junction",
       "breakpoints": true
     },
     {
