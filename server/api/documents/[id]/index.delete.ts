@@ -2,11 +2,11 @@ import {eq} from 'drizzle-orm';
 import {useDatabase} from '../../../utils/db';
 import {requireAuth} from '../../../utils/require-auth';
 import {getR2Bucket, StorageError} from '../../../utils/storage';
-import {documents, files} from '../../../db/schema';
+import {documents} from '../../../db/schema';
 
 /**
  * DELETE /api/documents/[id]
- * Delete a document and its associated file
+ * Delete a document and its associated file from R2
  *
  * URL params:
  * - id: Document ID to delete
@@ -46,24 +46,8 @@ export default defineEventHandler(async (event) => {
     // TODO: Verify user has access to this document's organization
 
     try {
-        // Get associated files
-        const associatedFiles = await db
-            .select()
-            .from(files)
-            .where(eq(files.documentId, documentId))
-            .all();
-
-        // Delete files from R2
+        // Delete file from R2
         const r2 = getR2Bucket(event);
-        for (const file of associatedFiles) {
-            try {
-                await r2.delete(file.r2Key);
-            } catch (error) {
-                console.error(`Failed to delete R2 object ${file.r2Key}:`, error);
-            }
-        }
-
-        // Also delete the document's direct R2 key if different
         if (doc.r2Key) {
             try {
                 await r2.delete(doc.r2Key);
@@ -72,10 +56,7 @@ export default defineEventHandler(async (event) => {
             }
         }
 
-        // Delete file records from database
-        await db.delete(files).where(eq(files.documentId, documentId));
-
-        // Delete document record
+        // Delete document record from database
         await db.delete(documents).where(eq(documents.id, documentId));
 
         return {

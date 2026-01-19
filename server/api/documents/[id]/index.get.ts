@@ -1,7 +1,7 @@
 import {eq} from 'drizzle-orm';
 import {useDatabase} from '../../../utils/db';
 import {requireAuth} from '../../../utils/require-auth';
-import {documents, files} from '../../../db/schema';
+import {documents} from '../../../db/schema';
 
 /**
  * GET /api/documents/[id]
@@ -44,13 +44,6 @@ export default defineEventHandler(async (event) => {
 
     // TODO: Verify user has access to this document's organization
 
-    // Get associated files
-    const associatedFiles = await db
-        .select()
-        .from(files)
-        .where(eq(files.documentId, documentId))
-        .all();
-
     return {
         document: {
             id: doc.id,
@@ -61,6 +54,7 @@ export default defineEventHandler(async (event) => {
             fileSize: doc.fileSize,
             documentType: doc.documentType,
             status: doc.status,
+            r2Key: doc.r2Key,
             tags: doc.tags ? JSON.parse(doc.tags) : [],
             metadata: doc.metadata ? JSON.parse(doc.metadata) : {},
             dueDate: doc.dueDate,
@@ -68,15 +62,7 @@ export default defineEventHandler(async (event) => {
             processedAt: doc.processedAt,
             createdAt: doc.createdAt,
             updatedAt: doc.updatedAt,
+            downloadUrl: `/api/documents/${doc.id}/download`,
         },
-        files: associatedFiles.map((f) => ({
-            id: f.id,
-            fileName: f.fileName,
-            originalName: f.originalName,
-            mimeType: f.mimeType,
-            fileSize: f.fileSize,
-            downloadUrl: `/api/files/${f.id}/download`,
-            uploadedAt: f.uploadedAt,
-        })),
     };
 });

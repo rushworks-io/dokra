@@ -63,19 +63,32 @@ describe('Storage Utilities', () => {
     });
 
     describe('generateR2Key', () => {
-        it('should generate key with organization prefix', () => {
+        it('should generate key with organization prefix and UUID filename', () => {
             const key = generateR2Key('org-123', 'test.pdf');
-            expect(key).toMatch(/^org-org-123\/files\/[a-f0-9-]+-test\.pdf$/);
+            // Format: org-{orgId}/{uuid}.{ext} - no original filename in path
+            expect(key).toMatch(/^org-org-123\/[a-f0-9-]+\.pdf$/);
         });
 
-        it('should include document folder when documentId provided', () => {
-            const key = generateR2Key('org-123', 'test.pdf', 'doc-456');
-            expect(key).toMatch(/^org-org-123\/doc-doc-456\/[a-f0-9-]+-test\.pdf$/);
+        it('should use file extension from original filename', () => {
+            const pdfKey = generateR2Key('org-123', 'document.pdf');
+            const jpgKey = generateR2Key('org-123', 'image.jpg');
+            const docxKey = generateR2Key('org-123', 'file.docx');
+
+            expect(pdfKey).toMatch(/\.pdf$/);
+            expect(jpgKey).toMatch(/\.jpg$/);
+            expect(docxKey).toMatch(/\.docx$/);
         });
 
-        it('should sanitize filename in key', () => {
-            const key = generateR2Key('org-123', 'file@name.pdf');
-            expect(key).toContain('file_name.pdf');
+        it('should use provided fileId when given', () => {
+            const fileId = 'custom-uuid-1234';
+            const key = generateR2Key('org-123', 'test.pdf', fileId);
+            expect(key).toContain(fileId);
+            expect(key).toBe(`org-org-123/${fileId}.pdf`);
+        });
+
+        it('should default to bin extension for files without extension', () => {
+            const key = generateR2Key('org-123', 'noextension');
+            expect(key).toMatch(/\.bin$/);
         });
     });
 
@@ -350,9 +363,9 @@ describe('R2 Upload/Download Operations', () => {
             expect(result.uploadedAt).toBeDefined();
         });
 
-        it('should include documentId in metadata when provided', async () => {
+        it('should include custom metadata when uploading', async () => {
             const fileData = new Uint8Array([1, 2, 3, 4]).buffer;
-            const r2Key = 'org-123/doc-456/test-file.pdf';
+            const r2Key = 'org-123/test-file.pdf';
             const metadata = {
                 fileName: 'test-file.pdf',
                 originalName: 'Test File.pdf',
@@ -360,7 +373,6 @@ describe('R2 Upload/Download Operations', () => {
                 fileSize: 4,
                 organizationId: 'org-123',
                 uploadedBy: 'user-123',
-                documentId: 'doc-456',
             };
 
             mockR2Bucket.put.mockResolvedValue(undefined);
@@ -377,7 +389,9 @@ describe('R2 Upload/Download Operations', () => {
                 fileData,
                 expect.objectContaining({
                     customMetadata: expect.objectContaining({
-                        documentId: 'doc-456',
+                        organizationId: 'org-123',
+                        uploadedBy: 'user-123',
+                        originalName: 'Test File.pdf',
                     }),
                 })
             );

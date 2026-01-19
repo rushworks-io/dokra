@@ -73,20 +73,25 @@ describe('Documents API', () => {
             expect(documentTypes).toHaveLength(7);
         });
 
-        it('should generate R2 keys with correct format', () => {
-            // Testing the key format: org-{orgId}/doc-{docId}/{fileId}-{filename}
-            const orgId = 'org-123';
-            const docId = 'doc-456';
-            const fileName = 'test.pdf';
-            const fileId = 'file-789';
+    it('should generate R2 keys with UUID-based format', () => {
+      // Testing the key format: org-{orgId}/{fileId}.{ext}
+      const orgId = 'org-123';
+      const fileId = 'a1b2c3d4-e5f6-7890-abcd-ef1234567890';
+      const originalFileName = 'invoice-2024.pdf';
 
-            const key = `org-${orgId}/doc-${docId}/${fileId}-${fileName}`;
+      // Extract extension from original filename
+      const ext = originalFileName.split('.').pop()?.toLowerCase() || 'bin';
 
-            expect(key).toBeDefined();
-            expect(key).toContain(orgId);
-            expect(key).toContain(docId);
-            expect(key).toContain(fileName);
-        });
+      // Generate key with UUID-based filename (no original filename in path)
+      const key = `org-${orgId}/${fileId}.${ext}`;
+
+      expect(key).toBeDefined();
+      expect(key).toContain(orgId);
+      expect(key).toContain(fileId);
+      expect(key).toContain('.pdf');
+      // Original filename should NOT be in the path
+      expect(key).not.toContain('invoice-2024');
+    });
     });
 
     describe('Document List', () => {

@@ -7,7 +7,7 @@ import {
     uploadFile,
     StorageError,
 } from '../../utils/storage';
-import {documents, files} from '../../db/schema';
+import {documents} from '../../db/schema';
 
 /**
  * POST /api/documents
@@ -85,27 +85,23 @@ export default defineEventHandler(async (event) => {
         // TODO: Verify user has access to this organization
         // This should check organizationUsers table
 
-        // Generate IDs
+        // Generate document ID - used for both DB and R2 storage
         const documentId = generateId();
-        const fileId = generateId();
         const now = getCurrentTimestamp();
 
-        // Generate R2 key
+        // Generate R2 key using document ID as filename
         const r2Key = generateR2Key(organizationId, originalFileName, documentId);
-        const sanitizedFileName = r2Key.split('/').pop() || originalFileName;
 
         // Get R2 bucket and upload
         const r2 = getR2Bucket(event);
-        // Convert Buffer to Uint8Array for R2 compatibility
         const fileData = new Uint8Array(fileField.data);
         await uploadFile(r2, new Blob([fileData], {type: mimeType}), r2Key, {
-            fileName: sanitizedFileName,
+            fileName: `${documentId}.${originalFileName.split('.').pop() || 'bin'}`,
             originalName: originalFileName,
             mimeType,
             fileSize,
             organizationId,
             uploadedBy: session.user.id,
-            documentId,
         });
 
         // Save to database
@@ -120,27 +116,10 @@ export default defineEventHandler(async (event) => {
             fileName: originalFileName,
             mimeType,
             fileSize,
-            documentType,
-            status: 'inbox', // New documents go to inbox for review
-            createdAt: documentDate || now,
-            updatedAt: now,
-        });
-
-        // Create file record
-        await db.insert(files).values({
-            id: fileId,
-            organizationId,
-            documentId,
-            fileName: sanitizedFileName,
-            originalName: originalFileName,
-            mimeType,
-            fileSize,
-            r2Key,
-            r2Bucket: 'dokra-files',
             uploadedBy: session.user.id,
-            uploadedAt: now,
-            status: 'active',
-            createdAt: now,
+            documentType,
+            status: 'inbox',
+            createdAt: documentDate || now,
             updatedAt: now,
         });
 
@@ -155,7 +134,7 @@ export default defineEventHandler(async (event) => {
                 documentType,
                 r2Key,
                 createdAt: documentDate || now,
-                downloadUrl: `/api/files/${fileId}/download`,
+                downloadUrl: `/api/documents/${documentId}/download`,
             },
         };
     } catch (error) {

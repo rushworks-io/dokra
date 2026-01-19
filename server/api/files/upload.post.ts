@@ -1,4 +1,3 @@
-import { eq } from 'drizzle-orm';
 import { useDatabase, generateId, getCurrentTimestamp } from '../../utils/db';
 import { requireAuth } from '../../utils/require-auth';
 import {
@@ -7,7 +6,6 @@ import {
   validateFileUpload,
   uploadFile,
   StorageError,
-  STORAGE_CONFIG,
 } from '../../utils/storage';
 import { files } from '../../db/schema';
 
@@ -75,33 +73,37 @@ export default defineEventHandler(async (event) => {
     // TODO: Verify user has access to this organization
     // This should check organizationUsers table
 
-    // Generate R2 key
-    const r2Key = generateR2Key(organizationId, originalFileName, documentId);
-    const sanitizedFileName = r2Key.split('/').pop() || originalFileName;
+    // Generate file ID upfront - used for both DB and R2 storage
+    const fileId = generateId();
+    const now = getCurrentTimestamp();
+
+    // Generate R2 key using UUID-based filename (original name stored as metadata only)
+    const r2Key = generateR2Key(organizationId, originalFileName, fileId);
+    // Extract just the UUID-based filename from the r2Key
+    const storedFileName = r2Key.split('/').pop() || `${fileId}.bin`;
 
     // Get R2 bucket and upload
     const r2 = getR2Bucket(event);
-    const uploadResult = await uploadFile(r2, fileField.data, r2Key, {
-      fileName: sanitizedFileName,
+    // Convert Buffer to Uint8Array for R2 compatibility
+    const fileData = new Uint8Array(fileField.data);
+    await uploadFile(r2, new Blob([fileData], { type: mimeType }), r2Key, {
+      fileName: storedFileName,
       originalName: originalFileName,
       mimeType,
       fileSize,
       organizationId,
       uploadedBy: session.user.id,
-      documentId,
     });
 
     // Save file metadata to database
     const db = useDatabase(event.context.cloudflare.env.DB);
-    const fileId = generateId();
-    const now = getCurrentTimestamp();
 
     await db.insert(files).values({
       id: fileId,
       organizationId,
       documentId: documentId || null,
-      fileName: sanitizedFileName,
-      originalName: originalFileName,
+      fileName: storedFileName, // UUID-based filename stored in R2
+      originalName: originalFileName, // Original filename for display
       mimeType,
       fileSize,
       r2Key,
@@ -117,7 +119,7 @@ export default defineEventHandler(async (event) => {
       success: true,
       file: {
         id: fileId,
-        fileName: sanitizedFileName,
+        fileName: storedFileName,
         originalName: originalFileName,
         mimeType,
         fileSize,

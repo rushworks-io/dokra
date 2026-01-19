@@ -36,6 +36,13 @@
       "when": 1768683600000,
       "tag": "0004_add-document-status",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "6",
+      "when": 1768770000000,
+      "tag": "0005_add-uploaded-by-to-documents",
+      "breakpoints": true
     }
   ]
 }

@@ -13,6 +13,7 @@ interface DocumentDetail {
   fileSize?: number;
   documentType?: string;
   status?: string;
+  r2Key?: string;
   tags: string[];
   metadata: Record<string, any>;
   dueDate?: string;
@@ -20,23 +21,13 @@ interface DocumentDetail {
   processedAt?: string;
   createdAt: string;
   updatedAt: string;
-}
-
-interface FileInfo {
-  id: string;
-  fileName: string;
-  originalName: string;
-  mimeType: string;
-  fileSize: number;
-  downloadUrl: string;
-  uploadedAt: string;
+  downloadUrl?: string;
 }
 
 const route = useRoute();
 const documentId = route.params.id as string;
 
 const document = ref<DocumentDetail | null>(null);
-const files = ref<FileInfo[]>([]);
 const isLoading = ref(true);
 const isSaving = ref(false);
 const error = ref<string | null>(null);
@@ -64,11 +55,9 @@ async function fetchDocument() {
   try {
     const response = await $fetch<{
       document: DocumentDetail;
-      files: FileInfo[];
     }>(`/api/documents/${documentId}`);
 
     document.value = response.document;
-    files.value = response.files;
   } catch (err: any) {
     error.value = err.message || 'Failed to load document';
   } finally {
@@ -407,7 +396,7 @@ onMounted(() => {
           </div>
 
           <!-- Tags -->
-          <div v-if="document.tags.length > 0" class="card bg-base-100 border border-base-300">
+          <!--<div v-if="document?.tags?.length > 0" class="card bg-base-100 border border-base-300">
             <div class="card-body">
               <h2 class="card-title text-base">Tags</h2>
               <div class="flex flex-wrap gap-2 mt-2">
@@ -420,7 +409,7 @@ onMounted(() => {
                 </span>
               </div>
             </div>
-          </div>
+          </div>-->
 
           <!-- Extracted text preview -->
           <div v-if="document.extractedText" class="card bg-base-100 border border-base-300">
@@ -435,34 +424,7 @@ onMounted(() => {
 
         <!-- Sidebar -->
         <div class="space-y-6">
-          <!-- Files -->
-          <div class="card bg-base-100 border border-base-300">
-            <div class="card-body">
-              <h2 class="card-title text-base">Files</h2>
-
-              <div v-if="files.length === 0" class="text-base-content/60 text-sm mt-2">
-                No files associated with this document.
-              </div>
-
-              <div v-else class="space-y-2 mt-2">
-                <a
-                    v-for="file in files"
-                    :key="file.id"
-                    :href="file.downloadUrl"
-                    target="_blank"
-                    class="flex items-center gap-3 p-3 bg-base-200 rounded-lg hover:bg-base-300 transition-colors"
-                >
-                  <Icon :name="getFileIcon(file.mimeType)" class="w-8 h-8 text-base-content/50"/>
-                  <div class="flex-1 min-w-0">
-                    <p class="text-sm font-medium truncate">{{ file.originalName }}</p>
-                    <p class="text-xs text-base-content/50">{{ formatFileSize(file.fileSize) }}</p>
-                  </div>
-                  <Icon name="heroicons:arrow-down-tray" class="w-4 h-4 text-base-content/40"/>
-                </a>
-              </div>
-            </div>
           </div>
-        </div>
       </div>
     </template>
   </div>

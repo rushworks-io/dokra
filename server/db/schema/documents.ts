@@ -5,10 +5,11 @@ export const documents = sqliteTable('documents', {
     id: text('id').primaryKey(),
     organizationId: text('organization_id').notNull(),
     title: text('title').notNull(),
-    r2Key: text('r2_key').notNull(), // Path in R2
-    fileName: text('file_name').notNull(),
+    r2Key: text('r2_key').notNull().unique(), // Path in R2
+    fileName: text('file_name').notNull(), // Original filename for display
     mimeType: text('mime_type'),
     fileSize: integer('file_size'),
+    uploadedBy: text('uploaded_by').notNull(), // User ID who uploaded
     extractedText: text('extracted_text'), // OCR'd / full-text
     documentType: text('document_type'), // Gemma-classified: invoice, contract, etc.
     status: text('status').notNull().default('inbox'), // inbox, verified, archived
@@ -25,5 +26,7 @@ export const documents = sqliteTable('documents', {
     index('documents_status_idx').on(table.status),
     index('documents_due_date_idx').on(table.dueDate),
     index('documents_created_idx').on(table.createdAt),
+    index('documents_r2_key_idx').on(table.r2Key),
+    index('documents_uploaded_by_idx').on(table.uploadedBy),
 ]);
 

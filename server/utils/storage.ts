@@ -59,21 +59,28 @@ export function getR2Bucket(event: H3Event): R2Bucket {
 }
 
 /**
- * Generate an organization-scoped R2 key for a file.
- * Format: org-{orgId}/{documentId?}/{fileId}-{filename}
+ * Generate an organization-scoped R2 key for a file using UUID.
+ * Format: org-{orgId}/{fileId}.{ext}
+ * The original filename is stored as metadata, not in the path.
+ *
+ * @param organizationId - Organization ID
+ * @param originalFileName - Original filename (used only for extension)
+ * @param fileId - Optional pre-generated file ID (UUID)
+ * @returns R2 key path
  */
 export function generateR2Key(
   organizationId: string,
-  fileName: string,
-  documentId?: string
+  originalFileName: string,
+  fileId?: string
 ): string {
-  const fileId = generateId();
-  const sanitizedFileName = sanitizeFileName(fileName);
+  const id = fileId || generateId();
+  // Extract extension from original filename (only if there's a dot in the name)
+  const lastDotIndex = originalFileName.lastIndexOf('.');
+  const ext = lastDotIndex > 0
+    ? originalFileName.slice(lastDotIndex + 1).toLowerCase()
+    : 'bin';
 
-  if (documentId) {
-    return `org-${organizationId}/doc-${documentId}/${fileId}-${sanitizedFileName}`;
-  }
-  return `org-${organizationId}/files/${fileId}-${sanitizedFileName}`;
+  return `org-${organizationId}/${id}.${ext}`;
 }
 
 /**
@@ -156,7 +163,6 @@ export async function uploadFile(
     fileSize: number;
     organizationId: string;
     uploadedBy: string;
-    documentId?: string;
   }
 ): Promise<UploadResult> {
   try {
@@ -169,7 +175,6 @@ export async function uploadFile(
         organizationId: metadata.organizationId,
         uploadedBy: metadata.uploadedBy,
         originalName: metadata.originalName,
-        ...(metadata.documentId && { documentId: metadata.documentId }),
       },
     });
 
