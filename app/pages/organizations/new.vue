@@ -5,29 +5,8 @@ definePageMeta({
 });
 
 const name = ref('');
-const slug = ref('');
-const isCustomSlug = ref(false);
 const isSubmitting = ref(false);
 const error = ref('');
-
-// Auto-generate slug from name
-watch(name, (newName) => {
-  if (!isCustomSlug.value) {
-    slug.value = generateSlug(newName);
-  }
-});
-
-function generateSlug(input: string): string {
-  return input
-      .toLowerCase()
-      .trim()
-      .replace(/[^a-z0-9]+/g, '-')
-      .replace(/^-+|-+$/g, '');
-}
-
-function onSlugInput() {
-  isCustomSlug.value = true;
-}
 
 async function createOrganization() {
   if (!name.value.trim()) {
@@ -43,7 +22,6 @@ async function createOrganization() {
       method: 'POST',
       body: {
         name: name.value.trim(),
-        slug: slug.value || undefined,
       },
     });
 
