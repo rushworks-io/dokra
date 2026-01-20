@@ -1,8 +1,37 @@
-import { authClient, useSession } from '~/utils/auth-client';
+import { authClient } from '~/utils/auth-client';
+
+interface SessionUser {
+  id: string;
+  email: string;
+  name: string;
+  image?: string | null;
+  emailVerified: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+interface Session {
+  id: string;
+  userId: string;
+  expiresAt: string;
+  token: string;
+  createdAt: string;
+  updatedAt: string;
+  ipAddress?: string | null;
+  userAgent?: string | null;
+}
+
+interface SessionData {
+  user: SessionUser;
+  session: Session;
+}
 
 /**
  * Composable for authentication state and actions.
  * Provides reactive session data and auth methods.
+ *
+ * Uses useFetch to ensure session is fetched on both server and client,
+ * preventing hydration mismatches.
  *
  * @example
  * ```vue
@@ -12,20 +41,28 @@ import { authClient, useSession } from '~/utils/auth-client';
  * ```
  */
 export function useAuth() {
-  const session = useSession();
+  // Use useFetch to get session data - this works on both server and client
+  // and ensures the same data is used during SSR and hydration
+  const { data: sessionData, status, refresh, error: fetchError } = useFetch<SessionData | null>('/api/auth/get-session', {
+    key: 'auth-session',
+    // Don't throw on error, just return null
+    default: () => null,
+    // Cache the result to avoid unnecessary refetches
+    getCachedData: (key, nuxtApp) => {
+      return nuxtApp.payload.data[key] ?? nuxtApp.static.data[key];
+    },
+  });
 
-  const user = computed(() => session.value?.data?.user ?? null);
-  const isAuthenticated = computed(() => !!session.value?.data?.session);
-  const isLoading = computed(() => session.value?.isPending ?? false);
-  const error = computed(() => session.value?.error ?? null);
+  const user = computed(() => sessionData.value?.user ?? null);
+  const isAuthenticated = computed(() => !!sessionData.value?.session);
+  const isLoading = computed(() => status.value === 'pending');
+  const error = computed(() => fetchError.value ?? null);
 
   /**
    * Refresh the session state.
    */
   async function refreshSession() {
-    authClient.$store.notify('$sessionSignal');
-    // Wait a tick for the session to update
-    await new Promise(resolve => setTimeout(resolve, 50));
+    await refresh();
   }
 
   /**
@@ -69,7 +106,7 @@ export function useAuth() {
   return {
     // State
     user,
-    session: computed(() => session.value?.data?.session ?? null),
+    session: computed(() => sessionData.value?.session ?? null),
     isAuthenticated,
     isLoading,
     error,

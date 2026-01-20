@@ -14,8 +14,8 @@
 export default defineNuxtRouteMiddleware(async (to) => {
   const { isAuthenticated, isLoading } = useAuth();
 
-  // Wait for auth to finish loading on client-side
-  if (import.meta.client && isLoading.value) {
+  // Wait for auth to finish loading (works on both server and client)
+  if (isLoading.value) {
     // Poll until loading is complete (max 2 seconds)
     const maxWait = 2000;
     const interval = 50;

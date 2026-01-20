@@ -19,6 +19,9 @@ export const {
   signIn,
   signUp,
   signOut,
-  useSession,
 } = authClient;
+
+// Re-export useSession but it should not be used directly in SSR contexts
+// Use useAuth() composable instead which handles SSR properly
+export const useSession = authClient.useSession;
 
