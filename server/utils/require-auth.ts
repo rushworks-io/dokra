@@ -1,13 +1,9 @@
-import type { H3Event } from 'h3';
-import type { Session, User } from 'better-auth';
+import type {H3Event} from 'h3';
+import type {AuthSession} from '~~/types';
 
 /**
  * Authenticated session containing both session and user data.
  */
-export interface AuthSession {
-    session: Session;
-    user: User;
-}
 
 /**
  * Require authentication for an API route.

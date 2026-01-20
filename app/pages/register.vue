@@ -3,7 +3,7 @@ definePageMeta({
   middleware: 'guest',
 });
 
-const { signUpWithEmail } = useAuth();
+const {signUpWithEmail} = useAuth();
 const router = useRouter();
 const route = useRoute();
 
@@ -44,7 +44,7 @@ async function handleSubmit() {
       const orgsResponse = await $fetch('/api/organization');
       if (orgsResponse.organizations && orgsResponse.organizations.length > 0) {
         // Set the first organization as current via cookie
-        const orgId = orgsResponse.organizations[0].id;
+        const orgId = orgsResponse?.organizations[0]?.id;
         document.cookie = `currentOrgId=${orgId}; path=/; max-age=${60 * 60 * 24 * 365}`; // 1 year
       }
     } catch (orgError) {
@@ -73,7 +73,7 @@ async function handleSubmit() {
 
         <form @submit.prevent="handleSubmit" class="space-y-4">
           <div v-if="error" class="alert alert-error">
-            <Icon name="lucide:alert-circle" class="w-5 h-5" />
+            <Icon name="lucide:alert-circle" class="w-5 h-5"/>
             <span>{{ error }}</span>
           </div>
 
@@ -82,13 +82,13 @@ async function handleSubmit() {
               <span class="label-text">Name</span>
             </label>
             <input
-              id="name"
-              v-model="name"
-              type="text"
-              placeholder="John Doe"
-              class="input input-bordered w-full"
-              required
-              autocomplete="name"
+                id="name"
+                v-model="name"
+                type="text"
+                placeholder="John Doe"
+                class="input input-bordered w-full"
+                required
+                autocomplete="name"
             />
           </div>
 
@@ -97,13 +97,13 @@ async function handleSubmit() {
               <span class="label-text">Email</span>
             </label>
             <input
-              id="email"
-              v-model="email"
-              type="email"
-              placeholder="you@example.com"
-              class="input input-bordered w-full"
-              required
-              autocomplete="email"
+                id="email"
+                v-model="email"
+                type="email"
+                placeholder="you@example.com"
+                class="input input-bordered w-full"
+                required
+                autocomplete="email"
             />
           </div>
 
@@ -112,14 +112,14 @@ async function handleSubmit() {
               <span class="label-text">Password</span>
             </label>
             <input
-              id="password"
-              v-model="password"
-              type="password"
-              placeholder="••••••••"
-              class="input input-bordered w-full"
-              required
-              minlength="8"
-              autocomplete="new-password"
+                id="password"
+                v-model="password"
+                type="password"
+                placeholder="••••••••"
+                class="input input-bordered w-full"
+                required
+                minlength="8"
+                autocomplete="new-password"
             />
             <label class="label">
               <span class="label-text-alt">At least 8 characters</span>
@@ -131,22 +131,22 @@ async function handleSubmit() {
               <span class="label-text">Confirm Password</span>
             </label>
             <input
-              id="confirmPassword"
-              v-model="confirmPassword"
-              type="password"
-              placeholder="••••••••"
-              class="input input-bordered w-full"
-              required
-              autocomplete="new-password"
+                id="confirmPassword"
+                v-model="confirmPassword"
+                type="password"
+                placeholder="••••••••"
+                class="input input-bordered w-full"
+                required
+                autocomplete="new-password"
             />
           </div>
 
           <button
-            type="submit"
-            class="btn btn-primary w-full"
-            :disabled="isLoading"
+              type="submit"
+              class="btn btn-primary w-full"
+              :disabled="isLoading"
           >
-            <span v-if="isLoading" class="loading loading-spinner loading-sm" />
+            <span v-if="isLoading" class="loading loading-spinner loading-sm"/>
             <span v-else>Create Account</span>
           </button>
         </form>

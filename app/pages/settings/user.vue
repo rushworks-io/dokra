@@ -1,17 +1,11 @@
 <script setup lang="ts">
+import type {UserProfile} from '~~/types';
+
 definePageMeta({
   layout: 'app',
   middleware: 'auth',
 });
 
-interface UserProfile {
-  id: string;
-  name: string;
-  email: string;
-  image?: string;
-}
-
-const { user } = useAuth();
 const profile = ref<UserProfile | null>(null);
 const isLoading = ref(true);
 const isSaving = ref(false);
@@ -43,7 +37,7 @@ async function updateProfile() {
   try {
     await $fetch('/api/users/me', {
       method: 'PATCH',
-      body: { name: name.value },
+      body: {name: name.value},
     });
     saveSuccess.value = true;
     setTimeout(() => {
@@ -108,7 +102,7 @@ onMounted(() => {
     </div>
 
     <div v-if="isLoading" class="flex justify-center py-12">
-      <span class="loading loading-spinner loading-lg" />
+      <span class="loading loading-spinner loading-lg"/>
     </div>
 
     <template v-else-if="profile">
@@ -118,12 +112,13 @@ onMounted(() => {
 
           <div class="flex items-center gap-4 mt-4">
             <div class="avatar placeholder">
-              <div class="w-16 h-16 rounded-full bg-primary text-primary-content flex items-center justify-center text-xl font-medium">
+              <div
+                  class="w-16 h-16 rounded-full bg-primary text-primary-content flex items-center justify-center text-xl font-medium">
                 <img
-                  v-if="profile.image"
-                  :src="profile.image"
-                  :alt="profile.name"
-                  class="w-full h-full rounded-full object-cover"
+                    v-if="profile.image"
+                    :src="profile.image"
+                    :alt="profile.name"
+                    class="w-full h-full rounded-full object-cover"
                 />
                 <span v-else>{{ ((profile.name || 'U')[0] || 'U').toUpperCase() }}</span>
               </div>
@@ -134,16 +129,16 @@ onMounted(() => {
             </div>
           </div>
 
-          <div class="divider" />
+          <div class="divider"/>
 
           <form @submit.prevent="updateProfile" class="space-y-4">
             <div class="alert alert-success" v-if="saveSuccess">
-              <Icon name="heroicons:check-circle" class="w-5 h-5" />
+              <Icon name="heroicons:check-circle" class="w-5 h-5"/>
               <span>Changes saved successfully</span>
             </div>
 
             <div class="alert alert-error" v-if="saveError">
-              <Icon name="heroicons:x-circle" class="w-5 h-5" />
+              <Icon name="heroicons:x-circle" class="w-5 h-5"/>
               <span>{{ saveError }}</span>
             </div>
 
@@ -152,10 +147,10 @@ onMounted(() => {
                 <span class="label-text">Full Name</span>
               </label>
               <input
-                v-model="name"
-                type="text"
-                placeholder="Your name"
-                class="input input-bordered w-full max-w-md"
+                  v-model="name"
+                  type="text"
+                  placeholder="Your name"
+                  class="input input-bordered w-full max-w-md"
               />
             </div>
 
@@ -164,10 +159,10 @@ onMounted(() => {
                 <span class="label-text">Email Address</span>
               </label>
               <input
-                type="email"
-                :value="profile.email"
-                class="input input-bordered w-full max-w-md"
-                disabled
+                  type="email"
+                  :value="profile.email"
+                  class="input input-bordered w-full max-w-md"
+                  disabled
               />
               <label class="label">
                 <span class="label-text-alt text-xs text-base-content/50">
@@ -178,11 +173,11 @@ onMounted(() => {
 
             <div class="mt-4">
               <button
-                type="submit"
-                class="btn btn-primary"
-                :disabled="isSaving"
+                  type="submit"
+                  class="btn btn-primary"
+                  :disabled="isSaving"
               >
-                <span v-if="isSaving" class="loading loading-spinner loading-sm" />
+                <span v-if="isSaving" class="loading loading-spinner loading-sm"/>
                 Save Changes
               </button>
             </div>

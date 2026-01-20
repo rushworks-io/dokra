@@ -1,17 +1,9 @@
-import type { H3Event } from 'h3';
-import { eq, and } from 'drizzle-orm';
-import { useDatabase } from './db';
-import { organizations, organizationUsers } from '../db/schema';
-import type { AuthSession } from './require-auth';
+import type {H3Event} from 'h3';
+import {eq, and} from 'drizzle-orm';
+import {useDatabase} from './db';
+import {organizations, organizationUsers} from '../db/schema';
+import type {AuthSession, OrgMembership} from '~~/types';
 
-/**
- * Organization membership information
- */
-export interface OrgMembership {
-  organizationId: string;
-  userId: string;
-  role: 'owner' | 'member' | 'viewer';
-}
 
 /**
  * Get organization membership for a user
@@ -24,52 +16,52 @@ export interface OrgMembership {
  * @throws 403 if user is not a member
  */
 export async function getOrgMembership(
-  event: H3Event,
-  organizationId: string,
-  userId: string
+    event: H3Event,
+    organizationId: string,
+    userId: string
 ): Promise<OrgMembership> {
-  const db = useDatabase(event.context.cloudflare.env.DB);
+    const db = useDatabase(event.context.cloudflare.env.DB);
 
-  // Check if organization exists
-  const org = await db
-    .select()
-    .from(organizations)
-    .where(eq(organizations.id, organizationId))
-    .get();
+    // Check if organization exists
+    const org = await db
+        .select()
+        .from(organizations)
+        .where(eq(organizations.id, organizationId))
+        .get();
 
-  if (!org) {
-    throw createError({
-      statusCode: 404,
-      statusMessage: 'Not Found',
-      message: 'Organization not found',
-    });
-  }
+    if (!org) {
+        throw createError({
+            statusCode: 404,
+            statusMessage: 'Not Found',
+            message: 'Organization not found',
+        });
+    }
 
-  // Check if user is a member
-  const membership = await db
-    .select()
-    .from(organizationUsers)
-    .where(
-      and(
-        eq(organizationUsers.organizationId, organizationId),
-        eq(organizationUsers.userId, userId)
-      )
-    )
-    .get();
+    // Check if user is a member
+    const membership = await db
+        .select()
+        .from(organizationUsers)
+        .where(
+            and(
+                eq(organizationUsers.organizationId, organizationId),
+                eq(organizationUsers.userId, userId)
+            )
+        )
+        .get();
 
-  if (!membership) {
-    throw createError({
-      statusCode: 403,
-      statusMessage: 'Forbidden',
-      message: 'You do not have access to this organization',
-    });
-  }
+    if (!membership) {
+        throw createError({
+            statusCode: 403,
+            statusMessage: 'Forbidden',
+            message: 'You do not have access to this organization',
+        });
+    }
 
-  return {
-    organizationId: membership.organizationId,
-    userId: membership.userId,
-    role: membership.role as 'owner' | 'member' | 'viewer',
-  };
+    return {
+        organizationId: membership.organizationId,
+        userId: membership.userId,
+        role: membership.role as 'owner' | 'member' | 'viewer',
+    };
 }
 
 /**
@@ -83,26 +75,26 @@ export async function getOrgMembership(
  * @throws 403 if user is not a member
  */
 export async function requireOrgMembership(
-  event: H3Event,
-  organizationId: string
+    event: H3Event,
+    organizationId: string
 ): Promise<AuthSession & { membership: OrgMembership }> {
-  const session = event.context.auth;
+    const session = event.context.auth;
 
-  if (!session?.user || !session?.session) {
-    throw createError({
-      statusCode: 401,
-      statusMessage: 'Unauthorized',
-      message: 'You must be logged in to access this resource',
-    });
-  }
+    if (!session?.user || !session?.session) {
+        throw createError({
+            statusCode: 401,
+            statusMessage: 'Unauthorized',
+            message: 'You must be logged in to access this resource',
+        });
+    }
 
-  const membership = await getOrgMembership(event, organizationId, session.user.id);
+    const membership = await getOrgMembership(event, organizationId, session.user.id);
 
-  return {
-    session: session.session,
-    user: session.user,
-    membership,
-  };
+    return {
+        session: session.session,
+        user: session.user,
+        membership,
+    };
 }
 
 /**
@@ -116,33 +108,33 @@ export async function requireOrgMembership(
  * @throws 403 if user is not the owner
  */
 export async function requireOrgOwner(
-  event: H3Event,
-  organizationId: string
+    event: H3Event,
+    organizationId: string
 ): Promise<AuthSession & { membership: OrgMembership }> {
-  const session = event.context.auth;
+    const session = event.context.auth;
 
-  if (!session?.user || !session?.session) {
-    throw createError({
-      statusCode: 401,
-      statusMessage: 'Unauthorized',
-      message: 'You must be logged in to access this resource',
-    });
-  }
+    if (!session?.user || !session?.session) {
+        throw createError({
+            statusCode: 401,
+            statusMessage: 'Unauthorized',
+            message: 'You must be logged in to access this resource',
+        });
+    }
 
-  const membership = await getOrgMembership(event, organizationId, session.user.id);
+    const membership = await getOrgMembership(event, organizationId, session.user.id);
 
-  if (membership.role !== 'owner') {
-    throw createError({
-      statusCode: 403,
-      statusMessage: 'Forbidden',
-      message: 'Only the organization owner can perform this action',
-    });
-  }
+    if (membership.role !== 'owner') {
+        throw createError({
+            statusCode: 403,
+            statusMessage: 'Forbidden',
+            message: 'Only the organization owner can perform this action',
+        });
+    }
 
-  return {
-    session: session.session,
-    user: session.user,
-    membership,
-  };
+    return {
+        session: session.session,
+        user: session.user,
+        membership,
+    };
 }
 

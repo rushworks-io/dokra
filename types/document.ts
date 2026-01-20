@@ -26,3 +26,8 @@ export interface DocumentSummary {
     tags: Tag[];
 }
 
+export interface DocumentPatchResponse {
+    success: boolean;
+    document: DocumentDetail
+
+}

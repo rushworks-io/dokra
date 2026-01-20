@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type {DocumentDetail, Tag} from '~~/types';
+import type {DocumentDetail, DocumentPatchResponse, Tag} from '~~/types';
 
 definePageMeta({
   layout: 'app',
@@ -44,7 +44,11 @@ async function fetchDocument() {
     }>(`/api/documents/${documentId}`);
 
     document.value = response.document;
-    selectedTags.value = response.document.tags;
+
+    if (response?.document?.tags) {
+      selectedTags.value = response.document.tags;
+    }
+
   } catch (err: any) {
     error.value = err.message || 'Failed to load document';
   } finally {
@@ -131,7 +135,7 @@ async function saveChanges() {
 
   isSaving.value = true;
   try {
-    const response = await fetch(`/api/documents/${document.value.id}`, {
+    const response = await $fetch<DocumentPatchResponse>(`/api/documents/${document.value.id}`, {
       method: 'PATCH',
       headers: {'Content-Type': 'application/json'},
       body: JSON.stringify({
@@ -140,12 +144,11 @@ async function saveChanges() {
       }),
     });
 
-    if (!response.ok) {
+    if (!response.success) {
       throw new Error('Failed to save');
     }
 
-    const data = await response.json();
-    document.value = document.value ? {...document.value, ...data.document} : data.document;
+    document.value = document.value ? {...document.value, ...response.document} : response.document;
     isEditing.value = false;
   } catch (err) {
     console.error('Failed to save document:', err);
@@ -186,7 +189,7 @@ async function verifyDocument() {
 
   isSaving.value = true;
   try {
-    const response = await fetch(`/api/documents/${document.value.id}`, {
+    const response = await $fetch<DocumentPatchResponse>(`/api/documents/${document.value.id}`, {
       method: 'PATCH',
       headers: {'Content-Type': 'application/json'},
       body: JSON.stringify({
@@ -194,12 +197,11 @@ async function verifyDocument() {
       }),
     });
 
-    if (!response.ok) {
+    if (!response.success) {
       throw new Error('Failed to verify');
     }
 
-    const data = await response.json();
-    document.value = {...document.value, ...data.document};
+    document.value = {...document.value, ...response.document};
   } catch (err) {
     console.error('Failed to verify document:', err);
     alert('Failed to verify document. Please try again.');
