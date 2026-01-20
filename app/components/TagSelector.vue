@@ -1,9 +1,5 @@
 <script setup lang="ts">
-interface Tag {
-  id: string;
-  name: string;
-  color: string;
-}
+import type {Tag} from '~~/types';
 
 const props = withDefaults(defineProps<{
   modelValue: Tag[];
@@ -30,7 +26,7 @@ const isCreating = ref(false);
 
 const availableSuggestions = computed(() => {
   return suggestions.value.filter((tag) =>
-    !props.modelValue.some((selected) => selected.id === tag.id)
+      !props.modelValue.some((selected) => selected.id === tag.id)
   );
 });
 
@@ -39,7 +35,7 @@ const normalizedSearch = computed(() => search.value.trim().toLowerCase());
 const canCreate = computed(() => {
   if (!props.allowCreate || !normalizedSearch.value) return false;
   return !props.modelValue.some((tag) => tag.name.toLowerCase() === normalizedSearch.value)
-    && !suggestions.value.some((tag) => tag.name.toLowerCase() === normalizedSearch.value);
+      && !suggestions.value.some((tag) => tag.name.toLowerCase() === normalizedSearch.value);
 });
 
 async function fetchTags() {
@@ -131,36 +127,36 @@ watch(search, () => {
   <div class="space-y-2">
     <div v-if="modelValue.length > 0" class="flex flex-wrap gap-2">
       <span
-        v-for="tag in modelValue"
-        :key="tag.id"
-        class="badge badge-outline gap-1"
-        :style="tagStyle(tag)"
+          v-for="tag in modelValue"
+          :key="tag.id"
+          class="badge badge-outline gap-1"
+          :style="tagStyle(tag)"
       >
         {{ tag.name }}
         <button
-          v-if="!disabled"
-          type="button"
-          class="btn btn-ghost btn-xs btn-square"
-          @click="removeTag(tag.id)"
+            v-if="!disabled"
+            type="button"
+            class="btn btn-ghost btn-xs btn-square"
+            @click="removeTag(tag.id)"
         >
-          <Icon name="heroicons:x-mark" class="w-3 h-3" />
+          <Icon name="heroicons:x-mark" class="w-3 h-3"/>
         </button>
       </span>
     </div>
 
     <div class="relative">
       <input
-        v-model="search"
-        type="text"
-        class="input input-bordered w-full"
-        :placeholder="placeholder"
-        :disabled="disabled"
-        @focus="handleFocus"
-        @blur="handleBlur"
+          v-model="search"
+          type="text"
+          class="input input-bordered w-full"
+          :placeholder="placeholder"
+          :disabled="disabled"
+          @focus="handleFocus"
+          @blur="handleBlur"
       />
       <div
-        v-if="isOpen"
-        class="absolute z-20 mt-2 w-full rounded-lg border border-base-300 bg-base-100 shadow-lg"
+          v-if="isOpen"
+          class="absolute z-20 mt-2 w-full rounded-lg border border-base-300 bg-base-100 shadow-lg"
       >
         <div v-if="isLoading" class="px-3 py-2 text-sm text-base-content/60">
           Loading tags...
@@ -171,22 +167,22 @@ watch(search, () => {
           </li>
           <li v-for="tag in availableSuggestions" :key="tag.id">
             <button
-              type="button"
-              class="flex w-full items-center gap-2 px-3 py-2 text-left text-sm hover:bg-base-200"
-              @mousedown.prevent="addTag(tag)"
+                type="button"
+                class="flex w-full items-center gap-2 px-3 py-2 text-left text-sm hover:bg-base-200"
+                @mousedown.prevent="addTag(tag)"
             >
-              <span class="h-2 w-2 rounded-full" :style="{ backgroundColor: tag.color }" />
+              <span class="h-2 w-2 rounded-full" :style="{ backgroundColor: tag.color }"/>
               <span>{{ tag.name }}</span>
             </button>
           </li>
           <li v-if="canCreate">
             <button
-              type="button"
-              class="flex w-full items-center gap-2 px-3 py-2 text-left text-sm hover:bg-base-200"
-              :disabled="isCreating"
-              @mousedown.prevent="createTag"
+                type="button"
+                class="flex w-full items-center gap-2 px-3 py-2 text-left text-sm hover:bg-base-200"
+                :disabled="isCreating"
+                @mousedown.prevent="createTag"
             >
-              <Icon name="heroicons:plus" class="h-4 w-4" />
+              <Icon name="heroicons:plus" class="h-4 w-4"/>
               <span>Create "{{ search.trim() }}"</span>
             </button>
           </li>

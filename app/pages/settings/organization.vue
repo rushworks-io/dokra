@@ -1,26 +1,10 @@
 <script setup lang="ts">
+import type {Organization, Member} from '~~/types';
+
 definePageMeta({
   layout: 'app',
   middleware: 'auth',
 });
-
-interface Member {
-  id: string;
-  user: {
-    id: string;
-    name: string;
-    email: string;
-    image?: string;
-  };
-  role: string;
-  createdAt: string;
-}
-
-interface Organization {
-  id: string;
-  name: string;
-  role: string;
-}
 
 const organization = ref<Organization | null>(null);
 const members = ref<Member[]>([]);
@@ -34,7 +18,7 @@ const isDeleteModalOpen = ref(false);
 const isDeleting = ref(false);
 const deleteConfirmation = ref('');
 
-const { user } = useAuth();
+const {user} = useAuth();
 
 async function fetchOrganizationData() {
   try {
@@ -71,7 +55,7 @@ async function inviteMember() {
     const orgId = useCookie('currentOrgId')?.value;
     await $fetch(`/api/organization/${orgId}/invite`, {
       method: 'POST',
-      body: { email: inviteEmail.value },
+      body: {email: inviteEmail.value},
     });
 
     isInviteModalOpen.value = false;
@@ -103,7 +87,7 @@ async function updateMemberRole(memberId: string, newRole: string) {
     const orgId = useCookie('currentOrgId')?.value;
     await $fetch(`/api/organization/${orgId}/members/${memberId}`, {
       method: 'PATCH' as any,
-      body: { role: newRole },
+      body: {role: newRole},
     });
     await fetchOrganizationData();
   } catch (error) {
@@ -166,17 +150,17 @@ onMounted(() => {
         </p>
       </div>
       <button
-        v-if="canManageMembers()"
-        class="btn btn-primary gap-2"
-        @click="isInviteModalOpen = true"
+          v-if="canManageMembers()"
+          class="btn btn-primary gap-2"
+          @click="isInviteModalOpen = true"
       >
-        <Icon name="heroicons:user-plus" class="w-5 h-5" />
+        <Icon name="heroicons:user-plus" class="w-5 h-5"/>
         Invite Member
       </button>
     </div>
 
     <div v-if="isLoading" class="flex justify-center py-12">
-      <span class="loading loading-spinner loading-lg" />
+      <span class="loading loading-spinner loading-lg"/>
     </div>
 
     <template v-else-if="organization">
@@ -189,10 +173,10 @@ onMounted(() => {
                 <span class="label-text text-base-content/60">Name</span>
               </label>
               <input
-                type="text"
-                :value="organization.name"
-                class="input input-bordered w-full"
-                disabled
+                  type="text"
+                  :value="organization.name"
+                  class="input input-bordered w-full"
+                  disabled
               />
             </div>
             <div>
@@ -200,10 +184,10 @@ onMounted(() => {
                 <span class="label-text text-base-content/60">ID</span>
               </label>
               <input
-                type="text"
-                :value="organization.id"
-                class="input input-bordered w-full font-mono text-sm"
-                disabled
+                  type="text"
+                  :value="organization.id"
+                  class="input input-bordered w-full font-mono text-sm"
+                  disabled
               />
             </div>
           </div>
@@ -220,60 +204,61 @@ onMounted(() => {
           <div class="overflow-x-auto">
             <table class="table">
               <thead>
-                <tr class="border-b border-base-300">
-                  <th class="text-xs font-medium text-base-content/60 uppercase tracking-wider py-3">
-                    Member
-                  </th>
-                  <th class="text-xs font-medium text-base-content/60 uppercase tracking-wider py-3 w-32">
-                    Role
-                  </th>
-                  <th class="text-xs font-medium text-base-content/60 uppercase tracking-wider py-3 w-24">
-                    Actions
-                  </th>
-                </tr>
+              <tr class="border-b border-base-300">
+                <th class="text-xs font-medium text-base-content/60 uppercase tracking-wider py-3">
+                  Member
+                </th>
+                <th class="text-xs font-medium text-base-content/60 uppercase tracking-wider py-3 w-32">
+                  Role
+                </th>
+                <th class="text-xs font-medium text-base-content/60 uppercase tracking-wider py-3 w-24">
+                  Actions
+                </th>
+              </tr>
               </thead>
               <tbody>
-                <tr
+              <tr
                   v-for="member in members"
                   :key="member.id"
                   class="border-b border-base-200 hover:bg-base-200/50"
-                >
-                  <td class="py-3">
-                    <div class="flex items-center gap-3">
-                      <div class="avatar placeholder">
-                        <div class="w-8 h-8 rounded-full bg-primary text-primary-content flex items-center justify-center text-sm">
-                          <img
+              >
+                <td class="py-3">
+                  <div class="flex items-center gap-3">
+                    <div class="avatar placeholder">
+                      <div
+                          class="w-8 h-8 rounded-full bg-primary text-primary-content flex items-center justify-center text-sm">
+                        <img
                             v-if="member.user.image"
                             :src="member.user.image"
                             :alt="member.user.name"
                             class="w-full h-full rounded-full object-cover"
-                          />
-                          <span v-else>
+                        />
+                        <span v-else>
                             {{ ((member.user.name || 'U')[0] || 'U').toUpperCase() }}
                           </span>
-                        </div>
-                      </div>
-                      <div>
-                        <p class="font-medium text-sm">
-                          {{ member.user.name }}
-                          <span v-if="isCurrentUser(member)" class="text-xs text-base-content/50 ml-1">(you)</span>
-                        </p>
-                        <p class="text-xs text-base-content/60">{{ member.user.email }}</p>
                       </div>
                     </div>
-                  </td>
-                  <td class="py-3">
-                    <select
+                    <div>
+                      <p class="font-medium text-sm">
+                        {{ member.user.name }}
+                        <span v-if="isCurrentUser(member)" class="text-xs text-base-content/50 ml-1">(you)</span>
+                      </p>
+                      <p class="text-xs text-base-content/60">{{ member.user.email }}</p>
+                    </div>
+                  </div>
+                </td>
+                <td class="py-3">
+                  <select
                       v-if="canManageMembers() && !isOwner(member)"
                       :value="member.role"
                       class="select select-bordered select-sm"
                       @change="(e) => updateMemberRole(member.id, (e.target as HTMLSelectElement).value)"
-                    >
-                      <option value="owner">Owner</option>
-                      <option value="member">Member</option>
-                      <option value="viewer">Viewer</option>
-                    </select>
-                    <span
+                  >
+                    <option value="owner">Owner</option>
+                    <option value="member">Member</option>
+                    <option value="viewer">Viewer</option>
+                  </select>
+                  <span
                       v-else
                       class="badge badge-sm"
                       :class="{
@@ -281,21 +266,21 @@ onMounted(() => {
                         'badge-secondary': member.role === 'member',
                         'badge-ghost': member.role === 'viewer',
                       }"
-                    >
+                  >
                       {{ member.role }}
                     </span>
-                  </td>
-                  <td class="py-3">
-                    <button
+                </td>
+                <td class="py-3">
+                  <button
                       v-if="canManageMembers() && !isOwner(member)"
                       class="btn btn-ghost btn-xs btn-square text-error/70 hover:text-error"
                       title="Remove member"
                       @click="removeMember(member.user.id)"
-                    >
-                      <Icon name="heroicons:trash" class="w-4 h-4" />
-                    </button>
-                  </td>
-                </tr>
+                  >
+                    <Icon name="heroicons:trash" class="w-4 h-4"/>
+                  </button>
+                </td>
+              </tr>
               </tbody>
             </table>
           </div>
@@ -311,10 +296,10 @@ onMounted(() => {
           </p>
           <div class="mt-4">
             <button
-              class="btn btn-error btn-outline"
-              @click="isDeleteModalOpen = true"
+                class="btn btn-error btn-outline"
+                @click="isDeleteModalOpen = true"
             >
-              <Icon name="heroicons:trash" class="w-5 h-5" />
+              <Icon name="heroicons:trash" class="w-5 h-5"/>
               Delete Organization
             </button>
           </div>
@@ -343,27 +328,27 @@ onMounted(() => {
               </span>
             </label>
             <input
-              v-model="deleteConfirmation"
-              type="text"
-              :placeholder="organization?.name"
-              class="input input-bordered w-full"
-              @keydown.enter="deleteOrganization"
+                v-model="deleteConfirmation"
+                type="text"
+                :placeholder="organization?.name"
+                class="input input-bordered w-full"
+                @keydown.enter="deleteOrganization"
             />
           </div>
         </div>
         <div class="modal-action">
           <button
-            class="btn btn-ghost"
-            @click="isDeleteModalOpen = false; deleteConfirmation = ''"
+              class="btn btn-ghost"
+              @click="isDeleteModalOpen = false; deleteConfirmation = ''"
           >
             Cancel
           </button>
           <button
-            class="btn btn-error"
-            :disabled="isDeleting || deleteConfirmation !== organization?.name"
-            @click="deleteOrganization"
+              class="btn btn-error"
+              :disabled="isDeleting || deleteConfirmation !== organization?.name"
+              @click="deleteOrganization"
           >
-            <span v-if="isDeleting" class="loading loading-spinner loading-sm" />
+            <span v-if="isDeleting" class="loading loading-spinner loading-sm"/>
             Delete Organization
           </button>
         </div>
@@ -381,12 +366,12 @@ onMounted(() => {
             <span class="label-text">Email address</span>
           </label>
           <input
-            v-model="inviteEmail"
-            type="email"
-            placeholder="colleague@example.com"
-            class="input input-bordered w-full"
-            :class="{ 'input-error': inviteError }"
-            @keydown.enter="inviteMember"
+              v-model="inviteEmail"
+              type="email"
+              placeholder="colleague@example.com"
+              class="input input-bordered w-full"
+              :class="{ 'input-error': inviteError }"
+              @keydown.enter="inviteMember"
           />
           <label v-if="inviteError" class="label">
             <span class="label-text-alt text-error">{{ inviteError }}</span>
@@ -397,11 +382,11 @@ onMounted(() => {
             Cancel
           </button>
           <button
-            class="btn btn-primary"
-            :disabled="isInviting"
-            @click="inviteMember"
+              class="btn btn-primary"
+              :disabled="isInviting"
+              @click="inviteMember"
           >
-            <span v-if="isInviting" class="loading loading-spinner loading-sm" />
+            <span v-if="isInviting" class="loading loading-spinner loading-sm"/>
             Send Invitation
           </button>
         </div>

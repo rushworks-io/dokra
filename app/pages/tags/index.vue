@@ -1,15 +1,10 @@
 <script setup lang="ts">
+import type {Tag} from '~~/types';
+
 definePageMeta({
   layout: 'app',
 });
 
-interface Tag {
-  id: string;
-  name: string;
-  color: string;
-  createdAt: string;
-  updatedAt: string;
-}
 
 const currentOrgId = useCookie<string | null>('currentOrgId');
 const tags = ref<Tag[]>([]);

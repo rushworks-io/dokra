@@ -1,26 +1,10 @@
 <script setup lang="ts">
+import type {Document, Tag} from '~~/types';
+
 definePageMeta({
   layout: 'app',
   middleware: 'auth',
 });
-
-interface Document {
-  id: string;
-  title: string;
-  fileName: string;
-  mimeType?: string;
-  fileSize?: number;
-  documentType?: string;
-  status?: string;
-  tags?: Tag[];
-  createdAt: string;
-}
-
-interface Tag {
-  id: string;
-  name: string;
-  color: string;
-}
 
 const currentOrgId = useCookie<string | null>('currentOrgId');
 const documents = ref<Document[]>([]);
@@ -65,8 +49,8 @@ async function fetchDocuments() {
         documentType: documentTypeFilter.value || undefined,
         status: statusFilter.value || undefined,
         tagIds: tagFilters.value.length > 0
-          ? tagFilters.value.map((tag) => tag.id).join(',')
-          : undefined,
+            ? tagFilters.value.map((tag) => tag.id).join(',')
+            : undefined,
         limit: pageSize.value,
         offset,
       },
@@ -217,24 +201,24 @@ onMounted(() => {
       <div class="lg:col-span-2">
         <div class="join w-full">
           <input
-            v-model="search"
-            type="text"
-            placeholder="Search documents..."
-            class="input input-bordered join-item flex-1"
-            @keyup.enter="handleSearch"
+              v-model="search"
+              type="text"
+              placeholder="Search documents..."
+              class="input input-bordered join-item flex-1"
+              @keyup.enter="handleSearch"
           />
           <button
-            class="btn btn-primary join-item"
-            @click="handleSearch"
+              class="btn btn-primary join-item"
+              @click="handleSearch"
           >
             <Icon name="heroicons:magnifying-glass" class="w-5 h-5"/>
           </button>
         </div>
       </div>
       <select
-        v-model="documentTypeFilter"
-        class="select select-bordered w-full"
-        @change="handleFilterChange"
+          v-model="documentTypeFilter"
+          class="select select-bordered w-full"
+          @change="handleFilterChange"
       >
         <option v-for="type in documentTypes" :key="type.value" :value="type.value">
           {{ type.label }}
@@ -245,10 +229,10 @@ onMounted(() => {
           <span class="label-text text-base-content/60">Filter by tags</span>
         </label>
         <TagSelector
-          v-if="currentOrgId"
-          v-model="tagFilters"
-          :organization-id="currentOrgId"
-          placeholder="Search tags..."
+            v-if="currentOrgId"
+            v-model="tagFilters"
+            :organization-id="currentOrgId"
+            placeholder="Search tags..."
         />
       </div>
     </div>

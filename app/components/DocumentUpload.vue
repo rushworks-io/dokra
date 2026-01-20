@@ -1,10 +1,5 @@
 <script setup lang="ts">
-interface UploadProgress {
-  fileName: string;
-  progress: number;
-  status: 'uploading' | 'success' | 'error';
-  error?: string;
-}
+import type {UploadProgress} from '~~/types';
 
 const props = defineProps<{
   organizationId: string;
@@ -151,7 +146,7 @@ async function uploadFiles(files: File[]) {
   isUploading.value = false;
 
   // Check if all uploads succeeded
-  const allSuccess = uploads.value.every(u => u.status === 'success');
+  const allSuccess = uploads.value.every((u: UploadProgress) => u.status === 'success');
   if (allSuccess && uploads.value.length > 0) {
     // Close after a short delay to show success state
     setTimeout(() => {
@@ -224,7 +219,7 @@ function getFileIcon(fileName: string): string {
 }
 
 function clearCompleted() {
-  uploads.value = uploads.value.filter(u => u.status !== 'success');
+  uploads.value = uploads.value.filter((u: UploadProgress) => u.status !== 'success');
 }
 
 function retryFailed(index: number) {
@@ -279,10 +274,11 @@ function retryFailed(index: number) {
     <div v-if="uploads.length > 0" class="space-y-2">
       <div class="flex items-center justify-between">
         <p class="text-sm font-medium text-base-content/70">
-          Uploads ({{ uploads.filter(u => u.status === 'success').length }}/{{ uploads.length }} complete)
+          Uploads ({{ uploads.filter((u: UploadProgress) => u.status === 'success').length }}/{{ uploads.length }}
+          complete)
         </p>
         <button
-            v-if="uploads.some(u => u.status === 'success')"
+            v-if="uploads.some((u: UploadProgress) => u.status === 'success')"
             class="btn btn-ghost btn-xs"
             @click="clearCompleted"
         >

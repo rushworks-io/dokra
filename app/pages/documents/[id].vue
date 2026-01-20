@@ -1,39 +1,11 @@
 <script setup lang="ts">
-import type {Tag} from '~~/types'
+import type {DocumentDetail, Tag} from '~~/types';
 
 definePageMeta({
   layout: 'app',
   middleware: 'auth',
 });
 
-interface DocumentDetail {
-  id: string;
-  organizationId: string;
-  title: string;
-  fileName: string;
-  mimeType?: string;
-  fileSize?: number;
-  documentType?: string;
-  status?: string;
-  r2Key?: string;
-  tags: Tag[];
-  metadata: Record<string, any>;
-  dueDate?: string;
-  extractedText?: string;
-  processedAt?: string;
-  createdAt: string;
-  updatedAt: string;
-}
-
-interface FileInfo {
-  id: string;
-  fileName: string;
-  originalName: string;
-  mimeType: string;
-  fileSize: number;
-  downloadUrl: string;
-  uploadedAt: string;
-}
 
 const route = useRoute();
 const documentId = route.params.id as string;
@@ -192,11 +164,15 @@ async function saveTags() {
     const data = await $fetch<{ document: DocumentDetail }>(`/api/documents/${document.value.id}`, {
       method: 'PATCH',
       body: {
-        tagIds: selectedTags.value.map((tag) => tag.id),
+        tagIds: selectedTags?.value?.map((tag) => tag.id),
       },
     });
     document.value = {...document.value, ...data.document};
-    selectedTags.value = data.document.tags;
+
+    if (data.document.tags) {
+      selectedTags.value = data.document.tags;
+    }
+
   } catch (err: any) {
     console.error('Failed to update tags:', err);
     tagError.value = err.message || 'Failed to update tags';
@@ -438,11 +414,11 @@ onMounted(() => {
               <div class="flex items-center justify-between">
                 <h2 class="card-title text-base">Tags</h2>
                 <button
-                  class="btn btn-primary btn-sm"
-                  :disabled="isTagSaving"
-                  @click="saveTags"
+                    class="btn btn-primary btn-sm"
+                    :disabled="isTagSaving"
+                    @click="saveTags"
                 >
-                  <span v-if="isTagSaving" class="loading loading-spinner loading-sm" />
+                  <span v-if="isTagSaving" class="loading loading-spinner loading-sm"/>
                   <span v-else>Save Tags</span>
                 </button>
               </div>
@@ -450,10 +426,10 @@ onMounted(() => {
                 <span class="label-text text-base-content/60">Assign tags</span>
               </label>
               <TagSelector
-                v-model="selectedTags"
-                :organization-id="document.organizationId"
-                placeholder="Search tags..."
-                :allow-create="true"
+                  v-model="selectedTags"
+                  :organization-id="document.organizationId"
+                  placeholder="Search tags..."
+                  :allow-create="true"
               />
               <p v-if="tagError" class="text-sm text-error">{{ tagError }}</p>
             </div>
@@ -472,7 +448,7 @@ onMounted(() => {
 
         <!-- Sidebar -->
         <div class="space-y-6">
-          </div>
+        </div>
       </div>
     </template>
   </div>

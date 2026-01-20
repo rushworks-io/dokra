@@ -1,24 +1,11 @@
 <script setup lang="ts">
+import type {Document} from '~~/types';
+
 definePageMeta({
   layout: 'app',
   middleware: 'auth',
 });
 
-interface Document {
-  id: string;
-  title: string;
-  fileName: string;
-  mimeType?: string;
-  fileSize?: number;
-  tags?: Tag[];
-  createdAt: string;
-}
-
-interface Tag {
-  id: string;
-  name: string;
-  color: string;
-}
 
 const {user} = useAuth();
 const currentOrgId = useCookie<string | null>('currentOrgId');

@@ -1,15 +1,5 @@
 import {describe, expect, it} from 'vitest';
-
-interface Tag {
-    id: string;
-    name: string;
-    color: string;
-}
-
-interface DocumentSummary {
-    id: string;
-    tags: Tag[];
-}
+import type {DocumentSummary, Tag} from '../../types';
 
 describe('Tag CRUD and filtering', () => {
     it('creates tags with defaults', () => {
@@ -17,6 +7,8 @@ describe('Tag CRUD and filtering', () => {
             id: `tag-${name.toLowerCase()}`,
             name,
             color,
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
         });
 
         const tag = createTag('Finance');
@@ -28,6 +20,8 @@ describe('Tag CRUD and filtering', () => {
             id: 'tag-1',
             name: 'Invoices',
             color: '#3b82f6',
+            createdAt: '2025-01-01T00:00:00.000Z',
+            updatedAt: '2025-01-01T00:00:00.000Z',
         };
 
         const updated = {...tag, name: 'Invoices FY25', color: '#10b981'};
@@ -36,8 +30,8 @@ describe('Tag CRUD and filtering', () => {
     });
 
     it('filters documents by tag IDs', () => {
-        const finance: Tag = {id: 'tag-finance', name: 'Finance', color: '#3b82f6'};
-        const legal: Tag = {id: 'tag-legal', name: 'Legal', color: '#f97316'};
+        const finance: Tag = {id: 'tag-finance', name: 'Finance', color: '#3b82f6', createdAt: '2025-01-01T00:00:00.000Z', updatedAt: '2025-01-01T00:00:00.000Z'};
+        const legal: Tag = {id: 'tag-legal', name: 'Legal', color: '#f97316', createdAt: '2025-01-01T00:00:00.000Z', updatedAt: '2025-01-01T00:00:00.000Z'};
 
         const documents: DocumentSummary[] = [
             {id: 'doc-1', tags: [finance]},
@@ -54,8 +48,8 @@ describe('Tag CRUD and filtering', () => {
 
     it('removes tags from assignments', () => {
         const tags: Tag[] = [
-            {id: 'tag-1', name: 'Inbox', color: '#3b82f6'},
-            {id: 'tag-2', name: 'Tax', color: '#22c55e'},
+            {id: 'tag-1', name: 'Inbox', color: '#3b82f6', createdAt: '2025-01-01T00:00:00.000Z', updatedAt: '2025-01-01T00:00:00.000Z'},
+            {id: 'tag-2', name: 'Tax', color: '#22c55e', createdAt: '2025-01-01T00:00:00.000Z', updatedAt: '2025-01-01T00:00:00.000Z'},
         ];
 
         const remaining = tags.filter((tag) => tag.id !== 'tag-2');
