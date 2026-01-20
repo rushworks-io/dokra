@@ -72,7 +72,6 @@ export default defineEventHandler(async (event) => {
             status: doc.status,
             r2Key: doc.r2Key,
             tags: tagRows,
-            r2Key: doc.r2Key,
             metadata: doc.metadata ? JSON.parse(doc.metadata) : {},
             dueDate: doc.dueDate,
             extractedText: doc.extractedText,
