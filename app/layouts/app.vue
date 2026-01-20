@@ -1,17 +1,9 @@
 <script setup lang="ts">
-
-const emit = defineEmits<{
-  search: [query: string];
-}>();
-
-function handleSearch(query: string) {
-  emit('search', query);
-}
 </script>
 
 <template>
   <div class="h-screen flex flex-col bg-base-100 overflow-hidden">
-    <AppHeader @search="handleSearch" />
+    <AppHeader />
 
     <div class="flex-1 flex overflow-hidden">
       <AppSidebar />

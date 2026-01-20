@@ -1,11 +1,4 @@
 <script setup lang="ts">
-const emit = defineEmits<{
-  search: [query: string];
-}>();
-
-function handleSearch(query: string) {
-  emit('search', query);
-}
 </script>
 
 <template>
@@ -16,7 +9,7 @@ function handleSearch(query: string) {
     </NuxtLink>
 
     <div class="flex-1 flex justify-center">
-      <AppSearch @search="handleSearch" />
+      <AppSearch />
     </div>
 
     <div class="flex items-center gap-2">

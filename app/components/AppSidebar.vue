@@ -9,6 +9,7 @@ const isSidebarHovered = ref(false);
 
 const navigation = [
   {name: 'Home', href: '/dashboard', icon: 'heroicons:home'},
+  {name: 'Search', href: '/search', icon: 'heroicons:magnifying-glass'},
   {name: 'Documents', href: '/documents', icon: 'heroicons:document-duplicate'},
   {name: 'Tags', href: '/tags', icon: 'heroicons:tag'},
   {name: 'Members', href: '/members', icon: 'heroicons:users'},
