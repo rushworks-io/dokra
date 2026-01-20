@@ -2,21 +2,38 @@
 
 **Project**: Open-source, self-hosted document archiving platform  
 **Tech Stack**: Nuxt 4, Cloudflare (Workers/Pages/D1/R2/Queues), Drizzle ORM, BetterAuth, Tailwind CSS v4 + DaisyUI v5  
-**LLM**: Gemma 3–270M for document classification and metadata extraction
+**LLM**: Gemma 3–270M for document classification and metadata extraction  
+**Status**: Phase 1 MVP (Document upload + search + auth + basic tagging) — ~70% complete
 
 ---
 
 ## Table of Contents
 
-1. [Project Vision](#project-vision)
-2. [Architecture Overview](#architecture-overview)
-3. [Tech Stack Details](#tech-stack-details)
-4. [Database Schema](#database-schema)
-5. [Phase Roadmap](#phase-roadmap)
-6. [Feature Prioritization Matrix](#feature-prioritization-matrix)
-7. [Cloudflare Infrastructure](#cloudflare-infrastructure)
-8. [Development Workflow](#development-workflow)
-9. [Testing Strategy](#testing-strategy)
+1. [Quick Links](#quick-links)
+2. [Project Vision](#project-vision)
+3. [Architecture Overview](#architecture-overview)
+4. [Tech Stack Details](#tech-stack-details)
+5. [Implementation Status](#implementation-status)
+6. [Database Schema](#database-schema)
+7. [Phase Roadmap](#phase-roadmap)
+8. [Feature Prioritization Matrix](#feature-prioritization-matrix)
+9. [Cloudflare Infrastructure](#cloudflare-infrastructure)
+10. [Development Workflow](#development-workflow)
+11. [Testing Strategy](#testing-strategy)
+
+---
+
+## Quick Links
+
+**📖 Essential Documentation**:
+
+- [API Reference](./API-REFERENCE.md) — All endpoints, request/response formats, error handling
+- [Database Schema](./DATABASE-SCHEMA.md) — Tables, relationships, indexes, migrations
+- [Deployment Guide](./DEPLOYMENT.md) — Setup Cloudflare, local dev, production deploy
+- [Development Guide](./DEVELOPMENT-GUIDE.md) — Project structure, composables, patterns, contributing
+- [Testing Guide](./testing.md) — Running tests, unit/integration/e2e setup
+- [App Style Guide](./app-style-guide.md) — UI/UX principles, component behavior
+- [Dashboard Layout Plan](./dashboard-layout-plan.md) — Frontend layout architecture
 
 ---
 
@@ -39,7 +56,33 @@ Build a **privacy-first, self-hosted document archiving platform** that is:
 
 ---
 
-## Architecture Overview
+## Implementation Status
+
+### Phase 1 MVP: ~70% Complete
+
+| Component             | Status         | Notes                                                                    |
+|-----------------------|----------------|--------------------------------------------------------------------------|
+| **Infrastructure**    | ✅ Done         | Nuxt 4 + Nitro on Cloudflare, D1 + R2 setup, Drizzle ORM configured      |
+| **Authentication**    | ✅ Done         | BetterAuth email/password login, session management, org-scoped access   |
+| **Core DB Schema**    | ✅ Done         | organizations, documents, files, tags, document_tags tables + migrations |
+| **Document Upload**   | ✅ Done         | Multipart file upload to R2, metadata stored in D1                       |
+| **Document List API** | ✅ Done         | GET /api/documents with filters (search, type, status, tags)             |
+| **Search**            | ⚙️ In Progress | Full-text search on `extractedText`, frontend composable ready           |
+| **Tagging**           | ✅ Done         | Tag CRUD + document_tags join table, API endpoints                       |
+| **Frontend UI**       | ⚙️ In Progress | Dashboard layout, document table, search bar, sidebar — mostly styled    |
+| **Tests**             | ⚙️ Partial     | Unit test structure in place, need more endpoint + composable coverage   |
+
+### Not Yet Started (Phase 2+)
+
+- Email ingestion + folder watch
+- OCR pipeline (Cloudflare Queues)
+- Gemma classification integration
+- Reminder system + notifications
+- Multi-user roles + fine-grained ACLs
+- Rule engine for automation
+- CLI agent
+
+---
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
@@ -90,51 +133,51 @@ Build a **privacy-first, self-hosted document archiving platform** that is:
 
 ### Frontend & SSR
 
-| Technology | Purpose | Notes |
-|------------|---------|-------|
-| **Nuxt 4** | Full-stack framework. |
-| **Tailwind CSS v4** | Styling | Modern utility-first CSS. |
-| **DaisyUI v5** | Component library | Pre-built, accessible, theme-friendly components. |
-| **nuxt-test-utils** | Testing | Component and integration testing for SPA flows. |
-| **TypeScript** | Language | Type safety across frontend and backend. |
+| Technology          | Purpose               | Notes                                             |
+|---------------------|-----------------------|---------------------------------------------------|
+| **Nuxt 4**          | Full-stack framework. |
+| **Tailwind CSS v4** | Styling               | Modern utility-first CSS.                         |
+| **DaisyUI v5**      | Component library     | Pre-built, accessible, theme-friendly components. |
+| **nuxt-test-utils** | Testing               | Component and integration testing for SPA flows.  |
+| **TypeScript**      | Language              | Type safety across frontend and backend.          |
 
 ### Backend & Database
 
-| Technology | Purpose | Notes |
-|------------|---------|-------|
-| **Nitro** | Server runtime | Handles API routes, middleware, server composables. |
-| **BetterAuth** | Authentication | Email/password + OAuth (Google, Apple). Session management via secure cookies. |
-| **Drizzle ORM** | Database abstraction | Type-safe queries; schema migrations; Cloudflare D1 driver. |
-| **Cloudflare D1** | Relational DB | SQLite-compatible serverless SQL; single request per query. |
+| Technology        | Purpose              | Notes                                                                          |
+|-------------------|----------------------|--------------------------------------------------------------------------------|
+| **Nitro**         | Server runtime       | Handles API routes, middleware, server composables.                            |
+| **BetterAuth**    | Authentication       | Email/password + OAuth (Google, Apple). Session management via secure cookies. |
+| **Drizzle ORM**   | Database abstraction | Type-safe queries; schema migrations; Cloudflare D1 driver.                    |
+| **Cloudflare D1** | Relational DB        | SQLite-compatible serverless SQL; single request per query.                    |
 
 ### Storage & Files
 
-| Technology | Purpose | Notes |
-|------------|---------|-------|
+| Technology        | Purpose      | Notes                                                    |
+|-------------------|--------------|----------------------------------------------------------|
 | **Cloudflare R2** | Blob storage | Document originals and derived files (PDFs, OCR'd text). |
 
 ### Background Jobs & Scheduling
 
-| Technology | Purpose | Notes |
-|------------|---------|-------|
-| **Cloudflare Queues** | Job queue | Decouple document processing from API requests. |
-| **Durable Objects** | Stateful workers + alarms | Reminder sweeps and periodic job scheduling. |
-| **Cron Triggers** | Scheduled tasks | Optional; use for daily reminder scans. |
+| Technology            | Purpose                   | Notes                                           |
+|-----------------------|---------------------------|-------------------------------------------------|
+| **Cloudflare Queues** | Job queue                 | Decouple document processing from API requests. |
+| **Durable Objects**   | Stateful workers + alarms | Reminder sweeps and periodic job scheduling.    |
+| **Cron Triggers**     | Scheduled tasks           | Optional; use for daily reminder scans.         |
 
 ### LLM & Classification
 
-| Technology | Purpose | Notes |
-|------------|---------|-------|
-| **Gemma 3–270M** | Document classification | Run locally on Cloudflare Workers or external GPU; classify type, priority, correspondents. |
-| **Ollama** (optional) | Local inference | For self-hosted + dev environments. |
+| Technology            | Purpose                 | Notes                                                                                       |
+|-----------------------|-------------------------|---------------------------------------------------------------------------------------------|
+| **Gemma 3–270M**      | Document classification | Run locally on Cloudflare Workers or external GPU; classify type, priority, correspondents. |
+| **Ollama** (optional) | Local inference         | For self-hosted + dev environments.                                                         |
 
 ### Testing & Tooling
 
-| Technology | Purpose | Notes |
-|------------|---------|-------|
+| Technology          | Purpose                  | Notes                                        |
+|---------------------|--------------------------|----------------------------------------------|
 | **nuxt-test-utils** | Unit & integration tests | Test components, server routes, composables. |
-| **Vitest** | Test runner | Fast, ESM-native testing. |
-| **GitHub Actions** | CI/CD | Lint, test, and deploy on push. |
+| **Vitest**          | Test runner              | Fast, ESM-native testing.                    |
+| **GitHub Actions**  | CI/CD                    | Lint, test, and deploy on push.              |
 
 ---
 
@@ -145,91 +188,91 @@ Build a **privacy-first, self-hosted document archiving platform** that is:
 ```typescript
 // organizations.ts
 export const organizations = sqliteTable('organizations', {
-  id: text('id').primaryKey(),
-  name: text('name').notNull(),
-  ownerId: text('owner_id').notNull(),
-  createdAt: text('created_at').default(sql`CURRENT_TIMESTAMP`),
-  updatedAt: text('updated_at').default(sql`CURRENT_TIMESTAMP`),
+    id: text('id').primaryKey(),
+    name: text('name').notNull(),
+    ownerId: text('owner_id').notNull(),
+    createdAt: text('created_at').default(sql`CURRENT_TIMESTAMP`),
+    updatedAt: text('updated_at').default(sql`CURRENT_TIMESTAMP`),
 });
 
 // users.ts
 export const users = sqliteTable('users', {
-  id: text('id').primaryKey(),
-  email: text('email').unique().notNull(),
-  name: text('name'),
-  role: text('role').default('user'), // 'owner', 'member', 'viewer'
-  createdAt: text('created_at').default(sql`CURRENT_TIMESTAMP`),
+    id: text('id').primaryKey(),
+    email: text('email').unique().notNull(),
+    name: text('name'),
+    role: text('role').default('user'), // 'owner', 'member', 'viewer'
+    createdAt: text('created_at').default(sql`CURRENT_TIMESTAMP`),
 });
 
 // organizations_users.ts (join table for multi-user organizations)
 export const organizationUsers = sqliteTable('organization_users', {
-  id: text('id').primaryKey(),
-  organizationId: text('organization_id').notNull(),
-  userId: text('user_id').notNull(),
-  role: text('role').default('member'), // 'owner', 'member', 'viewer'
-  createdAt: text('created_at').default(sql`CURRENT_TIMESTAMP`),
+    id: text('id').primaryKey(),
+    organizationId: text('organization_id').notNull(),
+    userId: text('user_id').notNull(),
+    role: text('role').default('member'), // 'owner', 'member', 'viewer'
+    createdAt: text('created_at').default(sql`CURRENT_TIMESTAMP`),
 });
 
 // documents.ts
 export const documents = sqliteTable('documents', {
-  id: text('id').primaryKey(),
-  organizationId: text('organization_id').notNull(),
-  title: text('title').notNull(),
-  r2Key: text('r2_key').notNull(), // Path in R2
-  fileName: text('file_name').notNull(),
-  mimeType: text('mime_type'),
-  fileSize: integer('file_size'),
-  extractedText: text('extracted_text'), // OCR'd / full-text
-  documentType: text('document_type'), // Gemma-classified: invoice, contract, etc.
-  dueDate: text('due_date'), // ISO date
-  reminderDaysBeforeDue: integer('reminder_days_before_due').default(7),
-  tags: text('tags'), // JSON array or comma-separated
-  metadata: text('metadata'), // JSON custom fields
-  processedAt: text('processed_at'),
-  createdAt: text('created_at').default(sql`CURRENT_TIMESTAMP`),
-  updatedAt: text('updated_at').default(sql`CURRENT_TIMESTAMP`),
+    id: text('id').primaryKey(),
+    organizationId: text('organization_id').notNull(),
+    title: text('title').notNull(),
+    r2Key: text('r2_key').notNull(), // Path in R2
+    fileName: text('file_name').notNull(),
+    mimeType: text('mime_type'),
+    fileSize: integer('file_size'),
+    extractedText: text('extracted_text'), // OCR'd / full-text
+    documentType: text('document_type'), // Gemma-classified: invoice, contract, etc.
+    dueDate: text('due_date'), // ISO date
+    reminderDaysBeforeDue: integer('reminder_days_before_due').default(7),
+    tags: text('tags'), // JSON array or comma-separated
+    metadata: text('metadata'), // JSON custom fields
+    processedAt: text('processed_at'),
+    createdAt: text('created_at').default(sql`CURRENT_TIMESTAMP`),
+    updatedAt: text('updated_at').default(sql`CURRENT_TIMESTAMP`),
 });
 
 // tags.ts
 export const tags = sqliteTable('tags', {
-  id: text('id').primaryKey(),
-  organizationId: text('organization_id').notNull(),
-  name: text('name').notNull(),
-  color: text('color').default('blue'), // For UI
-  createdAt: text('created_at').default(sql`CURRENT_TIMESTAMP`),
+    id: text('id').primaryKey(),
+    organizationId: text('organization_id').notNull(),
+    name: text('name').notNull(),
+    color: text('color').default('blue'), // For UI
+    createdAt: text('created_at').default(sql`CURRENT_TIMESTAMP`),
 });
 
 // jobs.ts (processing pipeline)
 export const jobs = sqliteTable('jobs', {
-  id: text('id').primaryKey(),
-  documentId: text('document_id').notNull(),
-  type: text('type').notNull(), // 'ocr', 'classify', 'extract_metadata'
-  status: text('status').default('pending'), // pending, processing, done, failed
-  result: text('result'), // JSON result or error
-  retries: integer('retries').default(0),
-  createdAt: text('created_at').default(sql`CURRENT_TIMESTAMP`),
-  updatedAt: text('updated_at').default(sql`CURRENT_TIMESTAMP`),
+    id: text('id').primaryKey(),
+    documentId: text('document_id').notNull(),
+    type: text('type').notNull(), // 'ocr', 'classify', 'extract_metadata'
+    status: text('status').default('pending'), // pending, processing, done, failed
+    result: text('result'), // JSON result or error
+    retries: integer('retries').default(0),
+    createdAt: text('created_at').default(sql`CURRENT_TIMESTAMP`),
+    updatedAt: text('updated_at').default(sql`CURRENT_TIMESTAMP`),
 });
 
 // reminders.ts (for Phase 4)
 export const reminders = sqliteTable('reminders', {
-  id: text('id').primaryKey(),
-  documentId: text('document_id').notNull(),
-  organizationId: text('organization_id').notNull(),
-  userId: text('user_id'),
-  reminderType: text('reminder_type'), // 'due_soon', 'overdue', 'custom'
-  scheduledFor: text('scheduled_for').notNull(), // ISO datetime
-  sent: integer('sent').default(0),
-  channel: text('channel').default('email'), // email, push, in-app
-  createdAt: text('created_at').default(sql`CURRENT_TIMESTAMP`),
+    id: text('id').primaryKey(),
+    documentId: text('document_id').notNull(),
+    organizationId: text('organization_id').notNull(),
+    userId: text('user_id'),
+    reminderType: text('reminder_type'), // 'due_soon', 'overdue', 'custom'
+    scheduledFor: text('scheduled_for').notNull(), // ISO datetime
+    sent: integer('sent').default(0),
+    channel: text('channel').default('email'), // email, push, in-app
+    createdAt: text('created_at').default(sql`CURRENT_TIMESTAMP`),
 });
 
 // search_cache.ts (optional, for performance)
 export const searchCache = sqliteTable('search_cache', {
-  id: text('id').primaryKey(),
-  documentId: text('document_id').notNull(),
-  searchVector: text('search_vector'), // Simplified; for later vector search
-  createdAt: text('created_at').default(sql`CURRENT_TIMESTAMP`),
+    id: text('id').primaryKey(),
+    documentId: text('document_id').notNull(),
+    searchVector: text('search_vector'), // Simplified; for later vector search
+    createdAt: text('created_at').default(sql`CURRENT_TIMESTAMP`),
 });
 ```
 
@@ -270,7 +313,6 @@ export const searchCache = sqliteTable('search_cache', {
 
 ### Phase 2: Robust Ingestion & Background Processing
 
-**Duration**: 4–6 weeks  
 **Goal**: Reliable multi-source document ingest and asynchronous processing pipeline.
 
 **Key features**:
@@ -290,9 +332,8 @@ export const searchCache = sqliteTable('search_cache', {
 
 ---
 
-### Phase 3: Docspell-like Smart Organization
+### Phase 3: Smart Organization
 
-**Duration**: 4–6 weeks  
 **Goal**: Rich metadata, power-user workflows, saved searches.
 
 **Key features**:
@@ -314,16 +355,15 @@ export const searchCache = sqliteTable('search_cache', {
 
 ### Phase 4: Automation, Reminders & Multi-user
 
-**Duration**: 6–8 weeks  
 **Goal**: Team collaboration, reminders, rule-based automation.
 
 **Key features**:
 
 - Due dates and reminders per document.
-  - Configurable reminder windows (e.g., "remind 7 days before due").
-  - Reminder sweep job via Durable Objects + Queues or Cron Workers (no external cron).
-  - Email notifications for due-soon and overdue docs.
-  - UI views: "Due Soon", "Overdue", "Done".
+    - Configurable reminder windows (e.g., "remind 7 days before due").
+    - Reminder sweep job via Durable Objects + Queues or Cron Workers (no external cron).
+    - Email notifications for due-soon and overdue docs.
+    - UI views: "Due Soon", "Overdue", "Done".
 - Rule engine: if type = invoice → tag "Tax", assign to org "Business".
 - Multi-user roles in shared orgs (owner, member, viewer) with fine-grained folder ACLs.
 - Public REST API + personal access tokens.
@@ -338,46 +378,20 @@ export const searchCache = sqliteTable('search_cache', {
 
 ---
 
-## Feature Prioritization Matrix
-
-| Feature | Phase | Priority | Effort | User Value | Notes |
-|---------|-------|----------|--------|------------|-------|
-| Document upload & storage | 1 | 1 | Small  | High | Core MVP. |
-| Orgs + basic auth | 1 | 1 | Small  | High | Scoping + security. |
-| Full-text search | 1 | 1 | Medium | High | Essential UX. |
-| Basic tagging | 1 | 1 | Small  | High | Minimal taxonomy. |
-| Responsive UI (Tailwind/DaisyUI) | 1 | 1 | Medium | High | First impression. |
-| Gemma classification | 1 | 2 | Medium | Medium | Convenience; not blocking. |
-| Email ingestion | 2 | 2 | Large  | High | Common use case. |
-| Folder watch / CLI | 2 | 2 | Large  | Medium | Power-user feature. |
-| OCR pipeline (Queues) | 2 | 1 | Large  | High | Unlocks search on scans. |
-| Inbox view | 2 | 2 | Small  | High | UX for processing flow. |
-| Custom metadata | 3 | 2 | Medium | Medium | Extensibility. |
-| Contacts / correspondents | 3 | 2 | Medium | Medium | Context + metadata. |
-| Saved searches | 3 | 3 | Small  | Low | Nice-to-have; filters first. |
-| Batch operations | 3 | 2 | Medium | High | Power-user efficiency. |
-| Due dates + reminders | 4 | 1 | Medium | High | Docspell-key feature. |
-| Reminder notifications (email) | 4 | 1 | Small  | High | Keep-on-track UX. |
-| Rule engine | 4 | 2 | Large  | Medium | Automation; complex. |
-| Multi-user roles + ACLs | 4 | 2 | Large  | High | Team support. |
-| Public REST API | 4 | 2 | Large  | Medium | Integrations + ecosystem. |
-
----
-
 ## Cloudflare Infrastructure
 
 ### Services in Use
 
-| Service | Purpose | Free Tier | Config Notes |
-|---------|---------|-----------|--------------|
-| **Workers** | Nuxt app + API | 100k req/day | Nitro preset `cloudflare`. |
-| **Pages** | Static hosting | Unlimited | Optional for static assets. |
-| **D1** | SQL database | 3 databases + limits | Drizzle ORM driver. |
-| **R2** | Object storage | 10 GB/month | Document originals + derivatives. |
-| **Queues** | Job processing | 1M ops/month | OCR, classification, reminders. |
-| **Durable Objects** | Stateful workers + alarms | 1M ops/day | Reminder sweeps, job scheduling. |
-| **KV** | Key-value cache | 100k ops/day | Optional: search cache, session tokens. |
-| **Email Routing** | Email forwarding | Unlimited | Catch doc-archive emails → your service. |
+| Service             | Purpose                   | Config Notes                             |
+|---------------------|---------------------------|------------------------------------------|
+| **Workers**         | Nuxt app + API            | Nitro preset `cloudflare`.               |
+| **Pages**           | Static hosting            | Optional for static assets.              |
+| **D1**              | SQL database              | Drizzle ORM driver.                      |
+| **R2**              | Object storage            | Document originals + derivatives.        |
+| **Queues**          | Job processing            | OCR, classification, reminders.          |
+| **Durable Objects** | Stateful workers + alarms | Reminder sweeps, job scheduling.         |
+| **KV**              | Key-value cache           | Optional: search cache, session tokens.  |
+| **Email Routing**   | Email forwarding          | Catch doc-archive emails → your service. |
 
 ### Deployment Architecture
 
@@ -509,13 +523,13 @@ ci: add GitHub Actions workflow
 ```typescript
 // Example: test search endpoint
 describe('/api/documents/search', () => {
-  it('returns documents matching query', async () => {
-    const { $fetch } = await useTestServer();
-    const result = await $fetch('/api/documents/search', {
-      query: { q: 'invoice' }
+    it('returns documents matching query', async () => {
+        const {$fetch} = await useTestServer();
+        const result = await $fetch('/api/documents/search', {
+            query: {q: 'invoice'}
+        });
+        expect(result.documents).toHaveLength(3);
     });
-    expect(result.documents).toHaveLength(3);
-  });
 });
 ```
 
