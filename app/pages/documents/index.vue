@@ -20,7 +20,6 @@ interface Tag {
   id: string;
   name: string;
   color: string;
-  category: string;
 }
 
 const currentOrgId = useCookie<string | null>('currentOrgId');

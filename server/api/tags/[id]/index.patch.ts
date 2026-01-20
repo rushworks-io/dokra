@@ -13,7 +13,6 @@ import { tags } from '../../../db/schema';
  * Body (JSON):
  * - name: Optional. Tag name
  * - color: Optional. Tag color
- * - category: Optional. Tag category
  */
 export default defineEventHandler(async (event) => {
   requireAuth(event);
@@ -104,9 +103,6 @@ export default defineEventHandler(async (event) => {
     updates.color = trimmedColor;
   }
 
-  if (body.category !== undefined) {
-    updates.category = String(body.category || '').trim() || 'general';
-  }
 
   await db
     .update(tags)
@@ -133,7 +129,6 @@ export default defineEventHandler(async (event) => {
       organizationId: updated.organizationId,
       name: updated.name,
       color: updated.color,
-      category: updated.category,
       createdAt: updated.createdAt,
       updatedAt: updated.updatedAt,
     },

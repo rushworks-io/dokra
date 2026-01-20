@@ -121,7 +121,6 @@ export default defineEventHandler(async (event) => {
           id: tags.id,
           name: tags.name,
           color: tags.color,
-          category: tags.category,
         })
         .from(documentTags)
         .innerJoin(tags, eq(documentTags.tagId, tags.id))
@@ -157,7 +156,6 @@ export default defineEventHandler(async (event) => {
         id: tag.id,
         name: tag.name,
         color: tag.color,
-        category: tag.category,
       })),
       dueDate: doc.dueDate,
       createdAt: doc.createdAt,

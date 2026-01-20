@@ -97,7 +97,7 @@ export default defineEventHandler(async (event) => {
         .where(eq(documents.id, documentId));
 
     if (body.tagIds !== undefined) {
-        const uniqueTagIds = Array.from(
+        const uniqueTagIds: string[] = Array.from(
             new Set(
                 body.tagIds
                     .map((tagId: string) => String(tagId).trim())
@@ -147,7 +147,6 @@ export default defineEventHandler(async (event) => {
             id: tags.id,
             name: tags.name,
             color: tags.color,
-            category: tags.category,
         })
         .from(documentTags)
         .innerJoin(tags, eq(documentTags.tagId, tags.id))

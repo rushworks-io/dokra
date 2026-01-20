@@ -11,7 +11,6 @@ import { tags } from '../../db/schema';
  * - organizationId: Required. Organization ID
  * - name: Required. Tag name
  * - color: Optional. Tag color hex
- * - category: Optional. Tag category
  */
 export default defineEventHandler(async (event) => {
   requireAuth(event);
@@ -21,7 +20,6 @@ export default defineEventHandler(async (event) => {
   const organizationId = body.organizationId as string;
   const name = body.name as string;
   const color = body.color as string | undefined;
-  const category = body.category as string | undefined;
 
   if (!organizationId) {
     throw createError({
@@ -31,7 +29,7 @@ export default defineEventHandler(async (event) => {
     });
   }
 
-  if (!name || typeof name !== 'string' || name.trim().length === 0) {
+  if (!name || name.trim().length === 0) {
     throw createError({
       statusCode: 400,
       statusMessage: 'Bad Request',
@@ -41,7 +39,6 @@ export default defineEventHandler(async (event) => {
 
   const db = useDatabase(event.context.cloudflare.env.DB);
   const trimmedName = name.trim();
-  const trimmedCategory = category?.trim() || 'general';
   const trimmedColor = color?.trim() || '#3b82f6';
 
   if (!colorPattern.test(trimmedColor)) {
@@ -79,7 +76,6 @@ export default defineEventHandler(async (event) => {
     organizationId,
     name: trimmedName,
     color: trimmedColor,
-    category: trimmedCategory,
     createdAt: now,
     updatedAt: now,
   });
@@ -90,7 +86,6 @@ export default defineEventHandler(async (event) => {
       organizationId,
       name: trimmedName,
       color: trimmedColor,
-      category: trimmedCategory,
       createdAt: now,
       updatedAt: now,
     },

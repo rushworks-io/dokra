@@ -47,12 +47,6 @@ function handleMouseLeave() {
   hoveredItem.value = null;
 }
 
-function toggleCategory(category: string) {
-  if (isCollapsed.value) {
-    expandedCategory.value = expandedCategory.value === category ? null : category;
-  }
-}
-
 function handleMouseMove(e: MouseEvent) {
   if (!sidebarRef.value) return;
   const rect = sidebarRef.value.getBoundingClientRect();

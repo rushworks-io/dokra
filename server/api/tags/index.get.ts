@@ -45,7 +45,6 @@ export default defineEventHandler(async (event) => {
       id: tag.id,
       name: tag.name,
       color: tag.color,
-      category: tag.category,
       createdAt: tag.createdAt,
       updatedAt: tag.updatedAt,
     })),

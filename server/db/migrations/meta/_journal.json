@@ -52,10 +52,10 @@
       "breakpoints": true
     },
     {
-      "idx": 6,
+      "idx": 7,
       "version": "6",
-      "when": 1768770000000,
-      "tag": "0006_add-uploaded-by-to-documents",
+      "when": 1737331200000,
+      "tag": "0007_remove-tags-category",
       "breakpoints": true
     }
   ]

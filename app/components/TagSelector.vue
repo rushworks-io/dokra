@@ -3,7 +3,6 @@ interface Tag {
   id: string;
   name: string;
   color: string;
-  category: string;
 }
 
 const props = withDefaults(defineProps<{
@@ -178,7 +177,6 @@ watch(search, () => {
             >
               <span class="h-2 w-2 rounded-full" :style="{ backgroundColor: tag.color }" />
               <span>{{ tag.name }}</span>
-              <span class="ml-auto text-xs text-base-content/50">{{ tag.category }}</span>
             </button>
           </li>
           <li v-if="canCreate">

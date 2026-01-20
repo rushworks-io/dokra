@@ -49,7 +49,6 @@ export default defineEventHandler(async (event) => {
             id: tags.id,
             name: tags.name,
             color: tags.color,
-            category: tags.category,
         })
         .from(documentTags)
         .innerJoin(tags, eq(documentTags.tagId, tags.id))
