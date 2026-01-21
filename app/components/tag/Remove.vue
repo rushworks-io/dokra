@@ -22,7 +22,7 @@ function tagStyle(tag: Tag) {
           :style="tagStyle(tag)"
     >
         {{ props.tag.name }}
-      <Icon name="heroicons:x-mark-20-solid cursor-pointer" @click="emit('removeTag', props.tag.id)"/>
+      <Icon name="heroicons:x-mark-20-solid" class="cursor-pointer" @click="emit('removeTag', props.tag.id)"/>
     </span>
   </span>
 </template>
