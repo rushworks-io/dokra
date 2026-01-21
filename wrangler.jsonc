@@ -19,7 +19,8 @@
     {
       "binding": "R2",
       "bucket_name": "dokra-files",
-      "preview_bucket_name": "dokra-files-preview"
+      "preview_bucket_name": "dokra-files-preview",
+      "jurisdiction": "eu"
     }
   ]
 }

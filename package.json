@@ -19,6 +19,8 @@
     "db:studio": "drizzle-kit studio"
   },
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.971.0",
+    "@aws-sdk/s3-request-presigner": "^3.971.0",
     "@nuxt/fonts": "0.12.1",
     "@nuxt/hints": "1.0.0-alpha.5",
     "@nuxt/icon": "2.1.1",
@@ -29,6 +31,7 @@
     "better-auth": "^1.4.10",
     "drizzle-orm": "^0.45.1",
     "nuxt": "^4.2.2",
+    "pdfjs-dist": "^5.4.530",
     "tailwindcss": "^4.1.18",
     "vue": "^3.5.26",
     "vue-router": "^4.6.4"
