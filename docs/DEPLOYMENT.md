@@ -127,6 +127,30 @@ Add to `wrangler.jsonc`:
 }
 ```
 
+#### Configure CORS for R2 bucket
+
+CORS must be configured via the Wrangler CLI, not in wrangler.jsonc. Create a `cors.json` file in the project root:
+
+```json
+{
+  "rules": [
+    {
+      "allowed": {
+        "origins": ["*"],
+        "methods": ["GET", "HEAD"]
+      }
+    }
+  ]
+}
+```
+
+Apply the CORS configuration:
+
+```bash
+npx wrangler r2 bucket cors set dokra-files --file cors.json
+npx wrangler r2 bucket cors list dokra-files
+```
+
 ### Create KV Namespace (optional, for caching)
 
 ```bash

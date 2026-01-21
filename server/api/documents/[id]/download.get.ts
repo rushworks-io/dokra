@@ -1,8 +1,8 @@
 import {eq} from 'drizzle-orm';
 import {useDatabase} from '../../../utils/db';
 import {requireAuth} from '../../../utils/require-auth';
-import {getR2Bucket, StorageError} from '../../../utils/storage';
 import {documents, files} from '../../../db/schema';
+import {generateDownloadPresignedUrl} from '../../../utils/r2-presigned';
 
 /**
  * GET /api/documents/[id]/download
@@ -56,39 +56,18 @@ export default defineEventHandler(async (event) => {
         // Use file's r2Key if available, otherwise use document's r2Key
         const r2Key = file?.r2Key || doc.r2Key;
 
-        // Get file from R2
-        const r2 = getR2Bucket(event);
-        const r2Object = await r2.get(r2Key);
-
-        if (!r2Object) {
-            throw createError({
-                statusCode: 404,
-                statusMessage: 'Not Found',
-                message: 'File not found in storage',
-            });
-        }
-
-        // Set response headers for download
-        const headers = new Headers();
-        headers.set('Content-Type', doc.mimeType || 'application/octet-stream');
-        headers.set(
-            'Content-Disposition',
-            `attachment; filename="${encodeURIComponent(doc.fileName)}"`
+        // Generate presigned URL for download
+        return await generateDownloadPresignedUrl(
+            r2Key,
+            doc.fileName,
+            3600 // 1 hour expiration
         );
-        headers.set('Content-Length', String(r2Object.size));
-
-        // Return the file as a stream
-        return new Response(r2Object.body, {
-            headers,
-        });
     } catch (error) {
-        if (error instanceof StorageError) {
-            throw createError({
-                statusCode: error.statusCode,
-                statusMessage: error.code,
-                message: error.message,
-            });
-        }
-        throw error;
+        console.error('Failed to generate download URL:', error);
+        throw createError({
+            statusCode: 500,
+            statusMessage: 'Internal Server Error',
+            message: 'Failed to generate download URL',
+        });
     }
 });

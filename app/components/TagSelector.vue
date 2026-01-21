@@ -103,12 +103,6 @@ function handleBlur() {
   }, DROPDOWN_CLOSE_DELAY);
 }
 
-function tagStyle(tag: Tag) {
-  return {
-    borderColor: tag.color,
-    color: tag.color,
-  };
-}
 
 watch(() => props.organizationId, () => {
   if (isOpen.value) {
@@ -125,25 +119,6 @@ watch(search, () => {
 
 <template>
   <div class="space-y-2">
-    <div v-if="modelValue.length > 0" class="flex flex-wrap gap-2">
-      <span
-          v-for="tag in modelValue"
-          :key="tag.id"
-          class="badge badge-outline gap-1"
-          :style="tagStyle(tag)"
-      >
-        {{ tag.name }}
-        <button
-            v-if="!disabled"
-            type="button"
-            class="btn btn-ghost btn-xs btn-square"
-            @click="removeTag(tag.id)"
-        >
-          <Icon name="heroicons:x-mark" class="w-3 h-3"/>
-        </button>
-      </span>
-    </div>
-
     <div class="relative">
       <input
           v-model="search"
@@ -154,6 +129,7 @@ watch(search, () => {
           @focus="handleFocus"
           @blur="handleBlur"
       />
+
       <div
           v-if="isOpen"
           class="absolute z-20 mt-2 w-full rounded-lg border border-base-300 bg-base-100 shadow-lg"
@@ -188,6 +164,9 @@ watch(search, () => {
           </li>
         </ul>
       </div>
+    </div>
+    <div v-if="modelValue.length > 0" class="flex flex-wrap gap-2">
+      <tag-remove :tag="tag" @remove-tag="removeTag" v-for="tag in modelValue" :key="tag.id"/>
     </div>
   </div>
 </template>

@@ -56,25 +56,15 @@ async function fetchDocument() {
   }
 }
 
-function formatFileSize(bytes?: number): string {
-  if (!bytes) return '-';
-  const k = 1024;
-  const sizes = ['B', 'KB', 'MB', 'GB'];
-  const i = Math.floor(Math.log(bytes) / Math.log(k));
-  return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
-}
-
-function formatDate(dateStr: string): string {
-  return new Date(dateStr).toLocaleDateString('en-US', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-  });
-}
 
 async function handleDownload() {
   if (!document.value) return;
-  window.open(`/api/documents/${document.value.id}/download`, '_blank');
+  try {
+    await downloadDocument(document.value.id, document.value.fileName);
+  } catch (err) {
+    console.error('Failed to download document:', err);
+    alert('Failed to download document. Please try again.');
+  }
 }
 
 async function handleDelete() {
@@ -223,6 +213,9 @@ function getStatusBadgeClass(status?: string): string {
   }
 }
 
+// document Infos
+const activeTab: Ref<number> = ref(0)
+
 onMounted(() => {
   fetchDocument();
 });
@@ -260,7 +253,7 @@ onMounted(() => {
       </button>
     </div>
 
-    <!-- Document details -->
+    <!-- document details -->
     <template v-else-if="document">
       <!-- Header -->
       <div class="flex items-start justify-between">
@@ -270,26 +263,15 @@ onMounted(() => {
             <Icon :name="getFileIcon(document.mimeType)" class="w-8 h-8"/>
           </div>
           <div>
-            <!-- Editable title -->
-            <template v-if="isEditing">
-              <input
-                  v-model="editTitle"
-                  type="text"
-                  class="input input-bordered text-xl font-bold w-full max-w-md"
-                  placeholder="Document title"
-              />
-            </template>
-            <template v-else>
-              <div class="flex items-center gap-2">
-                <h1 class="text-2xl font-bold">{{ document.title }}</h1>
-                <span
-                    class="badge capitalize"
-                    :class="getStatusBadgeClass(document.status)"
-                >
+            <div class="flex items-center gap-2">
+              <h1 class="text-2xl font-bold">{{ document.title }}</h1>
+              <span
+                  class="badge capitalize"
+                  :class="getStatusBadgeClass(document.status)"
+              >
                   {{ document.status || 'inbox' }}
                 </span>
-              </div>
-            </template>
+            </div>
             <p class="text-base-content/60 mt-1">
               {{ document.fileName }} · {{ formatFileSize(document.fileSize) }}
             </p>
@@ -321,7 +303,7 @@ onMounted(() => {
             <!-- Verify button for inbox documents -->
             <button
                 v-if="document.status === 'inbox'"
-                class="btn btn-success gap-2"
+                class="btn btn-success btn-sm gap-2"
                 :disabled="isSaving"
                 @click="verifyDocument"
             >
@@ -331,90 +313,29 @@ onMounted(() => {
             </button>
 
             <button
-                class="btn btn-ghost gap-2"
-                @click="startEditing"
-            >
-              <Icon name="heroicons:pencil" class="w-4 h-4"/>
-              Edit
-            </button>
-
-            <button
-                class="btn btn-outline gap-2"
-                @click="handleDownload"
-            >
-              <Icon name="heroicons:arrow-down-tray" class="w-4 h-4"/>
-              Download
-            </button>
-            <button
-                class="btn btn-error btn-outline gap-2"
+                class="btn btn-error btn-sm gap-2"
                 @click="handleDelete"
             >
               <Icon name="heroicons:trash" class="w-4 h-4"/>
-              Delete
             </button>
           </template>
         </div>
       </div>
 
-      <!-- Details card -->
-      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div class="lg:col-span-2 space-y-6">
-          <!-- Metadata -->
-          <div class="card bg-base-100 border border-base-300">
-            <div class="card-body">
-              <h2 class="card-title text-base">Document Details</h2>
+      <div class="divider"/>
 
-              <div class="grid grid-cols-2 gap-4 mt-4">
-                <div>
-                  <p class="text-sm text-base-content/60">Type</p>
-                  <template v-if="isEditing">
-                    <select
-                        v-model="editDocumentType"
-                        class="select select-bordered select-sm w-full max-w-xs"
-                    >
-                      <option v-for="type in documentTypes" :key="type.value" :value="type.value">
-                        {{ type.label }}
-                      </option>
-                    </select>
-                  </template>
-                  <template v-else>
-                    <p class="font-medium">{{ getDocumentTypeLabel(document.documentType) }}</p>
-                  </template>
-                </div>
-                <div>
-                  <p class="text-sm text-base-content/60">Status</p>
-                  <span
-                      class="badge capitalize"
-                      :class="getStatusBadgeClass(document.status)"
-                  >
-                    {{ document.status || 'inbox' }}
-                  </span>
-                </div>
-                <div>
-                  <p class="text-sm text-base-content/60">Created</p>
-                  <p class="font-medium">{{ formatDate(document.createdAt) }}</p>
-                </div>
-                <div>
-                  <p class="text-sm text-base-content/60">File Type</p>
-                  <p class="font-medium">{{ document.mimeType || 'Unknown' }}</p>
-                </div>
-                <div>
-                  <p class="text-sm text-base-content/60">Last Updated</p>
-                  <p class="font-medium">{{ formatDate(document.updatedAt) }}</p>
-                </div>
-                <div v-if="document.dueDate">
-                  <p class="text-sm text-base-content/60">Due Date</p>
-                  <p class="font-medium">{{ formatDate(document.dueDate) }}</p>
-                </div>
-              </div>
-            </div>
-          </div>
+
+      <!-- document content -->
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <!-- Details card -->
+        <div class="flex flex-col gap-2">
 
           <!-- Tags -->
-          <div class="card bg-base-100 border border-base-300">
-            <div class="card-body space-y-4">
+          <div class="">
+            <div class=" space-y-4">
               <div class="flex items-center justify-between">
-                <h2 class="card-title text-base">Tags</h2>
+                <h2 class="text-base">Tags</h2>
                 <button
                     class="btn btn-primary btn-sm"
                     :disabled="isTagSaving"
@@ -424,9 +345,9 @@ onMounted(() => {
                   <span v-else>Save Tags</span>
                 </button>
               </div>
-              <label class="label pb-1">
+              <div class="label pb-1">
                 <span class="label-text text-base-content/60">Assign tags</span>
-              </label>
+              </div>
               <TagSelector
                   v-model="selectedTags"
                   :organization-id="document.organizationId"
@@ -437,21 +358,57 @@ onMounted(() => {
             </div>
           </div>
 
-          <!-- Extracted text preview -->
-          <div v-if="document.extractedText" class="card bg-base-100 border border-base-300">
-            <div class="card-body">
-              <h2 class="card-title text-base">Extracted Text</h2>
-              <div class="mt-2 p-4 bg-base-200 rounded-lg max-h-64 overflow-y-auto">
-                <pre class="text-sm whitespace-pre-wrap font-mono">{{ document.extractedText }}</pre>
+          <div class="divider"/>
+
+          <div class="space-y-4">
+            <div class="flex items-center justify-between">
+              <h2>Document Details</h2>
+            </div>
+
+            <div role="tablist" class="tabs tabs-border">
+              <a role="tab" class="tab" :class="{ 'tab-active': activeTab === 0 }" @click="activeTab = 0">General</a>
+              <a role="tab" class="tab" :class="{ 'tab-active': activeTab === 1 }" @click="activeTab = 1">Content</a>
+              <a role="tab" class="tab" :class="{ 'tab-active': activeTab === 2 }" @click="activeTab = 2">File Info</a>
+            </div>
+
+            <!-- TODO: ADD Edit Mode -->
+            <!-- General -->
+            <div class="container document-info grid gap-2" v-if="activeTab === 0">
+              <document-item-text title="Title" :content="document.title"/>
+              <document-item-status title="Status" :status="document.status"/>
+              <document-item-date title="Due" :date="document.dueDate"/>
+              <document-item-date title="Created" :date="document.createdAt"/>
+              <document-item-date title="Updated" :date="document.updatedAt"/>
+              <document-item-text title="Type" :content="document.documentType"/>
+            </div>
+
+
+            <!-- Content -->
+            <div class="container document-info grid gap-2 card" v-if="activeTab === 1">
+              <div class="card-body">
+                {{ document.extractedText ? document.extractedText : 'No text found in this document.' }}
               </div>
+            </div>
+            <!-- File Info -->
+            <div class="container document-info grid gap-2" v-if="activeTab === 2">
+              <document-item-text title="Id" :content="document.id"/>
+              <document-item-text title="File" :content="document.fileName"/>
+              <document-item-text title="Type" :content="document.mimeType"/>
+              <document-item-file-size title="Size" :file-size="document.fileSize"/>
             </div>
           </div>
         </div>
 
-        <!-- Sidebar -->
-        <div class="space-y-6">
+        <!-- File Preview -->
+        <div class="md:col-span-2 space-y-4">
+          <DocumentPreview
+              v-if="document"
+              :document="document"
+          />
         </div>
       </div>
+
+
     </template>
   </div>
 </template>
