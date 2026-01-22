@@ -56,17 +56,6 @@ async function fetchDocument() {
   }
 }
 
-
-async function handleDownload() {
-  if (!document.value) return;
-  try {
-    await downloadDocument(document.value.id, document.value.fileName);
-  } catch (err) {
-    console.error('Failed to download document:', err);
-    alert('Failed to download document. Please try again.');
-  }
-}
-
 async function handleDelete() {
   if (!document.value) return;
   if (!confirm('Are you sure you want to delete this document?')) return;
@@ -83,19 +72,6 @@ async function handleDelete() {
     console.error('Failed to delete document:', err);
     alert('Failed to delete document. Please try again.');
   }
-}
-
-function getDocumentTypeLabel(type?: string): string {
-  const types: Record<string, string> = {
-    invoice: 'Invoice',
-    receipt: 'Receipt',
-    contract: 'Contract',
-    report: 'Report',
-    letter: 'Letter',
-    certificate: 'Certificate',
-    other: 'Other',
-  };
-  return type ? types[type] || type : 'Unclassified';
 }
 
 function getFileIcon(mimeType?: string): string {
