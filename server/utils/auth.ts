@@ -1,11 +1,11 @@
 /// <reference types="@cloudflare/workers-types" />
-import { betterAuth } from 'better-auth';
-import { drizzleAdapter } from 'better-auth/adapters/drizzle';
-import { admin } from 'better-auth/plugins';
-import { drizzle } from 'drizzle-orm/d1';
+import {betterAuth} from 'better-auth';
+import {drizzleAdapter} from 'better-auth/adapters/drizzle';
+import {admin} from 'better-auth/plugins';
+import {drizzle} from 'drizzle-orm/d1';
 import * as authSchema from '../db/schema/auth';
-import { organizations, organizationUsers } from '../db/schema';
-import { generateId, getCurrentTimestamp } from './db';
+import {organizations, organizationUsers} from '../db/schema';
+import {generateId, getCurrentTimestamp} from './db';
 
 /**
  * Create a BetterAuth instance configured for Cloudflare D1.
@@ -15,66 +15,63 @@ import { generateId, getCurrentTimestamp } from './db';
  * @returns Configured BetterAuth instance
  */
 export function createAuth(d1: D1Database, baseURL: string) {
-  const db = drizzle(d1, { schema: authSchema });
+    const db = drizzle(d1, {schema: authSchema});
 
-  return betterAuth({
-    database: drizzleAdapter(db, {
-      provider: 'sqlite',
-      schema: authSchema,
-      usePlural: true
-    }),
-    baseURL,
-    emailAndPassword: {
-      enabled: true,
-      requireEmailVerification: false, // Enable later when email is configured
-    },
-    session: {
-      expiresIn: 60 * 60 * 24 * 7, // 7 days
-      updateAge: 60 * 60 * 24, // Update session every 24 hours
-      cookieCache: {
-        enabled: true,
-        maxAge: 60 * 5, // 5 minutes
-      },
-    },
-    plugins: [
-      admin(),
-    ],
-    trustedOrigins: [
-      'http://localhost:3000',
-    ],
-    databaseHooks: {
-      user: {
-        create: {
-          after: async (user) => {
-            // Create a personal organization for the new user
-            const orgDb = drizzle(d1, { schema: { organizations, organizationUsers } });
-            const now = getCurrentTimestamp();
-            const orgId = generateId();
-
-            // Create the organization
-            await orgDb.insert(organizations).values({
-              id: orgId,
-              name: `${user.name}'s Organization`,
-              ownerId: user.id,
-              createdAt: now,
-              updatedAt: now,
-            });
-
-            // Add user as owner of the organization
-            await orgDb.insert(organizationUsers).values({
-              id: generateId(),
-              organizationId: orgId,
-              userId: user.id,
-              role: 'owner',
-              createdAt: now,
-              updatedAt: now,
-            });
-          },
+    return betterAuth({
+        database: drizzleAdapter(db, {
+            provider: 'sqlite',
+            schema: authSchema,
+            usePlural: true
+        }),
+        baseURL,
+        emailAndPassword: {
+            enabled: true,
+            requireEmailVerification: false, // Enable later when email is configured
         },
-      },
-    },
-  });
+        session: {
+            expiresIn: 60 * 60 * 24 * 7, // 7 days
+            updateAge: 60 * 60 * 24, // Update session every 24 hours
+            cookieCache: {
+                enabled: true,
+                maxAge: 60 * 5, // 5 minutes
+            },
+        },
+        plugins: [
+            admin(),
+        ],
+        trustedOrigins: [
+            'http://localhost:3000',
+        ],
+        databaseHooks: {
+            user: {
+                create: {
+                    after: async (user) => {
+                        // Create a personal organization for the new user
+                        const orgDb = drizzle(d1, {schema: {organizations, organizationUsers}});
+                        const now = getCurrentTimestamp();
+                        const orgId = generateId();
+
+                        // Create the organization
+                        await orgDb.insert(organizations).values({
+                            id: orgId,
+                            name: `${user.name}'s Organization`,
+                            ownerId: user.id,
+                            createdAt: now,
+                            updatedAt: now,
+                        });
+
+                        // Add user as owner of the organization
+                        await orgDb.insert(organizationUsers).values({
+                            id: generateId(),
+                            organizationId: orgId,
+                            userId: user.id,
+                            role: 'owner',
+                            createdAt: now,
+                            updatedAt: now,
+                        });
+                    },
+                },
+            },
+        },
+    });
 }
-
-export type Auth = ReturnType<typeof createAuth>;
-

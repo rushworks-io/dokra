@@ -14,14 +14,10 @@ export const authClient = createAuthClient({
   ],
 });
 
-// Export commonly used methods
 export const {
   signIn,
-  signUp,
   signOut,
 } = authClient;
 
-// Re-export useSession but it should not be used directly in SSR contexts
-// Use useAuth() composable instead which handles SSR properly
-export const useSession = authClient.useSession;
+//export const useSession = authClient.useSession;
 

@@ -93,15 +93,4 @@ describe('Auth API Integration', () => {
             expect(new Date(expiredExpiresAt).getTime() > now).toBe(false);
         });
     });
-
-    describe('POST /api/auth/sign-out', () => {
-        it('should clear session on sign out', () => {
-            const session = { id: 'session-123', active: true };
-
-            // Simulate sign out
-            const clearedSession = null;
-
-            expect(clearedSession).toBeNull();
-        });
-    });
 });

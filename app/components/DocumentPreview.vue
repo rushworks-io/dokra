@@ -10,7 +10,7 @@ const emit = defineEmits<{
   download: [];
 }>();
 
-const {fetchViewUrl, startAutoRefresh, stopAutoRefresh, downloadDocument, isRefreshing} = usePresignedUrl();
+const {fetchViewUrl, startAutoRefresh, stopAutoRefresh, downloadDocument} = usePresignedUrl();
 
 // State
 const currentUrl = ref('');
@@ -150,7 +150,7 @@ onUnmounted(() => {
       <!-- Viewable Content (PDF or Image) -->
       <div v-if="isViewable && currentUrl" class="space-y-4">
         <!-- PDF Viewer -->
-        <div v-if="isPdf" class="pdf-container h-[600px] border border-base-300 rounded-lg overflow-hidden bg-base-200">
+        <div v-if="isPdf" class="pdf-container h-150 border border-base-300 rounded-lg overflow-hidden bg-base-200">
           <PdfViewer
               :document-id="document.id"
               :file-name="document.fileName"

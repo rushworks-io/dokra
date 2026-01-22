@@ -23,17 +23,6 @@ const editField = ref<'title' | 'documentType' | null>(null);
 const editValue = ref('');
 const selectedTags = ref<Tag[]>([]);
 
-const documentTypes = [
-  {value: '', label: 'Select type...'},
-  {value: 'invoice', label: 'Invoice'},
-  {value: 'receipt', label: 'Receipt'},
-  {value: 'contract', label: 'Contract'},
-  {value: 'report', label: 'Report'},
-  {value: 'letter', label: 'Letter'},
-  {value: 'certificate', label: 'Certificate'},
-  {value: 'other', label: 'Other'},
-];
-
 async function fetchDocument() {
   isLoading.value = true;
   error.value = null;

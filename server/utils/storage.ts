@@ -227,39 +227,6 @@ export async function downloadFile(
 }
 
 /**
- * Get file metadata from R2 (HEAD request)
- */
-export async function getFileMetadata(
-    r2: R2Bucket,
-    r2Key: string
-): Promise<{
-    contentType: string;
-    contentLength: number;
-    etag: string;
-    lastModified: Date;
-    customMetadata: Record<string, string>;
-} | null> {
-    try {
-        const object = await r2.head(r2Key);
-
-        if (!object) {
-            return null;
-        }
-
-        return {
-            contentType: object.httpMetadata?.contentType || 'application/octet-stream',
-            contentLength: object.size,
-            etag: object.etag,
-            lastModified: object.uploaded,
-            customMetadata: object.customMetadata || {},
-        };
-    } catch (error) {
-        console.error('R2 head error:', error);
-        return null;
-    }
-}
-
-/**
  * Delete a file from R2 storage
  */
 export async function deleteFile(r2: R2Bucket, r2Key: string): Promise<void> {

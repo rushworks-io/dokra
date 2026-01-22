@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import {describe, it, expect, vi, beforeEach} from 'vitest';
 
 /**
  * Component tests for Nuxt environment
@@ -27,7 +27,7 @@ describe('Component Tests', () => {
         });
 
         it('should handle Escape key to close dropdown', () => {
-            const event = { key: 'Escape' };
+            const event = {key: 'Escape'};
             const shouldClose = event.key === 'Escape';
 
             expect(shouldClose).toBe(true);
@@ -64,7 +64,7 @@ describe('Component Tests', () => {
         });
 
         it('should handle drag and drop state', () => {
-            let isDragging = false;
+            let isDragging: boolean;
 
             isDragging = true;
             expect(isDragging).toBe(true);
@@ -114,9 +114,9 @@ describe('Component Tests', () => {
 
     describe('TagSelector Component', () => {
         const mockTags = [
-            { id: 'tag-1', name: 'Finance', color: '#3b82f6' },
-            { id: 'tag-2', name: 'Legal', color: '#10b981' },
-            { id: 'tag-3', name: 'HR', color: '#f59e0b' },
+            {id: 'tag-1', name: 'Finance', color: '#3b82f6'},
+            {id: 'tag-2', name: 'Legal', color: '#10b981'},
+            {id: 'tag-3', name: 'HR', color: '#f59e0b'},
         ];
 
         it('should filter tags by search query', () => {
