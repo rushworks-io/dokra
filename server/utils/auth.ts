@@ -15,6 +15,7 @@ import {generateId, getCurrentTimestamp} from './db';
  * @returns Configured BetterAuth instance
  */
 export function createAuth(d1: D1Database, baseURL: string) {
+    const config = useRuntimeConfig();
     const db = drizzle(d1, {schema: authSchema});
 
     return betterAuth({
@@ -23,7 +24,8 @@ export function createAuth(d1: D1Database, baseURL: string) {
             schema: authSchema,
             usePlural: true
         }),
-        baseURL,
+        secret: config.private.betterAuthSecret,
+        baseURL: config.private.betterAuthBaseUrl,
         emailAndPassword: {
             enabled: true,
             requireEmailVerification: false, // Enable later when email is configured
@@ -39,9 +41,7 @@ export function createAuth(d1: D1Database, baseURL: string) {
         plugins: [
             admin(),
         ],
-        trustedOrigins: [
-            'http://localhost:3000',
-        ],
+
         databaseHooks: {
             user: {
                 create: {

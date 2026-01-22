@@ -24,4 +24,11 @@ export default defineNuxtConfig({
     nitro: {
         preset: 'cloudflare_module',
     },
+
+    runtimeConfig: {
+        private: {
+            betterAuthSecret: process.env.BETTER_AUTH_SECRET,
+            betterAuthUrl: process.env.BETTER_AUTH_URL,
+        }
+    }
 })
