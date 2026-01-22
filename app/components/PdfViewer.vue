@@ -76,7 +76,7 @@ async function loadViewUrl() {
   } catch (err: any) {
     console.error('[PdfViewer ERROR] Failed to load document:', err);
     error.value = err.message || 'Failed to load document';
-    emit('error', error.value);
+    emit('error', err.message || 'Failed to load document');
   } finally {
     isLoading.value = false;
   }
