@@ -20,7 +20,6 @@ const props = defineProps({
     <span class="align-left col-span-8 break-all">
       {{ props.content }}
       <button class="btn btn-sm btn-ghost text-primary">
-      <Icon name="heroicons:pencil" class="w-4 h-4"/>
     </button>
     </span>
   </p>

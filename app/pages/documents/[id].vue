@@ -17,10 +17,10 @@ const isTagSaving = ref(false);
 const error = ref<string | null>(null);
 const tagError = ref<string | null>(null);
 
-// Edit form state
-const isEditing = ref(false);
-const editTitle = ref('');
-const editDocumentType = ref('');
+// Modal edit state
+const showEditModal = ref(false);
+const editField = ref<'title' | 'documentType' | null>(null);
+const editValue = ref('');
 const selectedTags = ref<Tag[]>([]);
 
 const documentTypes = [
@@ -107,39 +107,45 @@ function getFileIcon(mimeType?: string): string {
   return 'heroicons:document';
 }
 
-function startEditing() {
-  if (!document.value) return;
-  editTitle.value = document.value.title;
-  editDocumentType.value = document.value.documentType || '';
-  isEditing.value = true;
+function openEditModal(field: 'title' | 'documentType') {
+  editField.value = field;
+  if (field === 'title') {
+    editValue.value = document.value?.title || '';
+  } else {
+    editValue.value = document.value?.documentType || '';
+  }
+  showEditModal.value = true;
 }
 
-function cancelEditing() {
-  isEditing.value = false;
-  editTitle.value = '';
-  editDocumentType.value = '';
+function closeEditModal() {
+  showEditModal.value = false;
+  editField.value = null;
+  editValue.value = '';
 }
 
-async function saveChanges() {
-  if (!document.value) return;
+async function saveEditModal() {
+  if (!document.value || !editField.value) return;
 
   isSaving.value = true;
   try {
+    const body: any = {};
+    if (editField.value === 'title') {
+      body.title = editValue.value;
+    } else if (editField.value === 'documentType') {
+      body.documentType = editValue.value || null;
+    }
+
     const response = await $fetch<DocumentPatchResponse>(`/api/documents/${document.value.id}`, {
       method: 'PATCH',
       headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({
-        title: editTitle.value,
-        documentType: editDocumentType.value || null,
-      }),
+      body: JSON.stringify(body),
     });
 
-    if (!response.success) {
-      throw new Error('Failed to save');
-    }
+    if (!response.success) throw new Error('Failed to save');
 
+    // Update the document reactively
     document.value = document.value ? {...document.value, ...response.document} : response.document;
-    isEditing.value = false;
+    closeEditModal();
   } catch (err) {
     console.error('Failed to save document:', err);
     alert('Failed to save changes. Please try again.');
@@ -279,46 +285,24 @@ onMounted(() => {
         </div>
 
         <div class="flex gap-2">
-          <!-- Edit mode buttons -->
-          <template v-if="isEditing">
-            <button
-                class="btn btn-ghost"
-                :disabled="isSaving"
-                @click="cancelEditing"
-            >
-              Cancel
-            </button>
-            <button
-                class="btn btn-primary gap-2"
-                :disabled="isSaving"
-                @click="saveChanges"
-            >
-              <span v-if="isSaving" class="loading loading-spinner loading-sm"/>
-              Save
-            </button>
-          </template>
+          <!-- Verify button for inbox documents -->
+          <button
+              v-if="document.status === 'inbox'"
+              class="btn btn-success btn-sm gap-2"
+              :disabled="isSaving"
+              @click="verifyDocument"
+          >
+            <span v-if="isSaving" class="loading loading-spinner loading-sm"/>
+            <Icon v-else name="heroicons:check-badge" class="w-4 h-4"/>
+            Verify
+          </button>
 
-          <!-- Normal mode buttons -->
-          <template v-else>
-            <!-- Verify button for inbox documents -->
-            <button
-                v-if="document.status === 'inbox'"
-                class="btn btn-success btn-sm gap-2"
-                :disabled="isSaving"
-                @click="verifyDocument"
-            >
-              <span v-if="isSaving" class="loading loading-spinner loading-sm"/>
-              <Icon v-else name="heroicons:check-badge" class="w-4 h-4"/>
-              Verify
-            </button>
-
-            <button
-                class="btn btn-error btn-sm gap-2"
-                @click="handleDelete"
-            >
-              <Icon name="heroicons:trash" class="w-4 h-4"/>
-            </button>
-          </template>
+          <button
+              class="btn btn-error btn-sm gap-2"
+              @click="handleDelete"
+          >
+            <Icon name="heroicons:trash" class="w-4 h-4"/>
+          </button>
         </div>
       </div>
 
@@ -371,15 +355,32 @@ onMounted(() => {
               <a role="tab" class="tab" :class="{ 'tab-active': activeTab === 2 }" @click="activeTab = 2">File Info</a>
             </div>
 
-            <!-- TODO: ADD Edit Mode -->
             <!-- General -->
             <div class="container document-info grid gap-2" v-if="activeTab === 0">
-              <document-item-text title="Title" :content="document.title"/>
+              <div class="flex items-center justify-between">
+                <document-item-text title="Title" :content="document.title"/>
+                <button
+                    class="btn btn-ghost btn-xs"
+                    @click="openEditModal('title')"
+                    title="Edit title"
+                >
+                  <Icon name="heroicons:pencil" class="w-4 h-4"/>
+                </button>
+              </div>
               <document-item-status title="Status" :status="document.status"/>
               <document-item-date title="Due" :date="document.dueDate"/>
               <document-item-date title="Created" :date="document.createdAt"/>
               <document-item-date title="Updated" :date="document.updatedAt"/>
-              <document-item-text title="Type" :content="document.documentType"/>
+              <div class="flex items-center justify-between">
+                <document-item-text title="Type" :content="document.documentType"/>
+                <button
+                    class="btn btn-ghost btn-xs"
+                    @click="openEditModal('documentType')"
+                    title="Edit type"
+                >
+                  <Icon name="heroicons:pencil" class="w-4 h-4"/>
+                </button>
+              </div>
             </div>
 
 
@@ -410,5 +411,69 @@ onMounted(() => {
 
 
     </template>
+
+    <!-- Edit Modal -->
+    <dialog class="modal" :class="{ 'modal-open': showEditModal }">
+      <div class="modal-box">
+        <h3 class="font-bold text-lg mb-4">
+          {{ editField === 'title' ? 'Edit Title' : 'Edit Type' }}
+        </h3>
+
+        <!-- Title Input -->
+        <div v-if="editField === 'title'" class="form-control">
+          <label class="label">
+            <span class="label-text">Title</span>
+          </label>
+          <input
+              v-model="editValue"
+              type="text"
+              placeholder="Enter document title"
+              class="input input-bordered w-full"
+              @keyup.enter="saveEditModal"
+          />
+        </div>
+
+        <!-- Type Select -->
+        <div v-else-if="editField === 'documentType'" class="form-control">
+          <label class="label">
+            <span class="label-text">Type</span>
+          </label>
+          <select
+              v-model="editValue"
+              class="select select-bordered w-full"
+          >
+            <option value="">Select type...</option>
+            <option value="invoice">Invoice</option>
+            <option value="receipt">Receipt</option>
+            <option value="contract">Contract</option>
+            <option value="report">Report</option>
+            <option value="letter">Letter</option>
+            <option value="certificate">Certificate</option>
+            <option value="other">Other</option>
+          </select>
+        </div>
+
+        <div class="modal-action">
+          <button
+              class="btn"
+              :disabled="isSaving"
+              @click="closeEditModal"
+          >
+            Cancel
+          </button>
+          <button
+              class="btn btn-primary"
+              :disabled="isSaving"
+              @click="saveEditModal"
+          >
+            <span v-if="isSaving" class="loading loading-spinner loading-sm"/>
+            Save
+          </button>
+        </div>
+      </div>
+      <form method="dialog" class="modal-backdrop" @click="closeEditModal">
+        <button>close</button>
+      </form>
+    </dialog>
   </div>
 </template>
