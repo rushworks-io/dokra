@@ -126,7 +126,7 @@ describe('Component Tests', () => {
             );
 
             expect(filtered).toHaveLength(1);
-            expect(filtered[0].name).toBe('Finance');
+            expect(filtered[0]?.name).toBe('Finance');
         });
 
         it('should allow selecting multiple tags', () => {
