@@ -108,7 +108,7 @@ async function handleDelete(id: string) {
       throw new Error('Failed to delete');
     }
 
-    fetchDocuments();
+    await fetchDocuments();
   } catch (error) {
     console.error('Failed to delete document:', error);
     alert('Failed to delete document. Please try again.');

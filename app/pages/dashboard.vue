@@ -70,7 +70,7 @@ async function handleDelete(id: string) {
     if (!response.ok) {
       throw new Error('Failed to delete');
     }
-    fetchDashboardData();
+    await fetchDashboardData();
   } catch (error) {
     console.error('Failed to delete document:', error);
     alert('Failed to delete document. Please try again.');
