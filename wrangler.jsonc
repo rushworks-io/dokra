@@ -1,0 +1,27 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "dokra",
+  "compatibility_date": "2026-01-06",
+  "main": ".output/server/index.mjs",
+  "assets": {
+    "directory": ".output/public"
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "dokra-db",
+      "database_id": "8da5548e-9f06-4d96-b665-65001f5f6982",
+      "preview_database_id": "42def388-0a33-4098-8cbb-404f3ecc895e",
+      "migrations_dir": "server/db/migrations"
+    }
+  ],
+  "r2_buckets": [
+    {
+      "binding": "R2",
+      "bucket_name": "dokra-files",
+      "preview_bucket_name": "dokra-files-preview",
+      "jurisdiction": "eu"
+    }
+  ]
+}
+
