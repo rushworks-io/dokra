@@ -10,8 +10,6 @@ import {users} from '../../db/schema';
  * Returns: { user: { id, name, email, image, ... } }
  */
 
-//TODO add proper, auth handling
-
 export default defineEventHandler(async (event) => {
     const session = requireAuth(event);
 

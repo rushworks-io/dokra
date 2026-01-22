@@ -1,6 +1,6 @@
 import {eq, sql} from 'drizzle-orm';
 import {useDatabase} from '../../utils/db';
-import {requireAuth} from '../../utils/require-auth';
+import {requireOrgMembership} from '../../utils/require-org-access';
 import {documents} from '../../db/schema';
 
 /**
@@ -13,9 +13,6 @@ import {documents} from '../../db/schema';
  * Returns: Document count and total size
  */
 export default defineEventHandler(async (event) => {
-    // Require authentication
-    requireAuth(event);
-
     const query = getQuery(event);
     const organizationId = query.organizationId as string;
 
@@ -27,7 +24,8 @@ export default defineEventHandler(async (event) => {
         });
     }
 
-    // TODO: Verify user has access to this organization
+    // Verify user has access to the organization
+    await requireOrgMembership(event, organizationId);
 
     const db = useDatabase(event.context.cloudflare.env.DB);
 

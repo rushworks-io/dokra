@@ -1,6 +1,6 @@
 import { and, asc, eq, like } from 'drizzle-orm';
 import { useDatabase } from '../../utils/db';
-import { requireAuth } from '../../utils/require-auth';
+import { requireOrgMembership } from '../../utils/require-org-access';
 import { tags } from '../../db/schema';
 
 /**
@@ -12,8 +12,6 @@ import { tags } from '../../db/schema';
  * - search: Optional. Search by tag name
  */
 export default defineEventHandler(async (event) => {
-  requireAuth(event);
-
   const query = getQuery(event);
   const organizationId = query.organizationId as string;
   const search = query.search as string | undefined;
@@ -25,6 +23,9 @@ export default defineEventHandler(async (event) => {
       message: 'Organization ID is required',
     });
   }
+
+  // Verify user has access to the organization
+  await requireOrgMembership(event, organizationId);
 
   const db = useDatabase(event.context.cloudflare.env.DB);
   const conditions = [eq(tags.organizationId, organizationId)];

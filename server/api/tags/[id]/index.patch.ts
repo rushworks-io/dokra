@@ -1,6 +1,6 @@
 import { and, eq } from 'drizzle-orm';
 import { getCurrentTimestamp, useDatabase } from '../../../utils/db';
-import { requireAuth } from '../../../utils/require-auth';
+import { requireOrgMembership } from '../../../utils/require-org-access';
 import { tags } from '../../../db/schema';
 
 /**
@@ -15,8 +15,6 @@ import { tags } from '../../../db/schema';
  * - color: Optional. Tag color
  */
 export default defineEventHandler(async (event) => {
-  requireAuth(event);
-
   const colorPattern = /^#[0-9A-Fa-f]{6}$/;
   const tagId = getRouterParam(event, 'id');
   const query = getQuery(event);
@@ -37,6 +35,9 @@ export default defineEventHandler(async (event) => {
       message: 'Organization ID is required',
     });
   }
+
+  // Verify user has access to the organization
+  await requireOrgMembership(event, organizationId);
 
   const body = await readBody(event);
   const db = useDatabase(event.context.cloudflare.env.DB);

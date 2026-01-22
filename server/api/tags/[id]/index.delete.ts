@@ -1,6 +1,6 @@
 import { and, eq } from 'drizzle-orm';
 import { useDatabase } from '../../../utils/db';
-import { requireAuth } from '../../../utils/require-auth';
+import { requireOrgMembership } from '../../../utils/require-org-access';
 import { documentTags, tags } from '../../../db/schema';
 
 /**
@@ -11,8 +11,6 @@ import { documentTags, tags } from '../../../db/schema';
  * - organizationId: Required. Organization ID
  */
 export default defineEventHandler(async (event) => {
-  requireAuth(event);
-
   const tagId = getRouterParam(event, 'id');
   const query = getQuery(event);
   const organizationId = query.organizationId as string;
@@ -32,6 +30,9 @@ export default defineEventHandler(async (event) => {
       message: 'Organization ID is required',
     });
   }
+
+  // Verify user has access to the organization
+  await requireOrgMembership(event, organizationId);
 
   const db = useDatabase(event.context.cloudflare.env.DB);
 

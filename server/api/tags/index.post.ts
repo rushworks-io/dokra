@@ -1,6 +1,6 @@
 import { and, eq } from 'drizzle-orm';
 import { generateId, getCurrentTimestamp, useDatabase } from '../../utils/db';
-import { requireAuth } from '../../utils/require-auth';
+import { requireOrgMembership } from '../../utils/require-org-access';
 import { tags } from '../../db/schema';
 
 /**
@@ -13,8 +13,6 @@ import { tags } from '../../db/schema';
  * - color: Optional. Tag color hex
  */
 export default defineEventHandler(async (event) => {
-  requireAuth(event);
-
   const colorPattern = /^#[0-9A-Fa-f]{6}$/;
   const body = await readBody(event);
   const organizationId = body.organizationId as string;
@@ -28,6 +26,9 @@ export default defineEventHandler(async (event) => {
       message: 'Organization ID is required',
     });
   }
+
+  // Verify user has access to the organization
+  await requireOrgMembership(event, organizationId);
 
   if (!name || name.trim().length === 0) {
     throw createError({

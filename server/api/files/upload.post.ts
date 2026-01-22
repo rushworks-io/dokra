@@ -1,5 +1,5 @@
 import { useDatabase, generateId, getCurrentTimestamp } from '../../utils/db';
-import { requireAuth } from '../../utils/require-auth';
+import { requireOrgMembership } from '../../utils/require-org-access';
 import {
   getR2Bucket,
   generateR2Key,
@@ -21,9 +21,6 @@ import { files } from '../../db/schema';
  * Response: File metadata including ID and download URL
  */
 export default defineEventHandler(async (event) => {
-  // Require authentication
-  const session = requireAuth(event);
-
   try {
     // Parse multipart form data
     const formData = await readMultipartFormData(event);
@@ -70,8 +67,8 @@ export default defineEventHandler(async (event) => {
       name: originalFileName,
     });
 
-    // TODO: Verify user has access to this organization
-    // This should check organizationUsers table
+    // Verify user has access to the organization
+    const session = await requireOrgMembership(event, organizationId);
 
     // Generate file ID upfront - used for both DB and R2 storage
     const fileId = generateId();

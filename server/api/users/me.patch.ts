@@ -11,9 +11,6 @@ import {users} from '../../db/schema';
  * Returns: { success: true, user: {...} }
  */
 
-
-//TODO add proper, auth handling
-
 export default defineEventHandler(async (event) => {
     const session = requireAuth(event);
     const body = await readBody(event);

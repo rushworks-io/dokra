@@ -22,6 +22,20 @@ export default defineEventHandler(async (event) => {
     });
   }
 
+  // Extract organization ID from path (format: bucket/org-id/file-key)
+  const pathParts = path.split('/');
+  if (pathParts.length < 2) {
+    throw createError({
+      statusCode: 400,
+      statusMessage: 'Bad Request',
+      message: 'Invalid R2 path format. Expected: bucket/org-id/file-key',
+    });
+  }
+  const organizationId = pathParts[1];
+
+  // Verify user has access to the organization
+  await requireOrgMembership(event, organizationId);
+
   try {
     // Get the R2 bucket binding
     const r2 = getR2Bucket(event);

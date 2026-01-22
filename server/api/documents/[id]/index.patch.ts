@@ -1,6 +1,6 @@
 import {and, eq, inArray} from 'drizzle-orm';
 import {generateId, getCurrentTimestamp, useDatabase} from '../../../utils/db';
-import {requireAuth} from '../../../utils/require-auth';
+import {requireOrgMembership} from '../../../utils/require-org-access';
 import {documents, documentTags, tags} from '../../../db/schema';
 
 /**
@@ -20,8 +20,6 @@ import {documents, documentTags, tags} from '../../../db/schema';
  * Returns: Updated document
  */
 export default defineEventHandler(async (event) => {
-    // Require authentication
-    requireAuth(event);
     const documentId = getRouterParam(event, 'id');
 
     if (!documentId) {
@@ -51,7 +49,8 @@ export default defineEventHandler(async (event) => {
         });
     }
 
-    // TODO: Verify user has access to this document's organization
+    // Verify user has access to this document's organization
+    await requireOrgMembership(event, doc.organizationId);
 
     // Build update object
     const updates: Record<string, any> = {

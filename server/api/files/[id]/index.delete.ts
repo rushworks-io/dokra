@@ -1,6 +1,6 @@
 import { eq, and } from 'drizzle-orm';
 import { useDatabase, getCurrentTimestamp } from '../../../utils/db';
-import { requireAuth } from '../../../utils/require-auth';
+import { requireOrgMembership } from '../../../utils/require-org-access';
 import { getR2Bucket, deleteFile, StorageError } from '../../../utils/storage';
 import { files } from '../../../db/schema';
 
@@ -12,9 +12,6 @@ import { files } from '../../../db/schema';
  * Add ?hard=true to permanently delete from R2 storage.
  */
 export default defineEventHandler(async (event) => {
-  // Require authentication
-  const { user } = requireAuth(event);
-
   const fileId = getRouterParam(event, 'id');
   if (!fileId) {
     throw createError({
@@ -44,8 +41,8 @@ export default defineEventHandler(async (event) => {
       });
     }
 
-    // TODO: Verify user has access to this organization
-    // and permission to delete files
+    // Verify user has access to this organization
+    await requireOrgMembership(event, fileRecord.organizationId);
 
     if (hardDelete) {
       // Delete from R2

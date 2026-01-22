@@ -1,6 +1,6 @@
 import {eq} from "drizzle-orm";
 import {useDatabase} from "../../../utils/db";
-import {requireAuth} from "../../../utils/require-auth";
+import {requireOrgMembership} from "../../../utils/require-org-access";
 import {documents} from "../../../db/schema";
 import {generateViewPresignedUrl} from "../../../utils/r2-presigned";
 
@@ -18,8 +18,6 @@ import {generateViewPresignedUrl} from "../../../utils/r2-presigned";
  * - fileName: The original filename
  */
 export default defineEventHandler(async (event) => {
-    // Require authentication
-    requireAuth(event);
     const documentId = getRouterParam(event, "id");
 
     if (!documentId) {
@@ -47,8 +45,8 @@ export default defineEventHandler(async (event) => {
         });
     }
 
-    // TODO: Verify user has access to this document's organization
-    // This should be added as a security check
+    // Verify user has access to this document's organization
+    await requireOrgMembership(event, doc.organizationId);
 
     try {
         // Generate presigned URL for viewing

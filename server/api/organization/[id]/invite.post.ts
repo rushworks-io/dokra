@@ -1,6 +1,6 @@
 import {eq, and, inArray} from 'drizzle-orm';
 import {useDatabase} from '~~/server/utils/db';
-import {requireOrgMembership} from '~~/server/utils/require-org-access';
+import {requireOrgOwner} from '~~/server/utils/require-org-access';
 import {organizationUsers, users} from '~~/server/db/schema';
 import {generateId} from '~~/server/utils/db';
 
@@ -11,8 +11,6 @@ import {generateId} from '~~/server/utils/db';
  * Body: { email: string }
  * Returns: { success: true, member: {...} }
  */
-
-//TODO add proper, auth handling
 
 export default defineEventHandler(async (event) => {
     const organizationId = getRouterParam(event, 'id');
@@ -34,7 +32,7 @@ export default defineEventHandler(async (event) => {
         });
     }
 
-    const {membership} = await requireOrgMembership(event, organizationId);
+    const {membership} = await requireOrgOwner(event, organizationId);
 
     if (membership.role !== 'owner') {
         throw createError({
