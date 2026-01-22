@@ -1,6 +1,12 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "dokra",
+  "routes": [
+    {
+      "pattern": "dokra.app",
+      "custom_domain": true
+    }
+  ],
   "compatibility_date": "2026-01-06",
   "main": ".output/server/index.mjs",
   "assets": {
