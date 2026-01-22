@@ -4,17 +4,18 @@ export interface SessionUser {
     name: string;
     image?: string | null;
     emailVerified: boolean;
-    createdAt: string;
-    updatedAt: string;
+    createdAt: Date;
+    updatedAt: Date;
+    role?: string | null;
 }
 
 export interface Session {
     id: string;
     userId: string;
-    expiresAt: string;
+    expiresAt: Date;
     token: string;
-    createdAt: string;
-    updatedAt: string;
+    createdAt: Date;
+    updatedAt: Date;
     ipAddress?: string | null;
     userAgent?: string | null;
 }

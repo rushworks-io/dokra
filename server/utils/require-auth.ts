@@ -1,9 +1,5 @@
 import type {H3Event} from 'h3';
-import type {AuthSession} from '~~/types';
-
-/**
- * Authenticated session containing both session and user data.
- */
+import type {SessionData, AuthSession} from '~~/types';
 
 /**
  * Require authentication for an API route.
@@ -14,7 +10,7 @@ import type {AuthSession} from '~~/types';
  * @throws 401 Unauthorized if not authenticated
  *
  */
-export function requireAuth(event: H3Event): AuthSession {
+export function requireAuth(event: H3Event): SessionData {
     const session = event.context.auth;
 
     if (!session?.user || !session?.session) {
@@ -40,7 +36,7 @@ export function requireAuth(event: H3Event): AuthSession {
 export function requireAdmin(event: H3Event): AuthSession {
     const session = requireAuth(event);
 
-    if (session.user.role !== 'admin') {
+    if (session.user?.role !== 'admin') {
         throw createError({
             statusCode: 403,
             statusMessage: 'Forbidden',
