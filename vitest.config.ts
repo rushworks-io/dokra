@@ -3,6 +3,17 @@ import {defineVitestProject} from '@nuxt/test-utils/config'
 
 export default defineConfig({
     test: {
+        coverage: {
+            provider: 'v8',
+            reporter: ['text', 'json', 'html'],
+            include: ['server/**/*.ts', 'app/**/*.ts', 'app/**/*.vue'],
+            exclude: [
+                'node_modules/**',
+                'test/**',
+                '**/*.d.ts',
+                'server/db/migrations/**',
+            ],
+        },
         projects: [
             {
                 test: {

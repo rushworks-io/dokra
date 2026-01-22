@@ -10,6 +10,7 @@
     "postinstall": "nuxt prepare",
     "test": "vitest",
     "test:run": "vitest run",
+    "test:coverage": "vitest run --coverage",
     "test:unit": "vitest --project unit",
     "test:e2e": "vitest --project e2e",
     "test:nuxt": "vitest --project nuxt",
@@ -39,6 +40,7 @@
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20260103.0",
     "@nuxt/test-utils": "3.21.0",
+    "@vitest/coverage-v8": "^4.0.17",
     "@vue/test-utils": "^2.4.6",
     "daisyui": "^5.5.14",
     "drizzle-kit": "^0.31.8",

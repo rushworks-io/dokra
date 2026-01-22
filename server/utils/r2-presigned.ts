@@ -82,11 +82,11 @@ export async function generatePresignedUrl(
     }
 
     // Check if we're in local development mode
-    /* if (isLocalDevelopment()) {
-       // In local development, return a local URL for Miniflare
-       console.log(`[R2] Local development mode detected, using Miniflare R2 URL`);
-       return getLocalR2Url(r2Key);
-     }*/
+    if (isLocalDevelopment()) {
+        // In local development, return a local URL for Miniflare
+        console.log(`[R2] Local development mode detected, using Miniflare R2 URL`);
+        return getLocalR2Url(r2Key);
+    }
 
     // Production: Use AWS SDK to generate presigned URL
     const endpoint = getR2Endpoint();

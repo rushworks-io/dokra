@@ -26,19 +26,22 @@ test/
 
 ```bash
 # Run all tests
-pnpm vitest
+pnpm test
 
 # Run all tests once (CI mode)
-pnpm vitest run
+pnpm test:run
+
+# Run all tests with coverage
+pnpm test:coverage
 
 # Run only unit tests
-pnpm vitest --project unit
+pnpm test:unit
 
 # Run only e2e tests
-pnpm vitest --project e2e
+pnpm test:e2e
 
 # Run only Nuxt tests
-pnpm vitest --project nuxt
+pnpm test:nuxt
 
 # Run tests in watch mode
 pnpm vitest --watch
@@ -217,13 +220,29 @@ pnpm vitest --no-file-parallelism
 
 ## CI Integration
 
-For CI/CD pipelines, use:
+Tests are automatically run on every push and pull request via GitHub Actions. The CI pipeline is configured in `.github/workflows/ci.yml` and includes:
+
+- Type checking with `nuxi typecheck`
+- Unit tests (`pnpm test:unit`)
+- E2E tests (`pnpm test:e2e`)
+- Code coverage reporting
+
+For local CI mode:
 
 ```bash
-pnpm vitest run --coverage
+pnpm test:coverage
 ```
 
-This will run all tests once and generate coverage reports.
+This will run all tests once and generate coverage reports in:
+- `coverage/` - HTML report (open `coverage/index.html` in browser)
+- Console output shows text summary
+
+### Coverage Configuration
+
+Coverage is configured in `vitest.config.ts` using the v8 provider. The following paths are included:
+- `server/**/*.ts` - Backend utilities and API handlers
+- `app/**/*.ts` - Frontend utilities and composables
+- `app/**/*.vue` - Vue components
 
 ## Resources
 
