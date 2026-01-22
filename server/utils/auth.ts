@@ -25,7 +25,7 @@ export function createAuth(d1: D1Database, baseURL: string) {
             usePlural: true
         }),
         secret: config.private.betterAuthSecret,
-        baseURL: config.private.betterAuthBaseUrl,
+        baseURL: baseURL, //TODO: Set fixed Baseurl
         emailAndPassword: {
             enabled: true,
             requireEmailVerification: false, // Enable later when email is configured

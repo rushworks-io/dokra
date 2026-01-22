@@ -28,6 +28,8 @@ export default defineNuxtConfig({
     runtimeConfig: {
         private: {
             betterAuthSecret: process.env.BETTER_AUTH_SECRET,
+        },
+        public: {
             betterAuthUrl: process.env.BETTER_AUTH_URL,
         }
     }

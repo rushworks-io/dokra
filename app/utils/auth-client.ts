@@ -1,5 +1,5 @@
-import { createAuthClient } from 'better-auth/vue';
-import { adminClient } from 'better-auth/client/plugins';
+import {createAuthClient} from 'better-auth/vue';
+import {adminClient} from 'better-auth/client/plugins';
 
 /**
  * BetterAuth client for Vue/Nuxt.
@@ -7,16 +7,16 @@ import { adminClient } from 'better-auth/client/plugins';
  *
  * @see https://www.better-auth.com/docs/integrations/nuxt
  */
+
 export const authClient = createAuthClient({
-  baseURL: 'http://localhost:3000/api/auth',
-  plugins: [
-    adminClient(),
-  ],
+    plugins: [
+        adminClient(),
+    ],
 });
 
 export const {
-  signIn,
-  signOut,
+    signIn,
+    signOut,
 } = authClient;
 
 //export const useSession = authClient.useSession;
