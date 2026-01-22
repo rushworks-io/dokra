@@ -32,7 +32,7 @@
       "binding": "DB",
       "database_name": "dokra-db",
       "database_id": "8da5548e-9f06-4d96-b665-65001f5f6982",
-      "preview_database_id": "42def388-0a33-4098-8cbb-404f3ecc895e",
+      "preview_database_id": "54b6cc39-d30a-4b30-a93f-d22d96291ad6",
       "migrations_dir": "server/db/migrations"
     }
   ],

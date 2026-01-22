@@ -5,57 +5,8 @@
     {
       "idx": 0,
       "version": "6",
-      "when": 1767710819840,
-      "tag": "0000_moaning_cardiac",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "6",
-      "when": 1767715725706,
-      "tag": "0001_yummy_blacklash",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "6",
-      "when": 1767718869642,
-      "tag": "0002_tiresome_excalibur",
-      "breakpoints": true
-    },
-    {
-      "idx": 3,
-      "version": "6",
-      "when": 1768583185393,
-      "tag": "0003_remove-slug",
-      "breakpoints": true
-    },
-    {
-      "idx": 4,
-      "version": "6",
-      "when": 1768683600000,
-      "tag": "0004_add-document-status",
-      "breakpoints": true
-    },
-    {
-      "idx": 5,
-      "version": "6",
-      "when": 1768770000000,
-      "tag": "0005_add-uploaded-by-to-documents",
-      "breakpoints": true
-    },
-    {
-      "idx": 6,
-      "version": "6",
-      "when": 1768687200000,
-      "tag": "0006_add-tags-junction",
-      "breakpoints": true
-    },
-    {
-      "idx": 7,
-      "version": "6",
-      "when": 1737331200000,
-      "tag": "0007_remove-tags-category",
+      "when": 1769113841955,
+      "tag": "0000_remarkable_jetstream",
       "breakpoints": true
     }
   ]
