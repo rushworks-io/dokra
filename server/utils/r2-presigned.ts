@@ -4,11 +4,13 @@ import {getSignedUrl} from "@aws-sdk/s3-request-presigner";
 /**
  * R2 configuration for presigned URL generation
  */
+const config = useRuntimeConfig()
+
 const R2_CONFIG = {
-    region: "auto",
+    region: "eu",
     credentials: {
-        accessKeyId: process.env.R2_ACCESS_KEY_ID || "",
-        secretAccessKey: process.env.R2_SECRET_ACCESS_KEY || "",
+        accessKeyId: config.private.r2AccessKeyID,
+        secretAccessKey: config.private.r2SecretAccessKey,
     },
 };
 
@@ -20,9 +22,7 @@ export function isLocalDevelopment(): boolean {
     // Miniflare sets MINIFLARE or CF_WRANGLER_API_TOKEN is not set
     return (
         process.env.MINIFLARE === "1" ||
-        process.env.MINIFLARE === "true" ||
-        !process.env.CF_WRANGLER_API_TOKEN ||
-        process.env.NODE_ENV === "development"
+        process.env.MINIFLARE === "true"
     );
 }
 
@@ -72,7 +72,7 @@ export async function generatePresignedUrl(
     expiresIn: number = 3600
 ): Promise<string> {
     // Validate inputs
-    if (!r2Key || typeof r2Key !== "string") {
+    if (!r2Key) {
         throw new Error("Invalid R2 key provided");
     }
 
