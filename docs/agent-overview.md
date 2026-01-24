@@ -156,6 +156,8 @@ Build a **privacy-first, self-hosted document archiving platform** that is:
 |-------------------|--------------|----------------------------------------------------------|
 | **Cloudflare R2** | Blob storage | Document originals and derived files (PDFs, OCR'd text). |
 
+> Note: The project now uses a server-side streaming proxy for all file retrievals (no browser presigned URLs). The server exposes `/api/files/proxy/[id]`, `/api/documents/[id]/view`, and `/api/documents/[id]/download`. Proxy responses include `Cache-Control: private, max-age=3600`. The frontend uses native PDF embedding for inline viewing; `pdfjs-dist` has been removed from the default viewer to reduce bundle size.
+
 ### Background Jobs & Scheduling
 
 | Technology            | Purpose                   | Notes                                           |

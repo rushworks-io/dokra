@@ -162,9 +162,17 @@ Get organization document stats.
 ```
 
 ### GET /api/documents/[id]/download
-Download document file (redirect to R2 pre-signed URL).
+Download document file. The server returns a proxy URL that streams the file through the backend.
 
-**Response (302)**: Redirects to R2 pre-signed URL with Content-Disposition header.
+**Response (200)**:
+```json
+{
+  "url": "/api/files/proxy/{id}?download=true",
+  "fileName": "Invoice.pdf"
+}
+```
+
+Note: The low-level proxy endpoint `/api/files/proxy/{id}` streams the object from Cloudflare R2 and sets the following headers when returning files: `Content-Type`, `Content-Length`, optional `ETag`, `Content-Disposition` (attachment when `?download=true`, otherwise `inline`), and `Cache-Control: private, max-age=3600`.
 
 ---
 
@@ -219,7 +227,7 @@ Upload a file to R2.
   "fileName": "report.pdf",
   "fileSize": 123456,
   "r2Key": "org-id/file-123/report.pdf",
-  "downloadUrl": "https://r2.example.com/...",
+  "downloadUrl": "/api/files/proxy/file-123?download=true",
   "uploadedAt": "2026-01-20T10:00:00Z"
 }
 ```
@@ -445,4 +453,3 @@ For API clients (e.g., curl, Postman), ensure cookies are included:
 ```bash
 curl -H "Cookie: auth_session=..." https://api.example.com/api/documents
 ```
-

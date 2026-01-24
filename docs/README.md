@@ -59,14 +59,17 @@ Welcome to Dokra — a self-hosted, privacy-first document management system on 
 - **Storage**: Cloudflare R2 (S3-compatible)
 - **Jobs**: Cloudflare Queues (async processing)
 
-### Current Phase (Phase 1 MVP)
+### R2 & File Access (Important)
+Files are served through a server-side streaming proxy. See `API-REFERENCE.md` for the new endpoints: `/api/files/proxy/[id]`, `/api/documents/[id]/view`, and `/api/documents/[id]/download`. Responses include `Cache-Control: private, max-age=3600` and the server centralizes access control for file streaming.
+
+### Current Phase (Phase 2 MVP)
 - ✅ Document upload + storage
 - ✅ Text search (basic)
 - ✅ Tagging system
 - ✅ Multi-org support
 - ✅ Email/password auth
 - ⚙️ Frontend UI (in progress)
-- ❌ OCR pipeline (Phase 2)
+- ️⚙️ OCR pipeline (in progress)
 - ❌ Email ingestion (Phase 2)
 - ❌ Reminders (Phase 4)
 

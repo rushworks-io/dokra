@@ -127,29 +127,34 @@ Add to `wrangler.jsonc`:
 }
 ```
 
-#### Configure CORS for R2 bucket
+#### R2 bucket and CORS notes
 
-CORS must be configured via the Wrangler CLI, not in wrangler.jsonc. Create a `cors.json` file in the project root:
+Configure R2 bucket bindings in `wrangler.jsonc`. Example:
 
-```json
+```jsonc
 {
-  "rules": [
+  "r2_buckets": [
     {
-      "allowed": {
-        "origins": ["*"],
-        "methods": ["GET", "HEAD"]
-      }
+      "binding": "R2",
+      "bucket_name": "dokra-files",
+      "preview_bucket_name": "dokra-files-preview"
     }
   ]
 }
 ```
 
-Apply the CORS configuration:
+Local development / emulation:
+
+Use `wrangler dev` or Miniflare to emulate R2 and expose the binding name (`R2`) to the runtime.
+
+Run frontend + worker locally:
 
 ```bash
-npx wrangler r2 bucket cors set dokra-files --file cors.json
-npx wrangler r2 bucket cors list dokra-files
+pnpm dev          # frontend
+wrangler dev      # worker with R2 binding available locally
 ```
+
+Server file responses include `Cache-Control: private, max-age=3600` by default. Adjust CDN rules only if you intentionally want longer shared caching.
 
 ### Create KV Namespace (optional, for caching)
 
@@ -379,4 +384,3 @@ Workers: max 30s execution time
 - **Queues**: $0.50/M operations (if used)
 
 For typical small-to-medium use, stays in free tier.
-
