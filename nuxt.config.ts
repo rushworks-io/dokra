@@ -28,8 +28,6 @@ export default defineNuxtConfig({
     runtimeConfig: {
         private: {
             betterAuthSecret: process.env.BETTER_AUTH_SECRET,
-            r2AccessKeyID: process.env.R2_ACCESS_KEY_ID,
-            r2SecretAccessKey: process.env.R2_SECRET_ACCESS_KEY,
         },
         public: {
             betterAuthUrl: process.env.BETTER_AUTH_URL,

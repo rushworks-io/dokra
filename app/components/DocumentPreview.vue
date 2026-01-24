@@ -10,12 +10,11 @@ const emit = defineEmits<{
   download: [];
 }>();
 
-const {fetchViewUrl, startAutoRefresh, stopAutoRefresh, downloadDocument} = usePresignedUrl();
+const {fetchViewUrl, downloadDocument} = useFileUrls();
 
 // State
 const currentUrl = ref('');
 const currentMimeType = ref('');
-const expiresIn = ref(3600);
 const isLoading = ref(true);
 const error = ref<string | null>(null);
 const showImageViewer = ref(false);
@@ -25,7 +24,7 @@ const isPdf = computed(() => currentMimeType.value === 'application/pdf');
 const isImage = computed(() => currentMimeType.value?.startsWith('image/'));
 const isViewable = computed(() => isPdf.value || isImage.value);
 
-// Fetch initial view URL
+// Fetch view URL
 async function loadViewUrl() {
   isLoading.value = true;
   error.value = null;
@@ -34,13 +33,6 @@ async function loadViewUrl() {
     const viewData = await fetchViewUrl(props.document.id);
     currentUrl.value = viewData.viewUrl;
     currentMimeType.value = viewData.mimeType;
-    expiresIn.value = viewData.expiresIn;
-
-    // Start auto-refresh
-    startAutoRefresh(props.document.id, (newViewData: ViewResponse) => {
-      currentUrl.value = newViewData.viewUrl;
-      expiresIn.value = newViewData.expiresIn;
-    }, viewData.expiresIn);
   } catch (err: any) {
     error.value = err.message || 'Failed to load document preview';
   } finally {
@@ -51,9 +43,13 @@ async function loadViewUrl() {
 // Handle view action
 function handleView() {
   if (currentUrl.value) {
-    emit('view', currentUrl.value);
     if (isImage.value) {
+      // For images, show modal viewer
       showImageViewer.value = true;
+      emit('view', currentUrl.value);
+    } else if (isPdf.value) {
+      // For PDFs, open in new tab
+      window.open(currentUrl.value, '_blank');
     }
   }
 }
@@ -61,7 +57,7 @@ function handleView() {
 // Handle download action
 async function handleDownload() {
   try {
-    await downloadDocument(props.document.id, props.document.fileName);
+    await downloadDocument(props.document.id);
     emit('download');
   } catch (err: any) {
     console.error('Download failed:', err);
@@ -96,10 +92,6 @@ onMounted(() => {
   // Use the document's mimeType for initial display
   currentMimeType.value = props.document.mimeType || '';
   loadViewUrl();
-});
-
-onUnmounted(() => {
-  stopAutoRefresh();
 });
 </script>
 
