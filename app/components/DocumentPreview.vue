@@ -161,13 +161,6 @@ onMounted(() => {
                 :alt="document.fileName"
                 class="w-full h-auto rounded-lg border border-base-300 group-hover:opacity-90 transition-opacity"
             />
-            <div
-                class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black/30 rounded-lg">
-              <span class="btn btn-primary gap-2">
-                <Icon name="heroicons:eye" class="w-4 h-4"/>
-                View Full Size
-              </span>
-            </div>
           </div>
         </div>
       </div>
