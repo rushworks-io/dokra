@@ -5,8 +5,8 @@ const props = defineProps({
     required: true
   },
   date: {
-    type: String,
-    required: true,
+    type: [String, null] as PropType<string | null>,
+    required: false,
     default: null
   }
 })

@@ -5,8 +5,8 @@ const props = defineProps({
     required: true
   },
   content: {
-    type: String,
-    required: true,
+    type: [String, null] as PropType<string | null>,
+    required: false,
     default: ''
   },
 })
@@ -18,7 +18,7 @@ const props = defineProps({
       {{ props.title }}
     </span>
     <span class="align-left col-span-8 break-all">
-      {{ props.content }}
+      {{ props.content || 'N/A' }}
       <button class="btn btn-sm btn-ghost text-primary">
     </button>
     </span>
