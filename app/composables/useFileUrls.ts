@@ -16,11 +16,11 @@ export interface DownloadResponse {
 
 export function useFileUrls() {
   async function fetchViewUrl(documentId: string): Promise<ViewResponse> {
-    return await $fetch(`/api/documents/${documentId}/view`);
+    return await $fetch<ViewResponse>(`/api/documents/${documentId}/view`);
   }
 
   async function fetchDownloadUrl(documentId: string): Promise<DownloadResponse> {
-    return await $fetch(`/api/documents/${documentId}/download`);
+    return await $fetch<DownloadResponse>(`/api/documents/${documentId}/download`);
   }
 
   async function downloadDocument(documentId: string) {

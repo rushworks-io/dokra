@@ -146,7 +146,7 @@ onMounted(() => {
           <PdfViewer
               :document-id="document.id"
               :file-name="document.fileName"
-              @error="(msg) => error = msg"
+              @error="(msg: string) => error = msg"
           />
         </div>
 
