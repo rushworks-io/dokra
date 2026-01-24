@@ -8,6 +8,8 @@ import {
     StorageError,
 } from '../../utils/storage';
 import {documents} from '../../db/schema';
+import { OCRJobMessage } from '../../types/ocr';
+import { eq } from 'drizzle-orm';
 
 /**
  * POST /api/documents
@@ -118,6 +120,21 @@ export default defineEventHandler(async (event) => {
             createdAt: documentDate || now,
             updatedAt: now,
         });
+
+        // Enqueue OCR job
+        const ocrJob: OCRJobMessage = {
+            documentId,
+            organizationId,
+            r2Key,
+            mimeType,
+            fileName: originalFileName,
+            retryCount: 0,
+            createdAt: now,
+        };
+        await event.context.cloudflare.env.OCR_QUEUE_PRODUCER.send(ocrJob);
+
+        // Update document status to ocr_pending
+        await db.update(documents).set({ status: 'ocr_pending' }).where(eq(documents.id, documentId));
 
         return {
             success: true,

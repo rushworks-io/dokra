@@ -12,7 +12,7 @@ export const documents = sqliteTable('documents', {
     uploadedBy: text('uploaded_by').notNull(), // User ID who uploaded
     extractedText: text('extracted_text'), // OCR'd / full-text
     documentType: text('document_type'), // Gemma-classified: invoice, contract, etc.
-    status: text('status').notNull().default('inbox'), // inbox, verified, archived
+    status: text('status').notNull().default('inbox'), // inbox, verified, archived, ocr_pending, processing, ocr_failed
     dueDate: text('due_date'), // ISO date
     reminderDaysBeforeDue: integer('reminder_days_before_due').default(7),
     tags: text('tags'), // JSON array

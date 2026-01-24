@@ -20,6 +20,8 @@ export interface SearchResult {
   };
   // Relevance score for sorting
   score?: number;
+  // FTS snippet from matched content
+  snippet?: string;
 }
 
 export interface SearchResponse {

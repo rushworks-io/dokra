@@ -17,7 +17,12 @@
     "db:generate": "drizzle-kit generate",
     "db:migrate": "wrangler d1 migrations apply dokra-db --local",
     "db:migrate:prod": "wrangler d1 migrations apply dokra-db --remote",
-    "db:studio": "drizzle-kit studio"
+    "db:studio": "drizzle-kit studio",
+    "deploy": "npm run build && wrangler deploy",
+    "deploy:queue": "wrangler deploy --config wrangler.queue.jsonc",
+    "deploy:all": "npm run deploy && npm run deploy:queue",
+    "logs:main": "wrangler tail dokra",
+    "logs:queue": "wrangler tail dokra-ocr-consumer"
   },
   "dependencies": {
     "@nuxt/fonts": "0.12.1",
