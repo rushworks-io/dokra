@@ -6,6 +6,7 @@ declare module 'h3' {
     interface H3EventContext {
         cloudflare: {
             env: {
+                OCR_QUEUE_PRODUCER: any;
                 DB: D1Database;
                 R2: R2Bucket;
             };
