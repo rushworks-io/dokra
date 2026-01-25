@@ -457,7 +457,7 @@ export default defineEventHandler(async (event) => {
     });
     
     if (!doc) {
-        throw createError({ statusCode: 404, message: 'Document not found' });
+        throw createError({ status: 404, message: 'Document not found' });
     }
     
     // Verify user has access

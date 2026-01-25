@@ -32,8 +32,8 @@ export default defineEventHandler(async (event) => {
 
         if (!formData || formData.length === 0) {
             throw createError({
-                statusCode: 400,
-                statusMessage: 'Bad Request',
+                status: 400,
+                statusText: 'Bad Request',
                 message: 'No data provided',
             });
         }
@@ -48,16 +48,16 @@ export default defineEventHandler(async (event) => {
         // Validate required fields
         if (!fileField || !fileField.data) {
             throw createError({
-                statusCode: 400,
-                statusMessage: 'Bad Request',
+                status: 400,
+                statusText: 'Bad Request',
                 message: 'No file provided',
             });
         }
 
         if (!orgIdField?.data) {
             throw createError({
-                statusCode: 400,
-                statusMessage: 'Bad Request',
+                status: 400,
+                statusText: 'Bad Request',
                 message: 'Organization ID is required',
             });
         }
@@ -153,8 +153,8 @@ export default defineEventHandler(async (event) => {
     } catch (error) {
         if (error instanceof StorageError) {
             throw createError({
-                statusCode: error.statusCode,
-                statusMessage: error.code,
+                status: error.status,
+                statusText: error.code,
                 message: error.message,
             });
         }

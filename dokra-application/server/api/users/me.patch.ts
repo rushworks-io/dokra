@@ -22,15 +22,15 @@ export default defineEventHandler(async (event) => {
     if (body.name !== undefined) {
         if (typeof body.name !== 'string') {
             throw createError({
-                statusCode: 400,
-                statusMessage: 'Bad Request',
+                status: 400,
+                statusText: 'Bad Request',
                 message: 'Name must be a string',
             });
         }
         if (body.name.length > 255) {
             throw createError({
-                statusCode: 400,
-                statusMessage: 'Bad Request',
+                status: 400,
+                statusText: 'Bad Request',
                 message: 'Name must be less than 255 characters',
             });
         }
@@ -39,8 +39,8 @@ export default defineEventHandler(async (event) => {
 
     if (Object.keys(updates).length === 0) {
         throw createError({
-            statusCode: 400,
-            statusMessage: 'Bad Request',
+            status: 400,
+            statusText: 'Bad Request',
             message: 'No valid fields to update',
         });
     }

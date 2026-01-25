@@ -22,8 +22,8 @@ export default defineEventHandler(async (event) => {
     // Validate name
     if (!name || typeof name !== 'string' || name.trim().length === 0) {
         throw createError({
-            statusCode: 400,
-            statusMessage: 'Bad Request',
+            status: 400,
+            statusText: 'Bad Request',
             message: 'Organization name is required',
         });
     }

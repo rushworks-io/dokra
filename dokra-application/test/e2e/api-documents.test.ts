@@ -119,11 +119,11 @@ describe('Documents API Integration', () => {
 
         it('should return 404 for non-existent document', () => {
             const errorResponse = {
-                statusCode: 404,
+                status: 404,
                 message: 'Document not found',
             };
 
-            expect(errorResponse.statusCode).toBe(404);
+            expect(errorResponse.status).toBe(404);
         });
     });
 
@@ -155,11 +155,11 @@ describe('Documents API Integration', () => {
 
         it('should require authentication', () => {
             const unauthenticatedResponse = {
-                statusCode: 401,
+                status: 401,
                 message: 'Unauthorized',
             };
 
-            expect(unauthenticatedResponse.statusCode).toBe(401);
+            expect(unauthenticatedResponse.status).toBe(401);
         });
     });
 

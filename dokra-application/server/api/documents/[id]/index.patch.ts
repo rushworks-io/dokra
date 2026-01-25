@@ -24,8 +24,8 @@ export default defineEventHandler(async (event) => {
 
     if (!documentId) {
         throw createError({
-            statusCode: 400,
-            statusMessage: 'Bad Request',
+            status: 400,
+            statusText: 'Bad Request',
             message: 'Document ID is required',
         });
     }
@@ -43,8 +43,8 @@ export default defineEventHandler(async (event) => {
 
     if (!doc) {
         throw createError({
-            statusCode: 404,
-            statusMessage: 'Not Found',
+            status: 404,
+            statusText: 'Not Found',
             message: 'Document not found',
         });
     }
@@ -69,8 +69,8 @@ export default defineEventHandler(async (event) => {
         const validStatuses = ['inbox', 'verified', 'archived'];
         if (!validStatuses.includes(body.status)) {
             throw createError({
-                statusCode: 400,
-                statusMessage: 'Bad Request',
+                status: 400,
+                statusText: 'Bad Request',
                 message: `Invalid status. Must be one of: ${validStatuses.join(', ')}`,
             });
         }
@@ -83,8 +83,8 @@ export default defineEventHandler(async (event) => {
 
     if (body.tagIds !== undefined && !Array.isArray(body.tagIds)) {
         throw createError({
-            statusCode: 400,
-            statusMessage: 'Bad Request',
+            status: 400,
+            statusText: 'Bad Request',
             message: 'Tag IDs must be an array',
         });
     }

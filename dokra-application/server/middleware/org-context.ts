@@ -17,7 +17,7 @@ import { organizationUsers } from '@dokra/database/schema';
  * export default defineEventHandler(async (event) => {
  *   const { orgId, orgRole, orgMembership } = event.context;
  *   if (!orgId) {
- *     throw createError({ statusCode: 400, message: 'Organization required' });
+ *     throw createError({ status: 400, message: 'Organization required' });
  *   }
  *   // Access org context
  * });

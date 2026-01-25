@@ -17,8 +17,8 @@ export default defineEventHandler(async (event) => {
     const fileId = getRouterParam(event, 'id');
     if (!fileId) {
         throw createError({
-            statusCode: 400,
-            statusMessage: 'Bad Request',
+            status: 400,
+            statusText: 'Bad Request',
             message: 'File ID is required',
         });
     }
@@ -29,8 +29,8 @@ export default defineEventHandler(async (event) => {
         const expiresAt = parseInt(query.expires as string, 10);
         if (isNaN(expiresAt) || Math.floor(Date.now() / 1000) > expiresAt) {
             throw createError({
-                statusCode: 403,
-                statusMessage: 'Forbidden',
+                status: 403,
+                statusText: 'Forbidden',
                 message: 'Download link has expired',
             });
         }
@@ -47,8 +47,8 @@ export default defineEventHandler(async (event) => {
 
         if (!fileRecord) {
             throw createError({
-                statusCode: 404,
-                statusMessage: 'Not Found',
+                status: 404,
+                statusText: 'Not Found',
                 message: 'File not found',
             });
         }
@@ -62,8 +62,8 @@ export default defineEventHandler(async (event) => {
 
         if (!downloadResult.body) {
             throw createError({
-                statusCode: 404,
-                statusMessage: 'Not Found',
+                status: 404,
+                statusText: 'Not Found',
                 message: 'File content not found in storage',
             });
         }
@@ -83,8 +83,8 @@ export default defineEventHandler(async (event) => {
     } catch (error) {
         if (error instanceof StorageError) {
             throw createError({
-                statusCode: error.statusCode,
-                statusMessage: error.code,
+                status: error.status,
+                statusText: error.code,
                 message: error.message,
             });
         }

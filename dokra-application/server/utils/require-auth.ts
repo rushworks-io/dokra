@@ -15,8 +15,8 @@ export function requireAuth(event: H3Event): SessionData {
 
     if (!session?.user || !session?.session) {
         throw createError({
-            statusCode: 401,
-            statusMessage: 'Unauthorized',
+            status: 401,
+            statusText: 'Unauthorized',
             message: 'You must be logged in to access this resource',
         });
     }
@@ -38,8 +38,8 @@ export function requireAdmin(event: H3Event): AuthSession {
 
     if (session.user?.role !== 'admin') {
         throw createError({
-            statusCode: 403,
-            statusMessage: 'Forbidden',
+            status: 403,
+            statusText: 'Forbidden',
             message: 'You must be an admin to access this resource',
         });
     }

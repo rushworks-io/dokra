@@ -27,8 +27,8 @@ export default defineEventHandler(async (event): Promise<SearchResponse> => {
 
   if (!organizationId) {
     throw createError({
-      statusCode: 400,
-      statusMessage: 'Bad Request',
+      status: 400,
+      statusText: 'Bad Request',
       message: 'Organization ID is required',
     });
   }

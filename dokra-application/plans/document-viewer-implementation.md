@@ -92,7 +92,7 @@ export default defineEventHandler(async (event) => {
   const documentId = getRouterParam(event, "id");
   
   if (!documentId) {
-    throw createError({ statusCode: 400, message: "document ID required" });
+    throw createError({ status: 400, message: "document ID required" });
   }
   
   const db = useDatabase(event.context.cloudflare.env.DB);
@@ -104,7 +104,7 @@ export default defineEventHandler(async (event) => {
     .get();
   
   if (!doc) {
-    throw createError({ statusCode: 404, message: "document not found" });
+    throw createError({ status: 404, message: "document not found" });
   }
   
   // Verify user has access to organization

@@ -425,8 +425,8 @@ All errors return JSON with consistent format:
 
 ```json
 {
-  "statusCode": 400,
-  "statusMessage": "Bad Request",
+  "status": 400,
+  "statusText": "Bad Request",
   "message": "Human-readable error details"
 }
 ```

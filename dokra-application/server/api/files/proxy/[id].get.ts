@@ -17,7 +17,7 @@ export default defineEventHandler(async (event) => {
     const documentId = getRouterParam(event, 'id');
     if (!documentId) {
         throw createError({
-            statusCode: 400,
+            status: 400,
             message: 'Document ID required'
         });
     }
@@ -32,7 +32,7 @@ export default defineEventHandler(async (event) => {
 
     if (!doc) {
         throw createError({
-            statusCode: 404,
+            status: 404,
             message: 'Document not found'
         });
     }
@@ -61,7 +61,7 @@ export default defineEventHandler(async (event) => {
     // 7. Stream to client
     if (!fileData.body) {
         throw createError({
-            statusCode: 404,
+            status: 404,
             message: 'Document not found'
         });
     }

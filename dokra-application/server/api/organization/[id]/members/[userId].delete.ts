@@ -1,7 +1,7 @@
 import {eq, and} from 'drizzle-orm';
 import {useDatabase} from '~~/server/utils/db';
 import {requireOrgOwner} from '~~/server/utils/require-org-access';
-import {organizationUsers} from '~~/server/db/schema';
+import {organizationUsers} from '@dokra/database/schema';
 
 /**
  * DELETE /api/organizations/:id/members/:userId
@@ -18,16 +18,16 @@ export default defineEventHandler(async (event) => {
 
     if (!organizationId) {
         throw createError({
-            statusCode: 400,
-            statusMessage: 'Bad Request',
+            status: 400,
+            statusText: 'Bad Request',
             message: 'Organization ID is required',
         });
     }
 
     if (!targetUserId) {
         throw createError({
-            statusCode: 400,
-            statusMessage: 'Bad Request',
+            status: 400,
+            statusText: 'Bad Request',
             message: 'User ID is required',
         });
     }
@@ -38,8 +38,8 @@ export default defineEventHandler(async (event) => {
     // Prevent owner from removing themselves
     if (user.id === targetUserId) {
         throw createError({
-            statusCode: 400,
-            statusMessage: 'Bad Request',
+            status: 400,
+            statusText: 'Bad Request',
             message: 'You cannot remove yourself from the organization',
         });
     }
@@ -60,8 +60,8 @@ export default defineEventHandler(async (event) => {
 
     if (!membership) {
         throw createError({
-            statusCode: 404,
-            statusMessage: 'Not Found',
+            status: 404,
+            statusText: 'Not Found',
             message: 'User is not a member of this organization',
         });
     }
@@ -69,8 +69,8 @@ export default defineEventHandler(async (event) => {
     // Prevent removing other owners
     if (membership.role === 'owner') {
         throw createError({
-            statusCode: 400,
-            statusMessage: 'Bad Request',
+            status: 400,
+            statusText: 'Bad Request',
             message: 'Cannot remove another owner from the organization',
         });
     }

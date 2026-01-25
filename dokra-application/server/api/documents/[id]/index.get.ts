@@ -1,7 +1,7 @@
 import {and, eq} from 'drizzle-orm';
-import {useDatabase} from '../../../utils/db';
-import {requireOrgMembership} from '../../../utils/require-org-access';
-import {documents, documentTags, tags} from '../../../db/schema';
+import {useDatabase} from '#server/utils/db';
+import {requireOrgMembership} from '#server/utils/require-org-access';
+import {documents, documentTags, tags} from '@dokra/database/schema';
 
 /**
  * GET /api/documents/[id]
@@ -17,8 +17,8 @@ export default defineEventHandler(async (event) => {
 
     if (!documentId) {
         throw createError({
-            statusCode: 400,
-            statusMessage: 'Bad Request',
+            status: 400,
+            statusText: 'Bad Request',
             message: 'Document ID is required',
         });
     }
@@ -34,8 +34,8 @@ export default defineEventHandler(async (event) => {
 
     if (!doc) {
         throw createError({
-            statusCode: 404,
-            statusMessage: 'Not Found',
+            status: 404,
+            statusText: 'Not Found',
             message: 'Document not found',
         });
     }

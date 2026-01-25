@@ -9,7 +9,7 @@ import {createAuth} from '../utils/auth';
  * export default defineEventHandler(async (event) => {
  *   const session = event.context.auth;
  *   if (!session) {
- *     throw createError({ statusCode: 401, message: 'Unauthorized' });
+ *     throw createError({ status: 401, message: 'Unauthorized' });
  *   }
  *   // Access session.user, session.session
  * });

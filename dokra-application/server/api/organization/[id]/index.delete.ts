@@ -21,8 +21,8 @@ export default defineEventHandler(async (event) => {
 
     if (!organizationId) {
         throw createError({
-            statusCode: 400,
-            statusMessage: 'Bad Request',
+            status: 400,
+            statusText: 'Bad Request',
             message: 'Organization ID is required',
         });
     }
@@ -41,8 +41,8 @@ export default defineEventHandler(async (event) => {
 
     if (!org) {
         throw createError({
-            statusCode: 404,
-            statusMessage: 'Not Found',
+            status: 404,
+            statusText: 'Not Found',
             message: 'Organization not found',
         });
     }

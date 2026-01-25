@@ -31,8 +31,8 @@ export async function getOrgMembership(
 
     if (!org) {
         throw createError({
-            statusCode: 404,
-            statusMessage: 'Not Found',
+            status: 404,
+            statusText: 'Not Found',
             message: 'Organization not found',
         });
     }
@@ -51,8 +51,8 @@ export async function getOrgMembership(
 
     if (!membership) {
         throw createError({
-            statusCode: 403,
-            statusMessage: 'Forbidden',
+            status: 403,
+            statusText: 'Forbidden',
             message: 'You do not have access to this organization',
         });
     }
@@ -82,8 +82,8 @@ export async function requireOrgMembership(
 
     if (!session?.user || !session?.session) {
         throw createError({
-            statusCode: 401,
-            statusMessage: 'Unauthorized',
+            status: 401,
+            statusText: 'Unauthorized',
             message: 'You must be logged in to access this resource',
         });
     }
@@ -115,8 +115,8 @@ export async function requireOrgOwner(
 
     if (!session?.user || !session?.session) {
         throw createError({
-            statusCode: 401,
-            statusMessage: 'Unauthorized',
+            status: 401,
+            statusText: 'Unauthorized',
             message: 'You must be logged in to access this resource',
         });
     }
@@ -125,8 +125,8 @@ export async function requireOrgOwner(
 
     if (membership.role !== 'owner') {
         throw createError({
-            statusCode: 403,
-            statusMessage: 'Forbidden',
+            status: 403,
+            statusText: 'Forbidden',
             message: 'Only the organization owner can perform this action',
         });
     }

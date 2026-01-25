@@ -1,7 +1,7 @@
 import {eq, and} from 'drizzle-orm';
 import {useDatabase, generateId, getCurrentTimestamp} from '~~/server/utils/db';
 import {requireOrgOwner} from '~~/server/utils/require-org-access';
-import {organizationUsers, users} from '~~/server/db/schema';
+import {organizationUsers, users} from '@dokra/database/schema';
 
 /**
  * POST /api/organizations/:id/members
@@ -20,8 +20,8 @@ export default defineEventHandler(async (event) => {
 
     if (!organizationId) {
         throw createError({
-            statusCode: 400,
-            statusMessage: 'Bad Request',
+            status: 400,
+            statusText: 'Bad Request',
             message: 'Organization ID is required',
         });
     }
@@ -36,8 +36,8 @@ export default defineEventHandler(async (event) => {
     // Validate email
     if (!email || typeof email !== 'string' || email.trim().length === 0) {
         throw createError({
-            statusCode: 400,
-            statusMessage: 'Bad Request',
+            status: 400,
+            statusText: 'Bad Request',
             message: 'Email is required',
         });
     }
@@ -46,8 +46,8 @@ export default defineEventHandler(async (event) => {
     const validRoles = ['owner', 'member', 'viewer'];
     if (!validRoles.includes(role)) {
         throw createError({
-            statusCode: 400,
-            statusMessage: 'Bad Request',
+            status: 400,
+            statusText: 'Bad Request',
             message: `Invalid role. Must be one of: ${validRoles.join(', ')}`,
         });
     }
@@ -63,8 +63,8 @@ export default defineEventHandler(async (event) => {
 
     if (!user) {
         throw createError({
-            statusCode: 404,
-            statusMessage: 'Not Found',
+            status: 404,
+            statusText: 'Not Found',
             message: 'User not found with this email',
         });
     }
@@ -83,8 +83,8 @@ export default defineEventHandler(async (event) => {
 
     if (existingMembership) {
         throw createError({
-            statusCode: 400,
-            statusMessage: 'Bad Request',
+            status: 400,
+            statusText: 'Bad Request',
             message: 'User is already a member of this organization',
         });
     }

@@ -10340,7 +10340,7 @@ declare namespace TailStream {
     }
     interface FetchResponseInfo {
         readonly type: "fetch";
-        readonly statusCode: number;
+        readonly status: number;
     }
     type EventOutcome = "ok" | "canceled" | "exception" | "unknown" | "killSwitch" | "daemonDown" | "exceededCpu" | "exceededMemory" | "loadShed" | "responseStreamDisconnected" | "scriptNotFound";
     interface ScriptVersion {

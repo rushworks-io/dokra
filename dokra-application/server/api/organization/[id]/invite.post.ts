@@ -1,7 +1,7 @@
 import {eq, and} from 'drizzle-orm';
 import {useDatabase} from '~~/server/utils/db';
 import {requireOrgOwner} from '~~/server/utils/require-org-access';
-import {organizationUsers, users} from '~~/server/db/schema';
+import {organizationUsers, users} from '@dokra/database/schema';
 import {generateId} from '~~/server/utils/db';
 
 /**
@@ -11,25 +11,22 @@ import {generateId} from '~~/server/utils/db';
  * Body: { email: string }
  * Returns: { success: true, member: {...} }
  */
-
-//TODO: replace statusCode with status
-
 export default defineEventHandler(async (event) => {
     const organizationId = getRouterParam(event, 'id');
     const body = await readBody(event);
 
     if (!organizationId) {
         throw createError({
-            statusCode: 400,
-            statusMessage: 'Bad Request',
+            status: 400,
+            statusText: 'Bad Request',
             message: 'Organization ID is required',
         });
     }
 
     if (!body.email || typeof body.email !== 'string') {
         throw createError({
-            statusCode: 400,
-            statusMessage: 'Bad Request',
+            status: 400,
+            statusText: 'Bad Request',
             message: 'Email is required',
         });
     }
@@ -38,8 +35,8 @@ export default defineEventHandler(async (event) => {
 
     if (membership.role !== 'owner') {
         throw createError({
-            statusCode: 403,
-            statusMessage: 'Forbidden',
+            status: 403,
+            statusText: 'Forbidden',
             message: 'Only organization owners can invite members',
         });
     }
@@ -56,8 +53,8 @@ export default defineEventHandler(async (event) => {
 
     if (!invitedUser) {
         throw createError({
-            statusCode: 404,
-            statusMessage: 'Not Found',
+            status: 404,
+            statusText: 'Not Found',
             message: 'User with this email does not exist',
         });
     }
@@ -75,8 +72,8 @@ export default defineEventHandler(async (event) => {
 
     if (existingMembership) {
         throw createError({
-            statusCode: 409,
-            statusMessage: 'Conflict',
+            status: 409,
+            statusText: 'Conflict',
             message: 'User is already a member of this organization',
         });
     }

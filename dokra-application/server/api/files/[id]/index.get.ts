@@ -13,8 +13,8 @@ export default defineEventHandler(async (event) => {
     const fileId = getRouterParam(event, 'id');
     if (!fileId) {
         throw createError({
-            statusCode: 400,
-            statusMessage: 'Bad Request',
+            status: 400,
+            statusText: 'Bad Request',
             message: 'File ID is required',
         });
     }
@@ -29,8 +29,8 @@ export default defineEventHandler(async (event) => {
 
     if (!fileRecord) {
         throw createError({
-            statusCode: 404,
-            statusMessage: 'Not Found',
+            status: 404,
+            statusText: 'Not Found',
             message: 'File not found',
         });
     }

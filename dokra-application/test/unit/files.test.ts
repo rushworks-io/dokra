@@ -157,13 +157,13 @@ describe('Storage Utilities', () => {
             const error = new StorageError('Test message', 'TEST_CODE', 400);
             expect(error.message).toBe('Test message');
             expect(error.code).toBe('TEST_CODE');
-            expect(error.statusCode).toBe(400);
+            expect(error.status).toBe(400);
             expect(error.name).toBe('StorageError');
         });
 
         it('should default to 500 status code', () => {
             const error = new StorageError('Test message', 'TEST_CODE');
-            expect(error.statusCode).toBe(500);
+            expect(error.status).toBe(500);
         });
 
         it('should be instanceof Error', () => {
@@ -485,7 +485,7 @@ describe('R2 Upload/Download Operations', () => {
             } catch (error) {
                 expect(error).toBeInstanceOf(StorageError);
                 expect((error as StorageError).code).toBe('FILE_NOT_FOUND');
-                expect((error as StorageError).statusCode).toBe(404);
+                expect((error as StorageError).status).toBe(404);
             }
         });
     });

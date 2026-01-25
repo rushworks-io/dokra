@@ -30,3 +30,48 @@ export const documents = sqliteTable('documents', {
     index('documents_uploaded_by_idx').on(table.uploadedBy),
 ]);
 
+export const documentsFts = sqliteTable('documents_fts', {
+    documentId: text('documentId'),
+    content: text('content'),
+    rank: integer('rank'),
+});
+
+// Prepared statement for FTS document count
+export const getDocumentsFtsCountQuery = (searchQuery: string, organizationId: string) => sql`
+    SELECT COUNT(*) as total
+    FROM documents d
+    INNER JOIN documents_fts fts ON d.id = fts.documentId
+    WHERE fts MATCH ${searchQuery}
+      AND d.organization_id = ${organizationId}
+`;
+
+/**
+ * Creates a prepared SQL statement for FTS search results with snippets
+ * @param searchQuery - The FTS search query string
+ * @param organizationId - The organization ID to filter by
+ * @param limit - Maximum number of results to return
+ * @param offset - Number of results to skip
+ */
+export const getDocumentsFtsSearchQuery = (
+    searchQuery: string,
+    organizationId: string,
+    limit: number,
+    offset: number
+) => sql`
+    SELECT d.id,
+           d.title,
+           d.file_name,
+           d.document_type,
+           d.status,
+           d.created_at,
+           d.updated_at,
+           snippet(documents_fts, 2, '<mark>', '</mark>', '...', 10) as snippet,
+           rank as score
+    FROM documents d
+    INNER JOIN documents_fts fts ON d.id = fts.documentId
+    WHERE fts MATCH ${searchQuery}
+      AND d.organization_id = ${organizationId}
+    ORDER BY rank
+    LIMIT ${limit} OFFSET ${offset}
+`;
+

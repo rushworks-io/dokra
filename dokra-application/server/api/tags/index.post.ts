@@ -21,8 +21,8 @@ export default defineEventHandler(async (event) => {
 
   if (!organizationId) {
     throw createError({
-      statusCode: 400,
-      statusMessage: 'Bad Request',
+      status: 400,
+      statusText: 'Bad Request',
       message: 'Organization ID is required',
     });
   }
@@ -32,8 +32,8 @@ export default defineEventHandler(async (event) => {
 
   if (!name || name.trim().length === 0) {
     throw createError({
-      statusCode: 400,
-      statusMessage: 'Bad Request',
+      status: 400,
+      statusText: 'Bad Request',
       message: 'Tag name is required',
     });
   }
@@ -44,8 +44,8 @@ export default defineEventHandler(async (event) => {
 
   if (!colorPattern.test(trimmedColor)) {
     throw createError({
-      statusCode: 400,
-      statusMessage: 'Bad Request',
+      status: 400,
+      statusText: 'Bad Request',
       message: 'Color must be a valid hex value',
     });
   }
@@ -63,8 +63,8 @@ export default defineEventHandler(async (event) => {
 
   if (existing) {
     throw createError({
-      statusCode: 409,
-      statusMessage: 'Conflict',
+      status: 409,
+      statusText: 'Conflict',
       message: 'Tag already exists',
     });
   }

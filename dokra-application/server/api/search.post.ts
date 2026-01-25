@@ -1,7 +1,7 @@
-import {eq, and, sql, inArray} from 'drizzle-orm';
+import {eq, and, inArray} from 'drizzle-orm';
 import {useDatabase} from '../utils/db';
 import {requireAuth} from '../utils/require-auth';
-import {documentTags, tags} from '@dokra/database/schema';
+import {documentTags, tags, getDocumentsFtsCountQuery, getDocumentsFtsSearchQuery} from '@dokra/database/schema';
 import type {SearchResponse, SearchResult} from '~~/types';
 
 /**
@@ -33,24 +33,16 @@ export default defineEventHandler(async (event): Promise<SearchResponse> => {
 
     if (!organizationId) {
         throw createError({
-            statusCode: 400,
-            statusMessage: 'Bad Request',
+            status: 400,
+            statusText: 'Bad Request',
             message: 'Organization ID is required',
         });
     }
 
     const db = useDatabase(event.context.cloudflare.env.DB);
 
-    //TODO: Move SQL Statement to prepared statement in schema file
-
-    // Get total count
-    const countResult = await db.execute(sql`
-        SELECT COUNT(*) as total
-        FROM documents d
-                 INNER JOIN documents_fts fts ON d.id = fts.documentId
-        WHERE fts MATCH ${searchQuery}
-          AND d.organization_id = ${organizationId}
-    `);
+    // Get total count using prepared statement
+    const countResult = await db.all<{ total: number }>(getDocumentsFtsCountQuery(searchQuery, organizationId));
     const total = countResult[0]?.total || 0;
 
     if (total === 0) {
@@ -61,25 +53,8 @@ export default defineEventHandler(async (event): Promise<SearchResponse> => {
         };
     }
 
-    // Get search results with FTS
-    const ftsResults = await db.execute(sql`
-        SELECT d.id,
-               d.title,
-               d.file_name,
-               d.document_type,
-               d.status,
-               d.created_at,
-               d.updated_at,
-               snippet(documents_fts, 2, '<mark>', '</mark>', '...', 10) as snippet,
-               rank                                                      as score
-        FROM documents d
-                 INNER JOIN documents_fts fts ON d.id = fts.documentId
-        WHERE fts MATCH ${searchQuery}
-          AND d.organization_id = ${organizationId}
-        ORDER BY rank
-            LIMIT ${limit}
-        OFFSET ${offset}
-    `);
+    // Get search results with FTS using prepared statement
+    const ftsResults = await db.all(getDocumentsFtsSearchQuery(searchQuery, organizationId, limit, offset));
 
     const documentIds = ftsResults.map((row: any) => row.id);
 

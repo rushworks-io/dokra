@@ -130,7 +130,7 @@ describe('error handling', () => {
     } catch (error) {
       expect(error).toBeInstanceOf(StorageError);
       expect((error as StorageError).code).toBe('ERROR_CODE');
-      expect((error as StorageError).statusCode).toBe(400);
+      expect((error as StorageError).status).toBe(400);
     }
   });
 });

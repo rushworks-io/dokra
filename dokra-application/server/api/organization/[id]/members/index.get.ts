@@ -1,7 +1,7 @@
 import {eq} from 'drizzle-orm';
 import {useDatabase} from '~~/server/utils/db';
 import {requireOrgMembership} from '~~/server/utils/require-org-access';
-import {organizationUsers, users} from '~~/server/db/schema';
+import {organizationUsers, users} from '@dokra/database/schema';
 
 /**
  * GET /api/organizations/:id/members
@@ -14,8 +14,8 @@ export default defineEventHandler(async (event) => {
 
     if (!organizationId) {
         throw createError({
-            statusCode: 400,
-            statusMessage: 'Bad Request',
+            status: 400,
+            statusText: 'Bad Request',
             message: 'Organization ID is required',
         });
     }
