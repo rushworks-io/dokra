@@ -1,5 +1,5 @@
 # Nuxt dev/build outputs
-.output
+dokra-application/.output
 .data
 .nuxt
 .nitro
@@ -7,6 +7,10 @@
 dist
 .wrangler
 coverage
+
+# Shared packages build outputs
+shared/*/dist
+shared/*/.turbo
 
 # Node dependencies
 node_modules
@@ -18,9 +22,9 @@ logs
 # Misc
 .DS_Store
 .fleet
-.idea
+../.idea
 
 # Local env files
 .env
-.env.*
+.env.example
 !.env.example
