@@ -4,7 +4,7 @@
   "description": "Cloudflare Worker for OCR processing of documents",
   "main": "ocr-consumer.ts",
   "scripts": {
-    "deploy": "wrangler deploy",
+    "deploy": "wrangler build && wrangler deploy",
     "dev": "wrangler dev",
     "test": "vitest"
   },
