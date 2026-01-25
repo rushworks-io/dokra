@@ -1,7 +1,7 @@
 import {eq} from 'drizzle-orm';
-import {useDatabase} from '../../../utils/db';
-import {requireOrgOwner} from '../../../utils/require-org-access';
-import {organizations, organizationUsers, documents, documentTags, files, tags} from '../../../db/schema';
+import {useDatabase} from '#server/utils/db';
+import {requireOrgOwner} from '#server/utils/require-org-access';
+import {organizations, organizationUsers, documents, documentTags, files, tags} from '@dokra/database/schema';
 
 /**
  * DELETE /api/organizations/:id

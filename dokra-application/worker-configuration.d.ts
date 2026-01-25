@@ -9703,11 +9703,13 @@ interface ImagesBinding {
      * Get image metadata (type, width and height)
      * @throws {@link ImagesError} with code 9412 if input is not an image
      * @param stream The image bytes
+     * @param options
      */
     info(stream: ReadableStream<Uint8Array>, options?: ImageInputOptions): Promise<ImageInfoResponse>;
     /**
      * Begin applying a series of transformations to an image
      * @param stream The image bytes
+     * @param options
      * @returns A transform handle
      */
     input(stream: ReadableStream<Uint8Array>, options?: ImageInputOptions): ImageTransformer;

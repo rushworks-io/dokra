@@ -1,5 +1,4 @@
-import {describe, it, expect, vi, beforeEach, afterEach, type Mock} from 'vitest';
-//@ts-expect-error
+import {describe, it, expect, beforeEach} from 'vitest';
 import type {H3Event} from 'h3';
 
 // Import modules for testing

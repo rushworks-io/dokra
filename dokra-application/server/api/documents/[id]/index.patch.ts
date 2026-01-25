@@ -1,7 +1,7 @@
 import {and, eq, inArray} from 'drizzle-orm';
-import {generateId, getCurrentTimestamp, useDatabase} from '../../../utils/db';
-import {requireOrgMembership} from '../../../utils/require-org-access';
-import {documents, documentTags, tags} from '../../../db/schema';
+import {generateId, getCurrentTimestamp, useDatabase} from '#server/utils/db';
+import {requireOrgMembership} from '#server/utils/require-org-access';
+import {documents, documentTags, tags} from '@dokra/database/schema';
 
 /**
  * PATCH /api/documents/[id]

@@ -1,9 +1,9 @@
 import {eq} from 'drizzle-orm';
-import {requireAuth} from '../../../utils/require-auth';
-import {requireOrgMembership} from '../../../utils/require-org-access';
-import {useDatabase} from '../../../utils/db';
-import {getR2Bucket, downloadFile} from '../../../utils/storage';
-import {documents} from '../../../db/schema';
+import {requireAuth} from '#server/utils/require-auth';
+import {requireOrgMembership} from '#server/utils/require-org-access';
+import {useDatabase} from '#server/utils/db';
+import {getR2Bucket, downloadFile} from '#server/utils/storage';
+import {documents} from '@dokra/database/schema';
 
 /**
  * GET /api/files/proxy/[id]

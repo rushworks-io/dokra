@@ -1,7 +1,7 @@
 import {eq} from 'drizzle-orm';
-import {useDatabase, getCurrentTimestamp} from '../../../utils/db';
-import {requireOrgOwner} from '../../../utils/require-org-access';
-import {organizations} from '../../../db/schema';
+import {useDatabase, getCurrentTimestamp} from '#server/utils/db';
+import {requireOrgOwner} from '#server/utils/require-org-access';
+import {organizations} from '@dokra/database/schema';
 
 /**
  * PATCH /api/organizations/:id

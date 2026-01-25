@@ -1,8 +1,8 @@
 import {eq} from 'drizzle-orm';
-import {useDatabase} from '../../../utils/db';
-import {requireOrgMembership} from '../../../utils/require-org-access';
-import {getR2Bucket, StorageError} from '../../../utils/storage';
-import {documents, documentTags} from '../../../db/schema';
+import {useDatabase} from '#server/utils/db';
+import {requireOrgMembership} from '#server/utils/require-org-access';
+import {getR2Bucket, StorageError} from '#server/utils/storage';
+import {documents, documentTags} from '@dokra/database/schema';
 
 /**
  * DELETE /api/documents/[id]

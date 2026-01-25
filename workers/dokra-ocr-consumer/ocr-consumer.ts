@@ -1,5 +1,5 @@
 import {eq} from 'drizzle-orm';
-import {useDatabase, documents} from '@dokra/database';
+import {documents, useDatabase} from '@dokra/database';
 
 export interface OCRJobMessage {
     documentId: string;
@@ -136,9 +136,7 @@ async function performOCR(
         throw new Error('Invalid response format from Mistral OCR API');
     }
 
-    const extractedText = result.pages.map(page => page.markdown).join('\n\n');
-
-    return extractedText;
+    return result.pages.map(page => page.markdown).join('\n\n');
 }
 
 /**

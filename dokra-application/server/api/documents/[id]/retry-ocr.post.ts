@@ -1,8 +1,7 @@
-import { eq } from 'drizzle-orm';
-import { useDatabase, getCurrentTimestamp } from '../../../utils/db';
-import { requireOrgMembership } from '../../../utils/require-org-access';
-import { documents } from '../../../db/schema';
-import { OCRJobMessage } from '../../../types/ocr';
+import {eq} from 'drizzle-orm';
+import {useDatabase, getCurrentTimestamp} from '#server/utils/db';
+import {requireOrgMembership} from '#server/utils/require-org-access';
+import {documents} from '@dokra/database/schema';
 
 /**
  * POST /api/documents/[id]/retry-ocr
@@ -13,6 +12,10 @@ import { OCRJobMessage } from '../../../types/ocr';
  *
  * Response: Success confirmation
  */
+
+
+//TODO Look at this File, and implement it.
+
 export default defineEventHandler(async (event) => {
     const documentId = getRouterParam(event, 'id');
 
@@ -68,7 +71,7 @@ export default defineEventHandler(async (event) => {
     // Update document status to 'ocr_pending'
     await db
         .update(documents)
-        .set({ status: 'ocr_pending' })
+        .set({status: 'ocr_pending'})
         .where(eq(documents.id, documentId));
 
     return {

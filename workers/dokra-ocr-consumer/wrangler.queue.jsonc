@@ -7,7 +7,6 @@
     "enabled": true,
     "logs": {
       "enabled": true,
-      "persist": true,
       "invocation_logs": true
     }
   },

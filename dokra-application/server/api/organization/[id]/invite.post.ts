@@ -1,4 +1,4 @@
-import {eq, and, inArray} from 'drizzle-orm';
+import {eq, and} from 'drizzle-orm';
 import {useDatabase} from '~~/server/utils/db';
 import {requireOrgOwner} from '~~/server/utils/require-org-access';
 import {organizationUsers, users} from '~~/server/db/schema';
@@ -11,6 +11,8 @@ import {generateId} from '~~/server/utils/db';
  * Body: { email: string }
  * Returns: { success: true, member: {...} }
  */
+
+//TODO: replace statusCode with status
 
 export default defineEventHandler(async (event) => {
     const organizationId = getRouterParam(event, 'id');
