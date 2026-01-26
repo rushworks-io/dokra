@@ -1,5 +1,7 @@
 import type { Tag } from './tag';
 
+export type SearchScope = 'text' | 'filename' | 'all';
+
 export interface SearchResult {
   id: string;
   title: string;
@@ -15,6 +17,7 @@ export interface SearchResult {
   highlights?: {
     title?: string;
     fileName?: string;
+    content?: string;
     tags?: string[];
     metadata?: string[];
   };
@@ -25,14 +28,8 @@ export interface SearchResult {
 }
 
 export interface SearchResponse {
-  results: SearchResult[];
-  query: string;
-  pagination: {
-    total: number;
-    limit: number;
-    offset: number;
-    hasMore: boolean;
-  };
+  results: any[]; // Document objects from database
+  total: number;
 }
 
 export interface RecentSearch {

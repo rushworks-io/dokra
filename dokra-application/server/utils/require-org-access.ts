@@ -138,3 +138,24 @@ export async function requireOrgOwner(
     };
 }
 
+/**
+ * Require organization access for an API route
+ *
+ * @param event - The H3 event
+ * @returns The organization ID from context
+ * @throws 400 if no organization context
+ */
+export async function requireOrgAccess(event: H3Event): Promise<string> {
+    const orgId = event.context.orgId;
+
+    if (!orgId) {
+        throw createError({
+            status: 400,
+            statusText: 'Bad Request',
+            message: 'Organization context required',
+        });
+    }
+
+    return orgId;
+}
+

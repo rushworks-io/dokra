@@ -1,26 +1,27 @@
-import type {SearchResponse, RecentSearch, SearchResult} from '~~/types';
+import type {SearchResponse, RecentSearch, SearchResult, SearchScope} from '~~/types';
 
 const MAX_RECENT_SEARCHES = 10;
 const RECENT_SEARCHES_KEY = 'dokra:recentSearches';
 const DEBOUNCE_MS = 300;
 
 export function useSearch() {
-    const currentOrgId = useCookie<string | null>('currentOrgId');
+     const currentOrgId = useCookie<string | null>('currentOrgId');
 
-    const searchQuery = ref('');
-    const results = ref<SearchResult[]>([]);
-    const isLoading = ref(false);
-    const error = ref<string | null>(null);
-    const hasSearched = ref(false);
-    const pagination = ref({
-        total: 0,
-        limit: 25,
-        offset: 0,
-        hasMore: false,
-    });
+     const searchQuery = ref('');
+     const searchScope = ref<SearchScope>('all');
+     const results = ref<SearchResult[]>([]);
+     const isLoading = ref(false);
+     const error = ref<string | null>(null);
+     const hasSearched = ref(false);
+     const pagination = ref({
+         total: 0,
+         limit: 25,
+         offset: 0,
+         hasMore: false,
+     });
 
-    // Recent searches state
-    const recentSearches = ref<RecentSearch[]>([]);
+     // Recent searches state
+     const recentSearches = ref<RecentSearch[]>([]);
 
     // Load recent searches from localStorage on client
     if (import.meta.client) {
@@ -87,16 +88,22 @@ export function useSearch() {
 
         try {
             const response = await $fetch<SearchResponse>('/api/search', {
-                query: {
-                    q: query,
-                    organizationId: currentOrgId.value,
+                method: 'POST',
+                body: {
+                    query,
+                    scope: searchScope.value,
                     limit: 25,
                     offset,
                 },
             });
 
             results.value = response.results;
-            pagination.value = response.pagination;
+            pagination.value = {
+                total: response.total,
+                limit: 25,
+                offset,
+                hasMore: offset + response.results.length < response.total,
+            };
 
             // Add to recent searches on successful search
             if (response.results.length > 0) {
@@ -124,16 +131,22 @@ export function useSearch() {
 
         try {
             const response = await $fetch<SearchResponse>('/api/search', {
-                query: {
-                    q: searchQuery.value,
-                    organizationId: currentOrgId.value!,
+                method: 'POST',
+                body: {
+                    query: searchQuery.value,
+                    scope: searchScope.value,
                     limit: pagination.value.limit,
                     offset: newOffset,
                 },
             });
 
             results.value = [...results.value, ...response.results];
-            pagination.value = response.pagination;
+            pagination.value = {
+                total: response.total,
+                limit: pagination.value.limit,
+                offset: newOffset,
+                hasMore: newOffset + response.results.length < response.total,
+            };
         } catch (e: unknown) {
             error.value = e instanceof Error ? e.message : 'Failed to load more results';
         } finally {
@@ -174,6 +187,7 @@ export function useSearch() {
     return {
         // State
         searchQuery,
+        searchScope,
         results,
         isLoading,
         error,
