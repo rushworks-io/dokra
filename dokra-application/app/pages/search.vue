@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import {watchDebounced} from '@vueuse/core';
+
 definePageMeta({
   layout: 'app',
   middleware: 'auth',
@@ -34,14 +36,16 @@ onMounted(() => {
 });
 
 // Watch for URL query changes
-watch(
+
+watchDebounced(
     () => route.query.q,
     (newQuery) => {
       if (typeof newQuery === 'string' && newQuery !== searchQuery.value) {
         searchQuery.value = newQuery;
         performSearch(newQuery);
       }
-    }
+    },
+    {debounce: 1000}
 );
 
 function handleSearchInput(event: Event) {

@@ -63,8 +63,24 @@ export default defineEventHandler(async (event) => {
       `).bind(orgId, ftsQuery).first()
    }
 
+   // Transform results to match SearchResult type
+   const transformedResults = (results.results || []).map((row: any) => ({
+      id: row.id,
+      title: row.title,
+      fileName: row.file_name,
+      mimeType: row.mime_type,
+      fileSize: row.file_size,
+      documentType: row.document_type,
+      status: row.status,
+      tags: row.tags ? JSON.parse(row.tags) : [],
+      createdAt: row.created_at,
+      updatedAt: row.updated_at,
+      snippet: row.snippet,
+      score: row.score,
+   }));
+
    return {
-      results: results.results || [],
+      results: transformedResults,
       total: countResult?.total || 0
    }
 })
