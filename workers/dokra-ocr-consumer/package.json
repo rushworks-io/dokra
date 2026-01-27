@@ -1,0 +1,21 @@
+{
+  "name": "dokra-ocr-consumer",
+  "version": "1.0.0",
+  "description": "Cloudflare Worker for OCR processing of documents",
+  "main": "ocr-consumer.ts",
+  "scripts": {
+    "deploy": "wrangler build && wrangler deploy",
+    "dev": "wrangler dev",
+    "test": "vitest"
+  },
+  "dependencies": {
+    "@dokra/database": "workspace:*",
+    "drizzle-orm": "^0.45.1"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20231218.0",
+    "typescript": "^5.3.0",
+    "wrangler": "^3.22.0",
+    "vitest": "^1.0.0"
+  }
+}

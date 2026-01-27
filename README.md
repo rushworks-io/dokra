@@ -4,6 +4,25 @@
 
 Dokra is an intelligent document management system that helps you organize, search, and manage your documents with ease. Built on Cloudflare's edge infrastructure, it combines powerful OCR, AI-powered classification, and an intuitive interface to make document archiving effortless.
 
+## 📁 Monorepo Structure
+
+This is a monorepo managed with pnpm workspaces:
+
+```
+dokra/
+├── dokra-application/    # Main Nuxt 4 application
+├── workers/              # Cloudflare Workers
+│   └── dokra-ocr-consumer/  # OCR processing worker
+└── shared/               # Shared packages
+    └── database/         # Shared Drizzle database schema & utilities
+```
+
+### Packages
+
+- **`dokra-application`** - The main Nuxt 4 web application with server API routes
+- **`@dokra/database`** - Shared database schema, migrations, and utilities used by both the app and workers
+- **`dokra-ocr-consumer`** - Background worker for processing OCR jobs via Cloudflare Queues
+
 ## ✨ Features (work in progress)
 
 - 📁 **Smart Document Organization** - Organize documents with tags, folders, and custom metadata
@@ -41,17 +60,19 @@ Dokra is an intelligent document management system that helps you organize, sear
 git clone https://github.com/ruskworks/dokra.git
 cd dokra
 
-# Install dependencies
-npm install
-# or
-bun install
+# Install dependencies for all packages
+pnpm install
 
 # Set up environment variables
-cp .env.example .env
+cp dokra-application/.env.example dokra-application/.env
 # Edit .env with your configuration
 
-# Run development server
-npm run dev
+# Run development server (from root)
+pnpm dev
+
+# Or run from the application directory
+cd dokra-application
+pnpm dev
 ```
 
 ### Cloudflare Setup
@@ -66,8 +87,33 @@ wrangler d1 create dokra-db
 # Create R2 bucket
 wrangler r2 bucket create dokra-files
 
-# Run database migrations
-npm run db:migrate
+# Run database migrations (from root)
+pnpm db:migrate
+
+# Or from application directory
+cd dokra-application
+pnpm db:migrate
+```
+
+## 🛠️ Development Commands
+
+From the root directory:
+
+```bash
+# Development
+pnpm dev                    # Start Nuxt dev server
+pnpm test                   # Run tests in all packages
+
+# Database
+pnpm db:generate            # Generate new migrations
+pnpm db:migrate             # Apply migrations locally
+pnpm db:migrate:prod        # Apply migrations to production
+pnpm db:studio              # Open Drizzle Studio
+
+# Deployment
+pnpm deploy:app             # Deploy main application
+pnpm deploy:worker          # Deploy OCR worker
+pnpm deploy:all             # Deploy everything
 ```
 
 ## 📖 Documentation

@@ -1,0 +1,48 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "dokra-ocr-consumer",
+  "compatibility_date": "2024-11-01",
+  "main": "server/workers/ocr-consumer.ts",
+  "observability": {
+    "enabled": true,
+    "logs": {
+      "enabled": true,
+      "invocation_logs": true
+    }
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "dokra-db",
+      "database_id": "8da5548e-9f06-4d96-b665-65001f5f6982",
+      "preview_database_id": "54b6cc39-d30a-4b30-a93f-d22d96291ad6"
+    }
+  ],
+  "r2_buckets": [
+    {
+      "binding": "R2",
+      "bucket_name": "dokra-files",
+      "preview_bucket_name": "dokra-files-preview",
+      "jurisdiction": "eu"
+    }
+  ],
+  "queues": {
+    "consumers": [
+      {
+        "queue": "ocr-processing-queue",
+        "max_batch_size": 10,
+        "max_batch_timeout": 30,
+        "max_retries": 3,
+        "dead_letter_queue": "ocr-failed-queue",
+        "max_concurrency": 5,
+        "retry_delay": 120
+      }
+    ],
+    "producers": [
+      {
+        "binding": "OCR_DLQ",
+        "queue": "ocr-failed-queue"
+      }
+    ]
+  }
+}
