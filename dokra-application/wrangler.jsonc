@@ -43,25 +43,5 @@
       "preview_bucket_name": "dokra-files-preview",
       "jurisdiction": "eu"
     }
-  ],
-  "queues": {
-    "producers": [
-      {
-        "binding": "OCR_QUEUE_PRODUCER",
-        "queue": "ocr-processing-queue",
-        "delivery_delay": 60
-      }
-    ],
-    "consumers": [
-      {
-        "queue": "ocr-processing-queue",
-        "max_batch_size": 10,
-        "max_batch_timeout": 30,
-        "max_retries": 10,
-        "dead_letter_queue": "ocr-failed-queue",
-        "max_concurrency": 5,
-        "retry_delay": 120
-      }
-    ]
-  }
+  ]
 }
