@@ -10,7 +10,9 @@ export const documents = sqliteTable('documents', {
     mimeType: text('mime_type'),
     fileSize: integer('file_size'),
     uploadedBy: text('uploaded_by').notNull(), // User ID who uploaded
-    extractedText: text('extracted_text'), // OCR'd / full-text
+    encryptedOcrContent: text('encrypted_ocr_content'), // AES-GCM encrypted raw text, Base64 encoded
+    ocrIv: text('ocr_iv'), // IV for OCR encryption
+    ocrTag: text('ocr_tag'), // Auth tag for OCR encryption
     documentType: text('document_type'), // Gemma-classified: invoice, contract, etc.
     status: text('status').notNull().default('inbox'), // inbox, verified, archived, ocr_pending, processing, ocr_failed
     dueDate: text('due_date'), // ISO date
