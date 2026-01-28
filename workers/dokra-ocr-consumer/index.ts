@@ -1,4 +1,4 @@
-import {eq} from 'drizzle-orm';
+ import {eq} from 'drizzle-orm';
 import {documents, useDatabase} from '@dokra/database';
 import {KeyManager, toBase64} from '@dokra/crypto';
 
@@ -114,6 +114,8 @@ async function performOCR(
             include_image_base64: false,
         };
 
+    console.log(`[OCR] Sending request to Mistral API. Data URI length: ${dataUri.length}. Type: ${isImage ? 'image_url' : 'document_url'}`);
+
     const response = await fetch('https://api.mistral.ai/v1/ocr', {
         method: 'POST',
         headers: {
@@ -128,6 +130,10 @@ async function performOCR(
         // Truncate error message to avoid exceeding Cloudflare's 256KB log limit
         const truncatedError = errorText.length > 1000 ? errorText.slice(0, 1000) + '... (truncated)' : errorText;
         console.error(`Mistral OCR API error: ${truncatedError}`);
+        
+        // Log more details about the request that failed
+        console.error(`[OCR] Failed request details - MIME: ${mimeType}, Data URI prefix: ${dataUri.substring(0, 100)}`);
+        
         throw new Error(`Mistral OCR API failed: ${response.status} ${response.statusText}`);
     }
 
@@ -139,6 +145,28 @@ async function performOCR(
     }
 
     return result.pages.map(page => page.markdown).join('\n\n');
+}
+
+/**
+ * Get file encryption metadata from database
+ */
+async function getFileEncryptionMetadata(
+    db: D1Database,
+    organizationId: string,
+    documentId: string
+): Promise<{ fileIv: string; fileTag: string } | null> {
+    const result = await db.prepare(
+        'SELECT file_iv, file_tag FROM document_keys WHERE organization_id = ? AND document_id = ?'
+    ).bind(organizationId, documentId).first();
+    
+    if (!result || !result.file_iv || !result.file_tag) {
+        return null;
+    }
+    
+    return {
+        fileIv: result.file_iv as string,
+        fileTag: result.file_tag as string
+    };
 }
 
 /**
@@ -156,28 +184,47 @@ async function processOCRJob(job: OCRJobMessage, env: Env): Promise<void> {
     let dek: Uint8Array | null = null;
     const keyManager = new KeyManager({ systemSecret: env.SYSTEM_SECRET });
 
-    // Check if file is encrypted
-    const encryptionIv = object.customMetadata?.encryptionIv;
-    const encryptionTag = object.customMetadata?.encryptionTag;
+    // Check if file is encrypted by looking up encryption metadata in database
+    const encryptionMeta = await getFileEncryptionMetadata(env.DB, job.organizationId, job.documentId);
 
-    if (encryptionIv && encryptionTag) {
+    if (encryptionMeta) {
+        console.log(`[OCR] Decrypting document ${job.documentId} for organization ${job.organizationId}`);
+        
         // 1. Get Org KEK
         const orgKek = await keyManager.getOrganizationKey(env.DB, job.organizationId);
         
         // 2. Get Document DEK
         dek = await keyManager.getDocumentKey(env.DB, job.organizationId, job.documentId, orgKek);
         
-        // 3. Decrypt
+        // 3. Decrypt the file
+        // The file in R2 is stored as raw binary ciphertext
+        const ciphertextBytes = new Uint8Array(fileData);
+        const encryptedBase64 = toBase64(ciphertextBytes);
+        
+        console.log(`[OCR] Ciphertext length: ${ciphertextBytes.length} bytes`);
+        
         const decrypted = await keyManager.decryptFile(
-            toBase64(new Uint8Array(fileData)),
-            encryptionIv,
-            encryptionTag,
+            encryptedBase64,
+            encryptionMeta.fileIv,
+            encryptionMeta.fileTag,
             dek
         );
         fileData = decrypted.data;
+        
+        // Verify decryption by checking file header
+        const firstBytes = new Uint8Array(fileData.slice(0, 16));
+        const isJpeg = firstBytes[0] === 0xFF && firstBytes[1] === 0xD8;
+        const isPng = firstBytes[0] === 0x89 && firstBytes[1] === 0x50 && firstBytes[2] === 0x4E && firstBytes[3] === 0x47;
+        const isPdf = firstBytes[0] === 0x25 && firstBytes[1] === 0x50 && firstBytes[2] === 0x44 && firstBytes[3] === 0x46;
+
+        if (isJpeg) console.log('[OCR] Decrypted file: JPEG');
+        else if (isPng) console.log('[OCR] Decrypted file: PNG');
+        else if (isPdf) console.log('[OCR] Decrypted file: PDF');
+        else console.warn('[OCR] Unknown file type after decryption');
     }
 
     // Perform OCR
+    console.log(`[OCR] Starting Mistral OCR for document ${job.documentId} (MIME: ${job.mimeType})`);
     const extractedText = await performOCR(fileData, job.mimeType, env);
 
     // Update document with OCR results

@@ -7,6 +7,10 @@
       "custom_domain": true
     }
   ],
+  "vars": {
+    "ENCRYPTION_ENABLED": "true",
+    "MAX_FILE_SIZE_MB": "25"
+  },
   "compatibility_date": "2024-11-01",
   "main": ".output/server/index.mjs",
   "assets": {
@@ -31,7 +35,7 @@
     {
       "binding": "DB",
       "database_name": "dokra-db",
-      "database_id": "8da5548e-9f06-4d96-b665-65001f5f6982",
+      "database_id": "642a7788-b1be-4067-abdc-32e539a2c78c",
       "preview_database_id": "54b6cc39-d30a-4b30-a93f-d22d96291ad6",
       "migrations_dir": "../shared/database/migrations"
     }
@@ -43,5 +47,13 @@
       "preview_bucket_name": "dokra-files-preview",
       "jurisdiction": "eu"
     }
-  ]
+  ],
+  "queues": {
+    "producers": [
+      {
+        "binding": "OCR_QUEUE_PRODUCER",
+        "queue": "ocr-processing-queue"
+      }
+    ]
+  }
 }

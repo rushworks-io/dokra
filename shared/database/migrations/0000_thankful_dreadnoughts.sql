@@ -1,3 +1,16 @@
+CREATE TABLE `document_keys` (
+	`organization_id` text NOT NULL,
+	`document_id` text NOT NULL,
+	`encrypted_dek` text NOT NULL,
+	`dek_iv` text NOT NULL,
+	`dek_tag` text NOT NULL,
+	`created_at` text DEFAULT (CURRENT_TIMESTAMP) NOT NULL,
+	FOREIGN KEY (`organization_id`) REFERENCES `organizations`(`id`) ON UPDATE no action ON DELETE cascade,
+	FOREIGN KEY (`document_id`) REFERENCES `documents`(`id`) ON UPDATE no action ON DELETE cascade
+);
+--> statement-breakpoint
+CREATE INDEX `doc_keys_org_idx` ON `document_keys` (`organization_id`);--> statement-breakpoint
+CREATE INDEX `doc_keys_doc_idx` ON `document_keys` (`document_id`);--> statement-breakpoint
 CREATE TABLE `document_tags` (
 	`id` text PRIMARY KEY NOT NULL,
 	`organization_id` text NOT NULL,
@@ -19,7 +32,9 @@ CREATE TABLE `documents` (
 	`mime_type` text,
 	`file_size` integer,
 	`uploaded_by` text NOT NULL,
-	`extracted_text` text,
+	`encrypted_ocr_content` text,
+	`ocr_iv` text,
+	`ocr_tag` text,
 	`document_type` text,
 	`status` text DEFAULT 'inbox' NOT NULL,
 	`due_date` text,
@@ -39,6 +54,12 @@ CREATE INDEX `documents_due_date_idx` ON `documents` (`due_date`);--> statement-
 CREATE INDEX `documents_created_idx` ON `documents` (`created_at`);--> statement-breakpoint
 CREATE INDEX `documents_r2_key_idx` ON `documents` (`r2_key`);--> statement-breakpoint
 CREATE INDEX `documents_uploaded_by_idx` ON `documents` (`uploaded_by`);--> statement-breakpoint
+CREATE TABLE `documents_fts` (
+	`documentId` text,
+	`content` text,
+	`rank` integer
+);
+--> statement-breakpoint
 CREATE TABLE `files` (
 	`id` text PRIMARY KEY NOT NULL,
 	`organization_id` text NOT NULL,
@@ -77,6 +98,10 @@ CREATE TABLE `organizations` (
 	`id` text PRIMARY KEY NOT NULL,
 	`name` text NOT NULL,
 	`owner_id` text NOT NULL,
+	`encrypted_kek` text,
+	`kek_iv` text,
+	`kek_tag` text,
+	`kek_created_at` text,
 	`created_at` text DEFAULT (CURRENT_TIMESTAMP) NOT NULL,
 	`updated_at` text DEFAULT (CURRENT_TIMESTAMP) NOT NULL
 );

@@ -103,7 +103,7 @@ graph TB
 | `server/types/*.ts` | `shared/types/` |
 | `server/utils/auth.ts` | `shared/utils/auth.ts` |
 | `server/utils/storage.ts` | `shared/utils/storage.ts` |
-| `server/workers/ocr-consumer.ts` | `workers/ocr-consumer/index.ts` |
+| `server/workers/index..ts` | `workers/ocr-consumer/index.ts` |
 | `server/services/mistral-ocr.ts` | `workers/ocr-consumer/services/mistral-ocr.ts` |
 | `server/types/ocr.ts` | `workers/ocr-consumer/types/ocr.ts` |
 
@@ -264,8 +264,8 @@ rm dokra-application/server/utils/storage.ts
 ### Step 3: Move OCR Worker Code
 ```bash
 # Move OCR consumer
-cp dokra-application/server/workers/ocr-consumer.ts workers/ocr-consumer/index.ts
-rm dokra-application/server/workers/ocr-consumer.ts
+cp dokra-application/server/workers/index..ts workers/ocr-consumer/index.ts
+rm dokra-application/server/workers/index..ts
 
 # Move OCR service
 cp dokra-application/server/services/mistral-ocr.ts workers/ocr-consumer/services/
@@ -330,8 +330,8 @@ rm dokra-application/server/utils/storage.ts
 ### Step 3: Move OCR Worker Code
 ```bash
 # Move OCR consumer
-cp dokra-application/server/workers/ocr-consumer.ts workers/ocr-consumer/index.ts
-rm dokra-application/server/workers/ocr-consumer.ts
+cp dokra-application/server/workers/index..ts workers/ocr-consumer/index.ts
+rm dokra-application/server/workers/index..ts
 
 # Move OCR service
 cp dokra-application/server/services/mistral-ocr.ts workers/ocr-consumer/services/

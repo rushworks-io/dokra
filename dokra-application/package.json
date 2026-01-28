@@ -19,7 +19,7 @@
     "db:migrate:prod": "wrangler d1 migrations apply dokra-db --remote",
     "db:studio": "drizzle-kit studio",
     "deploy": "npm run build && wrangler deploy",
-    "deploy:queue": "wrangler deploy --config ../workers/dokra-ocr-consumer/wrangler.queue.jsonc",
+    "deploy:queue": "wrangler deploy --config ../workers/dokra-ocr-consumer/wrangler.jsonc",
     "deploy:all": "npm run deploy && npm run deploy:queue",
     "logs:main": "wrangler tail dokra",
     "logs:queue": "wrangler tail dokra-ocr-consumer"

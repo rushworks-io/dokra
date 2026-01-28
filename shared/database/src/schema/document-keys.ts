@@ -9,6 +9,9 @@ export const documentKeys = sqliteTable('document_keys', {
     encryptedDek: text('encrypted_dek').notNull(),   // DEK encrypted with Org KEK
     dekIv: text('dek_iv').notNull(),
     dekTag: text('dek_tag').notNull(),
+    // File encryption metadata (IV and tag used for encrypting the actual file content)
+    fileIv: text('file_iv'),
+    fileTag: text('file_tag'),
     createdAt: text('created_at').default(sql`(CURRENT_TIMESTAMP)`).notNull(),
 }, (table) => [
     index('doc_keys_org_idx').on(table.organizationId),

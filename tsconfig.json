@@ -1,0 +1,19 @@
+{
+  "compilerOptions": {
+    "target": "ESNext",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "baseUrl": ".",
+    "paths": {
+      "@dokra/database": ["shared/database/src/index.ts"],
+      "@dokra/database/*": ["shared/database/src/*"],
+      "@dokra/crypto": ["shared/crypto/src/index.ts"],
+      "@dokra/crypto/*": ["shared/crypto/src/*"]
+    }
+  },
+  "exclude": ["node_modules", "dist"]
+}

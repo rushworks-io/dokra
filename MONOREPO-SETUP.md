@@ -20,7 +20,7 @@ dokra/
 ├── workers/                     # Cloudflare Workers
 │   └── dokra-ocr-consumer/      # OCR processing worker
 │       ├── package.json
-│       ├── ocr-consumer.ts
+│       ├── index..ts
 │       └── wrangler.jsonc
 └── shared/                      # Shared packages
     └── database/                # Shared database package

@@ -2,14 +2,15 @@ import {eq} from 'drizzle-orm';
 import {requireAuth} from '#server/utils/require-auth';
 import {requireOrgMembership} from '#server/utils/require-org-access';
 import {useDatabase} from '#server/utils/db';
-import {documents, documentKeys} from '@dokra/database/schema';
-import {useKeyManager} from '#server/utils/encryption';
-import {toBase64} from '@dokra/crypto';
+import {documents} from '@dokra/database/schema';
 import {getR2Bucket} from '#server/utils/storage';
 
 /**
  * GET /api/documents/[id]/view
  * Return proxy URL for viewing document
+ * 
+ * The actual file streaming (including decryption) happens in the proxy endpoint.
+ * This endpoint just validates access and returns the URL.
  */
 export default defineEventHandler(async (event) => {
     requireAuth(event);
@@ -38,8 +39,9 @@ export default defineEventHandler(async (event) => {
 
     await requireOrgMembership(event, doc.organizationId);
 
+    // Verify file exists in R2
     const r2 = getR2Bucket(event);
-    const file = await r2.get(doc.r2Key);
+    const file = await r2.head(doc.r2Key);
 
     if (!file) {
         throw createError({
@@ -48,42 +50,7 @@ export default defineEventHandler(async (event) => {
         });
     }
 
-    const encryptionIv = file.customMetadata?.encryptionIv;
-    const encryptionTag = file.customMetadata?.encryptionTag;
-
-    if (encryptionIv && encryptionTag) {
-        const keyManager = useKeyManager(event);
-        const dbBinding = event.context.cloudflare.env.DB;
-        
-        // 1. Get Org KEK
-        const orgKek = await keyManager.getOrganizationKey(dbBinding, doc.organizationId);
-        
-        // 2. Get Document DEK
-        const dek = await keyManager.getDocumentKey(dbBinding, doc.organizationId, documentId, orgKek);
-        
-        // 3. Decrypt
-        const fileData = await file.arrayBuffer();
-        const decrypted = await keyManager.decryptFile(
-            toBase64(new Uint8Array(fileData)),
-            encryptionIv,
-            encryptionTag,
-            dek
-        );
-        
-        return {
-            body: new ReadableStream({
-                start(controller) {
-                    controller.enqueue(new Uint8Array(decrypted.data as ArrayBuffer));
-                    controller.close();
-                }
-            }),
-            headers: {
-                'Content-Type': doc.mimeType || 'application/octet-stream',
-                'Content-Disposition': `inline; filename="${doc.fileName}"`,
-            }
-        };
-    }
-
+    // Always return the proxy URL - the proxy handles decryption if needed
     return {
         viewUrl: `/api/files/proxy/${documentId}`,
         mimeType: doc.mimeType || 'application/octet-stream',

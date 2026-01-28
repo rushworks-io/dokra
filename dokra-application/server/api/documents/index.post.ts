@@ -11,7 +11,7 @@ import {documents, documentKeys, organizations} from '@dokra/database/schema';
 import type {OCRJobMessage} from '~~/types/ocr';
 import {eq} from 'drizzle-orm';
 import {useKeyManager, isEncryptionEnabled} from '../../utils/encryption';
-import {toBase64, fromBase64} from '@dokra/crypto';
+import {fromBase64} from '@dokra/crypto';
 
 /**
  * POST /api/documents
@@ -98,7 +98,7 @@ export default defineEventHandler(async (event) => {
         const encryptionEnabled = isEncryptionEnabled(event);
         
         let fileDataToUpload: ArrayBuffer | Blob = fileField.data as any;
-        let encryptionMetadata: Record<string, string> = {};
+        let wrappedDekData: { ciphertext: string; iv: string; tag: string; fileIv: string; fileTag: string } | null = null;
 
         if (encryptionEnabled) {
             const keyManager = useKeyManager(event);
@@ -128,24 +128,18 @@ export default defineEventHandler(async (event) => {
             // 3. Encrypt file
             const encryptedFile = await keyManager.encryptFile(fileField.data.buffer as ArrayBuffer, dek);
             
+            // Store all encryption metadata together (DEK wrapping + file encryption)
+            wrappedDekData = {
+                ciphertext: wrappedDek.ciphertext,
+                iv: wrappedDek.iv,
+                tag: wrappedDek.tag,
+                fileIv: encryptedFile.iv,
+                fileTag: encryptedFile.tag
+            };
+            
             // Convert base64 ciphertext back to binary for R2 storage to save space/bandwidth
             const ciphertextBytes = fromBase64(encryptedFile.ciphertext);
             fileDataToUpload = new Blob([ciphertextBytes as any], { type: mimeType });
-            
-            encryptionMetadata = {
-                encryptionIv: encryptedFile.iv,
-                encryptionTag: encryptedFile.tag,
-                encryptionEnabled: 'true'
-            };
-
-            // 4. Store wrapped DEK
-            await db.insert(documentKeys).values({
-                organizationId,
-                documentId,
-                encryptedDek: wrappedDek.ciphertext,
-                dekIv: wrappedDek.iv,
-                dekTag: wrappedDek.tag,
-            });
         }
 
         await uploadFile(r2, fileDataToUpload, r2Key, {
@@ -155,10 +149,9 @@ export default defineEventHandler(async (event) => {
             fileSize,
             organizationId,
             uploadedBy: session.user.id,
-            ...encryptionMetadata
         });
 
-        // Create document record
+        // Create document record FIRST to satisfy foreign key constraints
         await db.insert(documents).values({
             id: documentId,
             organizationId,
@@ -173,6 +166,19 @@ export default defineEventHandler(async (event) => {
             createdAt: documentDate || now,
             updatedAt: now,
         });
+
+        // Store wrapped DEK and file encryption metadata AFTER document is created
+        if (wrappedDekData) {
+            await db.insert(documentKeys).values({
+                organizationId,
+                documentId,
+                encryptedDek: wrappedDekData.ciphertext,
+                dekIv: wrappedDekData.iv,
+                dekTag: wrappedDekData.tag,
+                fileIv: wrappedDekData.fileIv,
+                fileTag: wrappedDekData.fileTag,
+            });
+        }
 
         // Enqueue OCR job
         const ocrJob: OCRJobMessage = {

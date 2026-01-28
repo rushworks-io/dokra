@@ -184,7 +184,7 @@ await db.update(documents)
 
 ### 4.1 Create Queue Consumer Handler
 
-Create `server/workers/ocr-consumer.ts`:
+Create `server/workers/index..ts`:
 
 ```typescript
 export default {
@@ -423,7 +423,7 @@ server/
 ├── types/
 │   └── ocr.ts                  # NEW - Queue message types
 └── workers/
-    └── ocr-consumer.ts         # NEW - Queue consumer handler
+    └── index..ts         # NEW - Queue consumer handler
 
 wrangler.jsonc                  # MODIFIED - add Queue bindings
 .env                            # MODIFIED - add MISTRAL_API_KEY

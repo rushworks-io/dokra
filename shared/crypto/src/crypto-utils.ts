@@ -22,7 +22,12 @@ export function generateIv(): Uint8Array {
  * Encode Uint8Array to Base64 string
  */
 export function toBase64(data: Uint8Array): string {
-    return btoa(String.fromCharCode(...data));
+    let binary = '';
+    const len = data.byteLength;
+    for (let i = 0; i < len; i++) {
+        binary += String.fromCharCode(data[i]);
+    }
+    return btoa(binary);
 }
 
 /**

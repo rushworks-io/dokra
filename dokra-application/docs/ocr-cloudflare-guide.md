@@ -119,7 +119,7 @@ Queues are configured **separately** from workers. The consumer settings (max_ba
 ```jsonc
 {
   "name": "dokra-ocr-consumer",
-  "main": "server/workers/ocr-consumer.ts",
+  "main": "server/workers/index..ts",
   "d1_databases": [...],
   "r2_buckets": [...],
   "queues": {
@@ -153,7 +153,7 @@ Add secrets to **both workers**:
 npx wrangler secret put MISTRAL_API_KEY
 
 # For OCR consumer worker (dokra-ocr-consumer)
-npx wrangler secret put MISTRAL_API_KEY --config wrangler.queue.jsonc
+npx wrangler secret put MISTRAL_API_KEY --config wrangler.jsonc
 ```
 
 **Note**: Secrets must be set separately for each worker.
@@ -223,7 +223,7 @@ The upload API correctly:
 
 ### 4.1 Queue Consumer Handler
 
-**Status**: ✅ Already exists at `server/workers/ocr-consumer.ts`
+**Status**: ✅ Already exists at `server/workers/index..ts`
 
 Implements:
 - Batch message processing
@@ -337,7 +337,7 @@ npx wrangler queues create ocr-failed-queue
 npx wrangler secret put MISTRAL_API_KEY
 
 # OCR consumer worker
-npx wrangler secret put MISTRAL_API_KEY --config wrangler.queue.jsonc
+npx wrangler secret put MISTRAL_API_KEY --config wrangler.jsonc
 
 # Other secrets as needed
 npx wrangler secret put BETTER_AUTH_SECRET
@@ -363,7 +363,7 @@ npm run build
 npx wrangler deploy
 
 # Deploy OCR consumer worker
-npx wrangler deploy --config wrangler.queue.jsonc
+npx wrangler deploy --config wrangler.jsonc
 ```
 
 **Important**: Deploy order matters:
@@ -395,7 +395,7 @@ dokra/
 │   ├── types/
 │   │   └── ocr.ts                    # ✅
 │   └── workers/
-│       └── ocr-consumer.ts           # ✅
+│       └── index..ts           # ✅
 └── docs/
     └── ocr-cloudflare-guide.md       # This file
 ```
@@ -411,7 +411,7 @@ dokra/
 npm run dev
 
 # Terminal 2: Monitor OCR consumer logs
-npx wrangler tail dokra-ocr-consumer --config wrangler.queue.jsonc
+npx wrangler tail dokra-ocr-consumer --config wrangler.jsonc
 ```
 
 For local testing, you may need to:
