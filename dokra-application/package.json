@@ -26,6 +26,7 @@
   },
   "dependencies": {
     "@dokra/database": "workspace:*",
+    "@dokra/crypto": "workspace:*",
     "@nuxt/fonts": "0.12.1",
     "@nuxt/hints": "1.0.0-alpha.5",
     "@nuxt/icon": "2.1.1",

@@ -14,6 +14,9 @@ importers:
 
   dokra-application:
     dependencies:
+      '@dokra/crypto':
+        specifier: workspace:*
+        version: link:../shared/crypto
       '@dokra/database':
         specifier: workspace:*
         version: link:../shared/database
@@ -94,6 +97,15 @@ importers:
         specifier: 4.59.1
         version: 4.59.1(@cloudflare/workers-types@4.20260124.0)
 
+  shared/crypto:
+    devDependencies:
+      typescript:
+        specifier: ^5.0.0
+        version: 5.9.3
+      vitest:
+        specifier: ^4.0.16
+        version: 4.0.18(@types/node@25.0.10)(happy-dom@20.3.7)(jiti@2.6.1)(lightningcss@1.31.1)(terser@5.46.0)(yaml@2.8.2)
+
   shared/database:
     dependencies:
       drizzle-orm:
@@ -109,6 +121,9 @@ importers:
 
   workers/dokra-ocr-consumer:
     dependencies:
+      '@dokra/crypto':
+        specifier: workspace:*
+        version: link:../../shared/crypto
       '@dokra/database':
         specifier: workspace:*
         version: link:../../shared/database
