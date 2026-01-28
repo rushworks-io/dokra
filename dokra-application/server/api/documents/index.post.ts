@@ -7,9 +7,11 @@ import {
     uploadFile,
     StorageError,
 } from '../../utils/storage';
-import {documents} from '@dokra/database/schema';
-import {OCRJobMessage} from '~~/types/ocr';
+import {documents, documentKeys, organizations} from '@dokra/database/schema';
+import type {OCRJobMessage} from '~~/types/ocr';
 import {eq} from 'drizzle-orm';
+import {useKeyManager, isEncryptionEnabled} from '../../utils/encryption';
+import {toBase64, fromBase64} from '@dokra/crypto';
 
 /**
  * POST /api/documents
@@ -92,18 +94,69 @@ export default defineEventHandler(async (event) => {
 
         // Get R2 bucket and upload
         const r2 = getR2Bucket(event);
-        const fileData = new Uint8Array(fileField.data);
-        await uploadFile(r2, new Blob([fileData], {type: mimeType}), r2Key, {
+        const db = useDatabase(event.context.cloudflare.env.DB);
+        const encryptionEnabled = isEncryptionEnabled(event);
+        
+        let fileDataToUpload: ArrayBuffer | Blob = fileField.data as any;
+        let encryptionMetadata: Record<string, string> = {};
+
+        if (encryptionEnabled) {
+            const keyManager = useKeyManager(event);
+            
+            // 1. Get or create Org KEK
+            let orgKek: Uint8Array;
+            try {
+                orgKek = await keyManager.getOrganizationKey(event.context.cloudflare.env.DB, organizationId);
+            } catch (e) {
+                // If org has no key, create one (for new orgs or first-time encryption)
+                const orgKeyMeta = await keyManager.createOrganizationKey(organizationId);
+                await db.update(organizations)
+                    .set({
+                        encryptedKek: orgKeyMeta.encryptedKek,
+                        kekIv: orgKeyMeta.kekIv,
+                        kekTag: orgKeyMeta.kekTag,
+                        kekCreatedAt: orgKeyMeta.createdAt
+                    })
+                    .where(eq(organizations.id, organizationId));
+                orgKek = await keyManager.unwrapOrgKek(orgKeyMeta.encryptedKek, orgKeyMeta.kekIv, orgKeyMeta.kekTag);
+            }
+
+            // 2. Generate DEK and wrap it
+            const dek = keyManager.generateDocumentDek();
+            const wrappedDek = await keyManager.wrapKey(dek, orgKek);
+
+            // 3. Encrypt file
+            const encryptedFile = await keyManager.encryptFile(fileField.data.buffer as ArrayBuffer, dek);
+            
+            // Convert base64 ciphertext back to binary for R2 storage to save space/bandwidth
+            const ciphertextBytes = fromBase64(encryptedFile.ciphertext);
+            fileDataToUpload = new Blob([ciphertextBytes as any], { type: mimeType });
+            
+            encryptionMetadata = {
+                encryptionIv: encryptedFile.iv,
+                encryptionTag: encryptedFile.tag,
+                encryptionEnabled: 'true'
+            };
+
+            // 4. Store wrapped DEK
+            await db.insert(documentKeys).values({
+                organizationId,
+                documentId,
+                encryptedDek: wrappedDek.ciphertext,
+                dekIv: wrappedDek.iv,
+                dekTag: wrappedDek.tag,
+            });
+        }
+
+        await uploadFile(r2, fileDataToUpload, r2Key, {
             fileName: `${documentId}.${originalFileName.split('.').pop() || 'bin'}`,
             originalName: originalFileName,
             mimeType,
             fileSize,
             organizationId,
             uploadedBy: session.user.id,
+            ...encryptionMetadata
         });
-
-        // Save to database
-        const db = useDatabase(event.context.cloudflare.env.DB);
 
         // Create document record
         await db.insert(documents).values({

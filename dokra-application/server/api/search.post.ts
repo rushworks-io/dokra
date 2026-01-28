@@ -77,6 +77,7 @@ export default defineEventHandler(async (event) => {
       updatedAt: row.updated_at,
       snippet: row.snippet,
       score: row.score,
+      isEncrypted: !!row.ocr_iv, // Add flag to indicate if content is encrypted
    }));
 
    return {
